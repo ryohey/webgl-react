@@ -23,7 +23,7 @@ export type GLSurfaceProps = Omit<
   height: number
 }
 
-export const GLSurface = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
+export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
   ({ width, height, style, children, ...props }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)

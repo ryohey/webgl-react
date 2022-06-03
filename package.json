@@ -10,7 +10,8 @@
     "start:example": "npm start --workspace=example",
     "build": "npm run build --workspace=lib",
     "publish": "npm publish --workspace=lib",
-    "test": "npm run test --workspace=lib"
+    "test": "npm run test --workspace=lib",
+    "test:watch": "npm run test:watch --workspace=lib"
   },
   "author": "",
   "license": "MIT",
