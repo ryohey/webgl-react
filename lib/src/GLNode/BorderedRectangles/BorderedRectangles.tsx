@@ -4,18 +4,18 @@ import { IRect } from "../../helpers/geometry"
 import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
 import { GLNode } from "../GLNode"
 import {
-  BorderedCircleBuffer,
-  BorderedCircleShader,
-} from "./BorderedCircleShader"
+  BorderedRectangleBuffer,
+  BorderedRectangleShader,
+} from "./BorderedRectangleShader"
 
-export interface BordererdCirclesProps {
+export interface BorderedRectanglesProps {
   rects: IRect[]
   fillColor: vec4
   strokeColor: vec4
-  zIndex: number
+  zIndex?: number
 }
 
-export const BordererdCircles: FC<BordererdCirclesProps> = ({
+export const BordereredRectangles: FC<BorderedRectanglesProps> = ({
   rects,
   fillColor,
   strokeColor,
@@ -25,8 +25,8 @@ export const BordererdCircles: FC<BordererdCirclesProps> = ({
 
   return (
     <GLNode
-      createShader={BorderedCircleShader}
-      createBuffer={(gl) => new BorderedCircleBuffer(gl)}
+      createShader={BorderedRectangleShader}
+      createBuffer={(gl) => new BorderedRectangleBuffer(gl)}
       uniforms={{ projectionMatrix, fillColor, strokeColor }}
       buffer={rects}
       zIndex={zIndex}
