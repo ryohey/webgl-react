@@ -3,6 +3,7 @@
 webgl-react is a React library for 2D rendering in WebGL with screen coordinates.
 
 [![npm version](https://badge.fury.io/js/@ryohey%2Fwebgl-react.svg)](https://badge.fury.io/js/@ryohey%2Fwebgl-react)
+![Node.js CI](https://github.com/ryohey/webgl-react/workflows/Node.js%20CI/badge.svg)
 
 ## Why?
 
