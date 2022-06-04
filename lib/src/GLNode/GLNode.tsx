@@ -1,34 +1,36 @@
 import { Component } from "react"
 import { RendererContext } from "../hooks/useRenderer"
 import { Renderable } from "../Renderer/Renderer"
+import { Shader, ShaderBuffer } from "../Shader/Shader"
 
-interface Shader<P, B> {
-  setUniforms(params: P): void
-  draw(buffer: B): void
+type Buffer<Props, T extends string | number | symbol> = ShaderBuffer<T> & {
+  update(props: Props): void
 }
 
-interface Buffer<T> {
-  update(props: T): void
-}
-
-interface GLNodeProps {
-  createShader: (gl: WebGLRenderingContext) => Shader<any, any>
-  createBuffer: (gl: WebGLRenderingContext) => Buffer<any>
-  buffer: any
-  uniforms: any
+interface GLNodeProps<
+  Uniforms,
+  BufferProps,
+  Attribs extends string | number | symbol
+> {
+  createShader: (gl: WebGLRenderingContext) => Shader<Attribs, Uniforms>
+  createBuffer: (gl: WebGLRenderingContext) => Buffer<BufferProps, Attribs>
+  buffer: BufferProps
+  uniforms: Uniforms
   zIndex?: number
 }
 
-export abstract class GLNode
-  extends Component<GLNodeProps>
+export abstract class GLNode<
+    Uniforms,
+    BufferProps,
+    Attribs extends string | number | symbol
+  >
+  extends Component<GLNodeProps<Uniforms, BufferProps, Attribs>>
   implements Renderable
 {
-  protected shader: Shader<any, any> | null = null
-  protected buffer: Buffer<ReturnType<GLNodeProps["createBuffer"]>> | null =
-    null
-  protected uniforms: any = {}
+  protected shader: Shader<Attribs, Uniforms> | null = null
+  protected buffer: Buffer<BufferProps, Attribs> | null = null
 
-  constructor(props: GLNodeProps) {
+  constructor(props: GLNodeProps<Uniforms, BufferProps, Attribs>) {
     super(props)
   }
 
@@ -60,8 +62,9 @@ export abstract class GLNode
     if (this.shader === null || this.buffer === null) {
       return
     }
+
     this.shader.setUniforms(this.props.uniforms)
-    this.shader.draw(this.buffer as any)
+    this.shader.draw(this.buffer)
   }
 
   render() {
