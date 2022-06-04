@@ -15,7 +15,7 @@ export interface BorderedRectanglesProps {
   zIndex?: number
 }
 
-export const BordereredRectangles: FC<BorderedRectanglesProps> = ({
+export const BorderedRectangles: FC<BorderedRectanglesProps> = ({
   rects,
   fillColor,
   strokeColor,

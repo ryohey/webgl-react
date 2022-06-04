@@ -1,6 +1,7 @@
 export * from "./GLCanvas/GLCanvas"
 export * from "./GLNode/BorderedCircles/BorderedCircles"
 export * from "./GLNode/BorderedRectangles/BorderedRectangles"
+export * from "./GLNode/GLNode"
 export * from "./GLNode/Rectangles/Rectangles"
 export * from "./GLNode/Transform"
 export * from "./helpers/geometry"
