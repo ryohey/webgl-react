@@ -2,6 +2,8 @@
 
 webgl-react is a React library for 2D rendering in WebGL with screen coordinates.
 
+[![npm version](https://badge.fury.io/js/@ryohey%2Fwebgl-react.svg)](https://badge.fury.io/js/@ryohey%2Fwebgl-react)
+
 ## Why?
 
 In react, drawing large numbers of shapes with divs, etc. is a very heavy process. webgl-react provides a React component that uses WebGL to draw large numbers of shapes in a single draw call.
