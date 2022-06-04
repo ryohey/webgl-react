@@ -3,6 +3,7 @@
   "version": "0.1.1",
   "description": "React library for 2D rendering in WebGL with screen coordinates",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "rollup --config --watch",
     "build": "rollup --config",
