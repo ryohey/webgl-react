@@ -11,6 +11,10 @@ export default {
     sourcemap: true,
     format: "iife",
   },
+  external: ["react"],
+  globals: {
+    react: "React",
+  },
   plugins: [
     nodeResolve({ preferBuiltins: false, browser: true }),
     commonjs(),

@@ -13,6 +13,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-typescript": "^8.3.0",
+    "@types/react-dom": "^18.0.5",
     "rollup": "^2.60.2",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-serve": "^1.1.0",
@@ -20,7 +21,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "react": "^18.1.0",
+    "@ryohey/webgl-react": "file:..",
     "react-dom": "^18.1.0"
   }
 }
