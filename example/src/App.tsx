@@ -4,7 +4,7 @@ import {
   IRect,
   Rectangles,
 } from "@ryohey/webgl-react"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
 const SIZE = 640
 

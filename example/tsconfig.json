@@ -9,7 +9,7 @@
     "inlineSources": true,
     "outDir": "./public/js",
     "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,

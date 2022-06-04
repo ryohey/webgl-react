@@ -7,12 +7,8 @@ export default {
   output: {
     dir: "dist",
     sourcemap: true,
-    format: "commonjs",
+    format: "cjs",
   },
-  external: ["react"],
-  plugins: [
-    nodeResolve({ preferBuiltins: false, browser: true }),
-    commonjs(),
-    rollupTypescript(),
-  ],
+  external: ["react", "react/jsx-runtime"],
+  plugins: [nodeResolve(), commonjs(), rollupTypescript()],
 }
