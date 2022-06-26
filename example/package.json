@@ -23,7 +23,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@ryohey/webgl-react": "^0.1.4",
+    "@ryohey/webgl-react": "^0.2.2",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   }
