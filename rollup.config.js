@@ -1,6 +1,6 @@
 import commonjs from "@rollup/plugin-commonjs"
-import { nodeResolve } from "@rollup/plugin-node-resolve"
 import rollupTypescript from "@rollup/plugin-typescript"
+import pkg from "./package.json"
 
 export default {
   input: "src/index.ts",
@@ -9,6 +9,10 @@ export default {
     sourcemap: true,
     format: "cjs",
   },
-  external: ["react", "react/jsx-runtime"],
-  plugins: [nodeResolve(), commonjs(), rollupTypescript()],
+  external: [
+    "react/jsx-runtime",
+    ...Object.keys(pkg.dependencies),
+    ...Object.keys(pkg.peerDependencies),
+  ],
+  plugins: [commonjs(), rollupTypescript()],
 }
