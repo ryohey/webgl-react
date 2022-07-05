@@ -56,10 +56,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       const renderer = new Renderer(gl)
       setRenderer(renderer)
-
-      return () => {
-        gl?.getExtension("WEBGL_lose_context")?.loseContext()
-      }
     }, [])
 
     const projectionMatrix = useMemo(
