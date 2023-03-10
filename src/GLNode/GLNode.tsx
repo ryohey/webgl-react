@@ -8,7 +8,7 @@ type Buffer<Props, T extends string | number | symbol> = ShaderBuffer<T> & {
 }
 
 interface GLNodeProps<
-  Uniforms,
+  Uniforms extends { [key: string]: any },
   BufferProps,
   Attribs extends string | number | symbol
 > {
@@ -20,7 +20,7 @@ interface GLNodeProps<
 }
 
 export abstract class GLNode<
-    Uniforms,
+    Uniforms extends { [key: string]: any },
     BufferProps,
     Attribs extends string | number | symbol
   >
