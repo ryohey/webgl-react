@@ -4,27 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html --no-cache",
+    "postinstall": "cd .. && npm link ./example/node_modules/react ./example/node_modules/react-dom"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "private": true,
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^13.0.6",
-    "@rollup/plugin-typescript": "^8.3.0",
-    "@types/react-dom": "^18.0.5",
-    "parcel": "^2.6.0",
+    "@types/react-dom": "^18.0.11",
+    "parcel": "^2.8.3",
     "process": "^0.11.10",
-    "rollup": "^2.60.2",
-    "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-serve": "^1.1.0",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@ryohey/webgl-react": "^0.2.2",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "@ryohey/webgl-react": "file:..",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
