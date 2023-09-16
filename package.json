@@ -1,6 +1,6 @@
 {
   "name": "@ryohey/webgl-react",
-  "version": "0.2.4",
+  "version": "0.3.1",
   "description": "React library for 2D rendering in WebGL with screen coordinates",
   "type": "module",
   "main": "dist/index.js",
