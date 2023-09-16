@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/index.html"
+    "start": "parcel src/index.html --no-cache",
+    "postinstall": "cd .. && npm link ./example/node_modules/react ./example/node_modules/react-dom"
   },
   "keywords": [],
   "author": "",

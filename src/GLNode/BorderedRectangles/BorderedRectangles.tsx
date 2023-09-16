@@ -1,5 +1,5 @@
 import { vec4 } from "gl-matrix"
-import { FC } from "react"
+import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
 import { GLNode } from "../GLNode"
@@ -22,12 +22,16 @@ export const BorderedRectangles: FC<BorderedRectanglesProps> = ({
   zIndex,
 }) => {
   const projectionMatrix = useProjectionMatrix()
+  const uniforms = useMemo(
+    () => ({ projectionMatrix, fillColor, strokeColor }),
+    [projectionMatrix, fillColor, strokeColor]
+  )
 
   return (
     <GLNode
       createShader={BorderedRectangleShader}
       createBuffer={(gl) => new BorderedRectangleBuffer(gl)}
-      uniforms={{ projectionMatrix, fillColor, strokeColor }}
+      uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}
     />

@@ -58,6 +58,16 @@ export class GLNode<
     this.context.removeObject(this)
   }
 
+  shouldComponentUpdate(
+    nextProps: Readonly<GLNodeProps<Uniforms, BufferProps, Attribs>>
+  ): boolean {
+    return (
+      this.props.buffer !== nextProps.buffer ||
+      this.props.uniforms !== nextProps.uniforms ||
+      this.props.zIndex !== nextProps.zIndex
+    )
+  }
+
   draw(): void {
     if (this.shader === null || this.buffer === null) {
       return
