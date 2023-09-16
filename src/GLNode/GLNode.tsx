@@ -1,14 +1,14 @@
 import { Component } from "react"
-import { RendererContext } from "../hooks/useRenderer"
 import { Renderable } from "../Renderer/Renderer"
 import { Shader, ShaderBuffer } from "../Shader/Shader"
+import { RendererContext } from "../hooks/useRenderer"
 
 type Buffer<Props, T extends string | number | symbol> = ShaderBuffer<T> & {
   update(props: Props): void
 }
 
 interface GLNodeProps<
-  Uniforms,
+  Uniforms extends { [key: string]: any },
   BufferProps,
   Attribs extends string | number | symbol
 > {
@@ -20,7 +20,7 @@ interface GLNodeProps<
 }
 
 export abstract class GLNode<
-    Uniforms,
+    Uniforms extends { [key: string]: any },
     BufferProps,
     Attribs extends string | number | symbol
   >
