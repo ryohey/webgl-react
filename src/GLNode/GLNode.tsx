@@ -19,7 +19,7 @@ interface GLNodeProps<
   zIndex?: number
 }
 
-export abstract class GLNode<
+export class GLNode<
     Uniforms extends { [key: string]: any },
     BufferProps,
     Attribs extends string | number | symbol
