@@ -7,7 +7,7 @@ import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 export class BorderedCircleBuffer
   implements ShaderBuffer<"position" | "bounds">
 {
-  private gl: WebGLRenderingContext
+  private gl: WebGL2RenderingContext
 
   readonly buffers: {
     position: WebGLBuffer
@@ -15,7 +15,7 @@ export class BorderedCircleBuffer
   }
   private _vertexCount: number = 0
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl
 
     this.buffers = {
@@ -43,7 +43,7 @@ export class BorderedCircleBuffer
   }
 }
 
-export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
+export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
   new Shader(
     gl,
     `

@@ -5,14 +5,14 @@ import { Shader, ShaderBuffer } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 
 export class SolidRectangleBuffer implements ShaderBuffer<"position"> {
-  private gl: WebGLRenderingContext
+  private gl: WebGL2RenderingContext
 
   readonly buffers: {
     position: WebGLBuffer
   }
   private _vertexCount: number = 0
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl
     this.buffers = { position: gl.createBuffer()! }
   }
@@ -31,7 +31,7 @@ export class SolidRectangleBuffer implements ShaderBuffer<"position"> {
   }
 }
 
-export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
+export const SolidRectangleShader = (gl: WebGL2RenderingContext) =>
   new Shader(
     gl,
     `

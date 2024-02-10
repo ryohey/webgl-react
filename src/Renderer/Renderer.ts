@@ -8,7 +8,7 @@ export interface Renderable {
 }
 
 export class Renderer {
-  readonly gl: WebGLRenderingContext
+  readonly gl: WebGL2RenderingContext
 
   private viewSize: RenderProperty<ISize> = new RenderProperty(
     { width: 0, height: 0 },
@@ -18,7 +18,7 @@ export class Renderer {
   private objects: Renderable[] = []
   private isQueued = false
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl
   }
 

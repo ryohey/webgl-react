@@ -1,6 +1,6 @@
 //
 export function initShaderProgram(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   vsSource: string,
   fsSource: string
 ) {
@@ -31,7 +31,7 @@ export function initShaderProgram(
 // creates a shader of the given type, uploads the source and
 // compiles it.
 //
-function loadShader(gl: WebGLRenderingContext, type: number, source: string) {
+function loadShader(gl: WebGL2RenderingContext, type: number, source: string) {
   const shader = gl.createShader(type)!
 
   // Send the source to the shader object

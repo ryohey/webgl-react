@@ -7,7 +7,7 @@ import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 export class BorderedRectangleBuffer
   implements ShaderBuffer<"position" | "bounds">
 {
-  private gl: WebGLRenderingContext
+  private gl: WebGL2RenderingContext
 
   readonly buffers: {
     position: WebGLBuffer
@@ -15,7 +15,7 @@ export class BorderedRectangleBuffer
   }
   private _vertexCount: number = 0
 
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl
 
     this.buffers = {
@@ -43,7 +43,7 @@ export class BorderedRectangleBuffer
   }
 }
 
-export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
+export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
   new Shader(
     gl,
     `

@@ -1,11 +1,11 @@
 export class Attrib {
-  private gl: WebGLRenderingContext
+  private gl: WebGL2RenderingContext
   private position: number
   private size: number
   private type: number
 
   constructor(
-    gl: WebGLRenderingContext,
+    gl: WebGL2RenderingContext,
     program: WebGLProgram,
     name: string,
     size: number,
@@ -25,5 +25,6 @@ export class Attrib {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
     gl.vertexAttribPointer(this.position, this.size, this.type, false, 0, 0)
     gl.enableVertexAttribArray(this.position)
+    gl.vertexAttribDivisor(1, 1)
   }
 }

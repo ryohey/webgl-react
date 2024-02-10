@@ -12,8 +12,8 @@ interface GLNodeProps<
   BufferProps,
   Attribs extends string | number | symbol
 > {
-  createShader: (gl: WebGLRenderingContext) => Shader<Attribs, Uniforms>
-  createBuffer: (gl: WebGLRenderingContext) => Buffer<BufferProps, Attribs>
+  createShader: (gl: WebGL2RenderingContext) => Shader<Attribs, Uniforms>
+  createBuffer: (gl: WebGL2RenderingContext) => Buffer<BufferProps, Attribs>
   buffer: BufferProps
   uniforms: Uniforms
   zIndex?: number

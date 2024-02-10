@@ -2,7 +2,7 @@ import { mat4, vec4 } from "gl-matrix"
 import { RenderProperty } from "../Renderer/RenderProperty"
 
 type UploadFunc<T> = (
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   location: WebGLUniformLocation,
   value: T
 ) => void
@@ -13,7 +13,7 @@ export class Uniform<T> {
   private uploadFunc: UploadFunc<T>
 
   constructor(
-    gl: WebGLRenderingContext,
+    gl: WebGL2RenderingContext,
     program: WebGLProgram,
     name: string,
     initialValue: RenderProperty<T>,
@@ -36,7 +36,7 @@ export class Uniform<T> {
     return this.prop.value
   }
 
-  upload(gl: WebGLRenderingContext) {
+  upload(gl: WebGL2RenderingContext) {
     if (this.prop.isDirty) {
       this.uploadFunc(gl, this.location, this.prop.value)
       this.prop.mark()
@@ -45,7 +45,7 @@ export class Uniform<T> {
 }
 
 export const uniformMat4 = (
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   program: WebGLProgram,
   name: string,
   initialValue: mat4 = mat4.create()
@@ -59,7 +59,7 @@ export const uniformMat4 = (
   )
 
 export const uniformVec4 = (
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   program: WebGLProgram,
   name: string,
   initialValue: vec4 = vec4.create()
@@ -73,7 +73,7 @@ export const uniformVec4 = (
   )
 
 export const uniformFloat = (
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   program: WebGLProgram,
   name: string,
   initialValue: number = 0

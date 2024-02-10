@@ -11,7 +11,7 @@ export class Shader<
   A extends string | number | symbol,
   U extends { [key: string]: any }
 > {
-  private gl: WebGLRenderingContext
+  private gl: WebGL2RenderingContext
   private program: WebGLProgram
 
   readonly attributes: {
@@ -22,7 +22,7 @@ export class Shader<
   }
 
   constructor(
-    gl: WebGLRenderingContext,
+    gl: WebGL2RenderingContext,
     vsSource: string,
     fsSource: string,
     attributes: (program: WebGLProgram) => {
