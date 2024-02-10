@@ -15,6 +15,7 @@ export class VertexArray<InputNames extends string> {
     program: WebGLProgram,
     inputs: { [Key in InputNames]: Input }
   ) {
+    gl.useProgram(program)
     this.vao = gl.createVertexArray()!
     const buffers: { [key: string]: WebGLBuffer } = {}
 
@@ -46,12 +47,20 @@ export class VertexArray<InputNames extends string> {
   updateBuffer(name: InputNames, data: Float32Array) {
     const { gl } = this
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers[name])
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW)
   }
 
   updateAllBuffers(buffer: { [Key in InputNames]: Float32Array }) {
     Object.keys(buffer).forEach((name) => {
       this.updateBuffer(name as InputNames, buffer[name as InputNames])
     })
+  }
+
+  bind() {
+    this.gl.bindVertexArray(this.vao)
+  }
+
+  unbind() {
+    this.gl.bindVertexArray(null)
   }
 }

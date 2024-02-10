@@ -5,8 +5,6 @@ export class InstancedShader<
   U extends { [key: string]: any },
   InputNames extends string
 > {
-  private readonly vao: WebGLVertexArrayObject
-
   constructor(
     private readonly gl: WebGL2RenderingContext,
     private readonly program: WebGLProgram,
@@ -14,9 +12,7 @@ export class InstancedShader<
       [P in keyof U]: Uniform<U[P]>
     },
     private readonly inputs: { [Key in InputNames]: Input }
-  ) {
-    this.vao = gl.createVertexArray()!
-  }
+  ) {}
 
   setUniforms(props: U) {
     for (let key in props) {
@@ -28,28 +24,46 @@ export class InstancedShader<
     return new VertexArray(this.gl, this.program, this.inputs)
   }
 
-  draw(vertexArray: VertexArray<any>) {
-    if (vertexArray.vertexCount === 0) {
+  draw(buffer: InstancedBuffer<any, any>) {
+    if (buffer.vertexCount === 0) {
       return
     }
 
     const { gl } = this
     gl.useProgram(this.program)
-    gl.bindVertexArray(this.vao)
+
+    buffer.bind()
 
     Object.values(this.uniforms).forEach((u) => u.upload(gl))
 
-    if (vertexArray.instanceCount > 0) {
+    if (buffer.instanceCount > 0) {
       gl.drawArraysInstanced(
         gl.TRIANGLES,
         0,
-        vertexArray.vertexCount,
-        vertexArray.instanceCount
+        buffer.vertexCount,
+        buffer.instanceCount
       )
     } else {
-      gl.drawArrays(gl.TRIANGLES, 0, vertexArray.vertexCount)
+      gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
     }
 
-    gl.bindVertexArray(null)
+    buffer.unbind()
+  }
+}
+
+export abstract class InstancedBuffer<Params, Inputs extends string> {
+  abstract get vertexCount(): number
+  abstract get instanceCount(): number
+
+  constructor(readonly vertexArray: VertexArray<Inputs>) {}
+
+  abstract update(params: Params): void
+
+  bind() {
+    this.vertexArray.bind()
+  }
+
+  unbind() {
+    this.vertexArray.unbind()
   }
 }

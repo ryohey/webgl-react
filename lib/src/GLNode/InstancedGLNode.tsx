@@ -1,17 +1,20 @@
 import { Component } from "react"
 import { Renderable } from "../Renderer/Renderer"
-import { InstancedShader } from "../Shader/InstancedShader"
+import { InstancedBuffer, InstancedShader } from "../Shader/InstancedShader"
 import { VertexArray } from "../Shader/VertexArray"
 import { RendererContext } from "../hooks/useRenderer"
 
 interface InstancedGLNodeProps<
   Uniforms extends { [key: string]: any },
-  BufferProps extends { [key in Inputs]: Float32Array },
+  BufferProps,
   Inputs extends string
 > {
   createShader: (
     gl: WebGL2RenderingContext
   ) => InstancedShader<Uniforms, Inputs>
+  createBuffer: (
+    vertexArray: VertexArray<Inputs>
+  ) => InstancedBuffer<BufferProps, Inputs>
   inputs: BufferProps
   uniforms: Uniforms
   zIndex?: number
@@ -19,14 +22,14 @@ interface InstancedGLNodeProps<
 
 export class InstancedGLNode<
     Uniforms extends { [key: string]: any },
-    BufferProps extends { [key in Inputs]: Float32Array },
+    BufferProps,
     Inputs extends string
   >
   extends Component<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   implements Renderable
 {
   protected shader: InstancedShader<Uniforms, Inputs> | null = null
-  protected vertexArray: VertexArray<Inputs> | null = null
+  protected buffer: InstancedBuffer<BufferProps, Inputs> | null = null
 
   constructor(props: InstancedGLNodeProps<Uniforms, BufferProps, Inputs>) {
     super(props)
@@ -36,7 +39,7 @@ export class InstancedGLNode<
   declare context: React.ContextType<typeof RendererContext>
 
   componentDidUpdate() {
-    this.vertexArray?.updateAllBuffers(this.props.inputs)
+    this.buffer?.update(this.props.inputs)
     this.context.setNeedsDisplay()
   }
 
@@ -46,8 +49,8 @@ export class InstancedGLNode<
     }
     const gl = this.context.gl
     this.shader = this.props.createShader(gl)
-    this.vertexArray = this.shader.createVertexArray()
-    this.vertexArray.updateAllBuffers(this.props.inputs)
+    const vertexArray = this.shader.createVertexArray()
+    this.buffer = this.props.createBuffer(vertexArray)
     this.context.addObject(this)
     this.context.setNeedsDisplay()
   }
@@ -67,12 +70,12 @@ export class InstancedGLNode<
   }
 
   draw(): void {
-    if (this.shader === null || this.vertexArray === null) {
+    if (this.shader === null || this.buffer === null) {
       return
     }
 
     this.shader.setUniforms(this.props.uniforms)
-    this.shader.draw(this.vertexArray)
+    this.shader.draw(this.buffer)
   }
 
   render() {

@@ -4,7 +4,7 @@ import {
   GLCanvas,
   IRect,
   ISize,
-  Rectangles,
+  InstancedRectangles,
 } from "@ryohey/webgl-react"
 import React, { FC, useEffect, useMemo, useState } from "react"
 
@@ -46,8 +46,8 @@ const Border: FC<ISize> = React.memo(({ width, height }) => {
 })
 
 export const App = () => {
-  const [rects, setRects] = useState(createRandomRects(50000))
-  const [circles, setCircles] = useState(createRandomRects(50000))
+  const [rects, setRects] = useState(createRandomRects(50))
+  const [circles, setCircles] = useState(createRandomRects(20))
 
   useEffect(() => {
     let handle: number
@@ -65,7 +65,7 @@ export const App = () => {
       <h1>WebGL React</h1>
       <GLCanvas height={SIZE} width={SIZE}>
         <Border width={SIZE} height={SIZE} />
-        <Rectangles rects={rects} color={[0.5, 1, 0.5, 1.0]} />
+        <InstancedRectangles rects={rects} color={[0.5, 1, 0.5, 1.0]} />
         <BorderedCircles
           rects={circles}
           fillColor={[0, 0, 0.5, 0.5]}
