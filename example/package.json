@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/index.html --no-cache",
-    "postinstall": "cd .. && npm link ./example/node_modules/react ./example/node_modules/react-dom"
+    "start": "parcel src/index.html --no-cache"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +23,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ryohey/webgl-react": "file:../",
+    "@ryohey/webgl-react": "file:../lib",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

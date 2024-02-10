@@ -1,0 +1,43 @@
+{
+  "name": "@ryohey/webgl-react",
+  "version": "0.3.1",
+  "description": "React library for 2D rendering in WebGL with screen coordinates",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "rollup --config --watch",
+    "build": "rollup --config",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryohey/webgl-react.git"
+  },
+  "keywords": [
+    "WebGL",
+    "react"
+  ],
+  "author": "ryohey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ryohey/webgl-react/issues"
+  },
+  "homepage": "https://github.com/ryohey/webgl-react#readme",
+  "peerDependencies": {
+    "react": ">=18.1.0"
+  },
+  "dependencies": {
+    "@rehooks/component-size": "^1.0.3",
+    "gl-matrix": "^3.4.3"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-typescript": "^11.1.3",
+    "@types/react": "^18.2.21",
+    "rollup": "^3.29.2",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.4"
+  }
+}
