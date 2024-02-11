@@ -5,7 +5,7 @@ import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
 
-export class InstancedRectangleBuffer extends InstancedBuffer<
+export class RectangleBuffer extends InstancedBuffer<
   IRect[],
   "position" | "instanceTransform"
 > {
@@ -37,7 +37,7 @@ export class InstancedRectangleBuffer extends InstancedBuffer<
   }
 }
 
-export const InstancedRectangleShader = (gl: WebGL2RenderingContext) => {
+export const RectangleShader = (gl: WebGL2RenderingContext) => {
   const program = initShaderProgram(
     gl,
     `#version 300 es
