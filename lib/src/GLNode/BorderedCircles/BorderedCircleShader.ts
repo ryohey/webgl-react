@@ -7,22 +7,22 @@ import { VertexArray } from "../../Shader/VertexArray"
 
 export class BorderedCircleBuffer extends InstancedBuffer<
   IRect[],
-  "aVertexPosition" | "aBounds"
+  "position" | "bounds"
 > {
   private _instanceCount: number = 0
 
-  constructor(vertexArray: VertexArray<"aVertexPosition" | "aBounds">) {
+  constructor(vertexArray: VertexArray<"position" | "bounds">) {
     super(vertexArray)
 
     this.vertexArray.updateBuffer(
-      "aVertexPosition",
+      "position",
       new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
     )
   }
 
   update(rects: IRect[]) {
     this.vertexArray.updateBuffer(
-      "aBounds",
+      "bounds",
       new Float32Array(
         rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height])
       )
@@ -44,19 +44,19 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) => {
     gl,
     `#version 300 es
       precision lowp float;
-      in vec4 aVertexPosition;
+      in vec4 position;
 
       // XYZW -> X, Y, Width, Height
-      in vec4 aBounds;
+      in vec4 bounds;
 
       uniform mat4 uProjectionMatrix;
       out vec4 vBounds;
       out vec2 vPosition;
 
       void main() {
-        vec4 transformedPosition = vec4((aVertexPosition.xy * aBounds.zw + aBounds.xy), aVertexPosition.zw);
+        vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
         gl_Position = uProjectionMatrix * transformedPosition;
-        vBounds = aBounds;
+        vBounds = bounds;
         vPosition = transformedPosition.xy;
       }
     `,
@@ -95,8 +95,8 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) => {
       strokeColor: uniformVec4(gl, program, "uStrokeColor"),
     },
     {
-      aVertexPosition: { size: 2, type: gl.FLOAT },
-      aBounds: { size: 4, type: gl.FLOAT, divisor: 1 },
+      position: { size: 2, type: gl.FLOAT },
+      bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     }
   )
 }

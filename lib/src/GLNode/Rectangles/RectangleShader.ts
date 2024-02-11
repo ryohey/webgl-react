@@ -7,11 +7,11 @@ import { rectToTriangles } from "../../helpers/polygon"
 
 export class RectangleBuffer extends InstancedBuffer<
   IRect[],
-  "position" | "instanceTransform"
+  "position" | "bounds"
 > {
   private _instanceCount: number = 0
 
-  constructor(vertexArray: VertexArray<"position" | "instanceTransform">) {
+  constructor(vertexArray: VertexArray<"position" | "bounds">) {
     super(vertexArray)
 
     this.vertexArray.updateBuffer(
@@ -22,7 +22,7 @@ export class RectangleBuffer extends InstancedBuffer<
 
   update(rects: IRect[]) {
     this.vertexArray.updateBuffer(
-      "instanceTransform",
+      "bounds",
       new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height]))
     )
     this._instanceCount = rects.length
@@ -43,11 +43,11 @@ export const RectangleShader = (gl: WebGL2RenderingContext) => {
     `#version 300 es
     precision lowp float;
     layout (location = 0) in vec4 position;
-    layout (location = 1) in vec4 instanceTransform; // x, y, width, height
+    layout (location = 1) in vec4 bounds; // x, y, width, height
     uniform mat4 uProjectionMatrix;
 
     void main() {
-      vec4 transformedPosition = vec4((position.xy * instanceTransform.zw + instanceTransform.xy), position.zw);
+      vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
       gl_Position = uProjectionMatrix * transformedPosition;
     }
     `,
@@ -70,7 +70,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) => {
     },
     {
       position: { size: 2, type: gl.FLOAT },
-      instanceTransform: { size: 4, type: gl.FLOAT, divisor: 1 },
+      bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     }
   )
 }
