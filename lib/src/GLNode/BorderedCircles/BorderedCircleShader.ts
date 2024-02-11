@@ -45,9 +45,7 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) => {
     `#version 300 es
       precision lowp float;
       in vec4 position;
-
-      // XYZW -> X, Y, Width, Height
-      in vec4 bounds;
+      in vec4 bounds;  // x, y, width, height
 
       uniform mat4 uProjectionMatrix;
       out vec4 vBounds;

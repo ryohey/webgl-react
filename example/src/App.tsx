@@ -72,6 +72,12 @@ export const App = () => {
           strokeColor={[0, 0, 0, 1]}
           zIndex={0}
         />
+        <BorderedRectangles
+          rects={circles}
+          fillColor={[0, 0, 0.5, 0.5]}
+          strokeColor={[0, 0, 0, 1]}
+          zIndex={0}
+        />
       </GLCanvas>
     </>
   )
