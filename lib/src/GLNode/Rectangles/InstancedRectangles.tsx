@@ -30,7 +30,7 @@ export const InstancedRectangles: FC<InstancedRectanglesProps> = ({
       createShader={InstancedRectangleShader}
       createBuffer={(vertexArray) => new InstancedRectangleBuffer(vertexArray)}
       uniforms={uniforms}
-      inputs={rects}
+      buffer={rects}
       zIndex={zIndex}
     />
   )

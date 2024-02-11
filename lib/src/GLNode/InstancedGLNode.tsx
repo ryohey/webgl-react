@@ -15,7 +15,7 @@ interface InstancedGLNodeProps<
   createBuffer: (
     vertexArray: VertexArray<Inputs>
   ) => InstancedBuffer<BufferProps, Inputs>
-  inputs: BufferProps
+  buffer: BufferProps
   uniforms: Uniforms
   zIndex?: number
 }
@@ -39,7 +39,7 @@ export class InstancedGLNode<
   declare context: React.ContextType<typeof RendererContext>
 
   componentDidUpdate() {
-    this.buffer?.update(this.props.inputs)
+    this.buffer?.update(this.props.buffer)
     this.context.setNeedsDisplay()
   }
 
@@ -51,6 +51,7 @@ export class InstancedGLNode<
     this.shader = this.props.createShader(gl)
     const vertexArray = this.shader.createVertexArray()
     this.buffer = this.props.createBuffer(vertexArray)
+    this.buffer.update(this.props.buffer)
     this.context.addObject(this)
     this.context.setNeedsDisplay()
   }
@@ -63,7 +64,7 @@ export class InstancedGLNode<
     nextProps: Readonly<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   ): boolean {
     return (
-      this.props.inputs !== nextProps.inputs ||
+      this.props.buffer !== nextProps.buffer ||
       this.props.uniforms !== nextProps.uniforms ||
       this.props.zIndex !== nextProps.zIndex
     )
