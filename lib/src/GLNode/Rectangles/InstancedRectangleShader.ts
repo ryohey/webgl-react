@@ -6,7 +6,7 @@ import { rectToTriangles } from "../../helpers/polygon"
 
 export class InstancedRectangleBuffer extends InstancedBuffer<
   IRect[],
-  "position"
+  "position" | "instanceTransform"
 > {
   private _vertexCount: number = 0
   private _instanceCount: number = 0
@@ -14,11 +14,15 @@ export class InstancedRectangleBuffer extends InstancedBuffer<
   update(rects: IRect[]) {
     this.vertexArray.updateBuffer(
       "position",
-      new Float32Array(rects.flatMap(rectToTriangles))
+      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
+    )
+    this.vertexArray.updateBuffer(
+      "instanceTransform",
+      new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height]))
     )
 
-    this._vertexCount = rects.length * 6
-    this._instanceCount = 0
+    this._vertexCount = 6
+    this._instanceCount = rects.length
   }
 
   get vertexCount() {
@@ -36,10 +40,18 @@ export const InstancedRectangleShader = (gl: WebGL2RenderingContext) => {
     `#version 300 es
     precision lowp float;
     layout (location = 0) in vec4 position;
+    layout (location = 1) in vec4 instanceTransform; // x, y, width, height
     uniform mat4 uProjectionMatrix;
 
     void main() {
-      gl_Position = uProjectionMatrix * position;
+      float x = instanceTransform.x;
+      float y = instanceTransform.y;
+      float width = instanceTransform.z;
+      float height = instanceTransform.w;
+
+      vec4 transformedPosition = vec4((position.xy * vec2(width, height) + vec2(x, y)), position.zw);
+      
+      gl_Position = uProjectionMatrix * transformedPosition;
     }
     `,
     `#version 300 es
@@ -61,6 +73,7 @@ export const InstancedRectangleShader = (gl: WebGL2RenderingContext) => {
     },
     {
       position: { size: 2, type: gl.FLOAT },
+      instanceTransform: { size: 4, type: gl.FLOAT, divisor: 6 },
     }
   )
 }

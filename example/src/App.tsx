@@ -65,7 +65,7 @@ export const App = () => {
       <h1>WebGL React</h1>
       <GLCanvas height={SIZE} width={SIZE}>
         <Border width={SIZE} height={SIZE} />
-        <InstancedRectangles rects={rects} color={[0.5, 1, 0.5, 1.0]} />
+        <InstancedRectangles rects={rects} color={[1, 0, 0, 1.0]} />
         <BorderedCircles
           rects={circles}
           fillColor={[0, 0, 0.5, 0.5]}
