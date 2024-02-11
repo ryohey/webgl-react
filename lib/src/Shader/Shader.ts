@@ -1,45 +1,18 @@
-import { Attrib } from "./Attrib"
-import { initShaderProgram } from "./initShaderProgram"
 import { Uniform } from "./Uniform"
-
-export interface ShaderBuffer<B extends string | number | symbol> {
-  vertexCount: number
-  buffers: { [P in B]: WebGLBuffer }
-}
+import { Input, VertexArray } from "./VertexArray"
 
 export class Shader<
-  A extends string | number | symbol,
-  U extends { [key: string]: any }
+  U extends { [key: string]: any },
+  InputNames extends string
 > {
-  private gl: WebGL2RenderingContext
-  private program: WebGLProgram
-
-  readonly attributes: {
-    [P in A]: Attrib
-  }
-  readonly uniforms: {
-    [P in keyof U]: Uniform<U[P]>
-  }
-
   constructor(
-    gl: WebGL2RenderingContext,
-    vsSource: string,
-    fsSource: string,
-    attributes: (program: WebGLProgram) => {
-      [P in A]: Attrib
-    },
-    uniforms: (program: WebGLProgram) => {
+    private readonly gl: WebGL2RenderingContext,
+    private readonly program: WebGLProgram,
+    private readonly uniforms: {
       [P in keyof U]: Uniform<U[P]>
-    }
-  ) {
-    this.gl = gl
-    const program = initShaderProgram(gl, vsSource, fsSource)!
-
-    this.program = program
-
-    this.attributes = attributes(program)
-    this.uniforms = uniforms(program)
-  }
+    },
+    private readonly inputs: { [Key in InputNames]: Input }
+  ) {}
 
   setUniforms(props: U) {
     for (let key in props) {
@@ -47,21 +20,52 @@ export class Shader<
     }
   }
 
-  draw(buffer: ShaderBuffer<A>) {
+  createVertexArray() {
+    return new VertexArray(this.gl, this.program, this.inputs)
+  }
+
+  draw(buffer: InstancedBuffer<any, any>) {
     if (buffer.vertexCount === 0) {
       return
     }
 
     const { gl } = this
-
-    Object.keys(this.attributes).forEach((k) =>
-      this.attributes[k as A].upload(buffer.buffers[k as A])
-    )
-
     gl.useProgram(this.program)
 
-    Object.values(this.uniforms).forEach((u) => u.upload(gl))
+    buffer.bind()
 
-    gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
+    Object.keys(this.uniforms).forEach((key) =>
+      this.uniforms[key as keyof U].upload(gl)
+    )
+
+    if (buffer.instanceCount > 0) {
+      gl.drawArraysInstanced(
+        gl.TRIANGLES,
+        0,
+        buffer.vertexCount,
+        buffer.instanceCount
+      )
+    } else {
+      gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
+    }
+
+    buffer.unbind()
+  }
+}
+
+export abstract class InstancedBuffer<Params, Inputs extends string> {
+  abstract get vertexCount(): number
+  abstract get instanceCount(): number
+
+  constructor(readonly vertexArray: VertexArray<Inputs>) {}
+
+  abstract update(params: Params): void
+
+  bind() {
+    this.vertexArray.bind()
+  }
+
+  unbind() {
+    this.vertexArray.unbind()
   }
 }

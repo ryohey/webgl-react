@@ -1,4 +1,4 @@
-import { InstancedBuffer, InstancedShader } from "../../Shader/InstancedShader"
+import { InstancedBuffer, Shader } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { VertexArray } from "../../Shader/VertexArray"
 import { initShaderProgram } from "../../Shader/initShaderProgram"
@@ -61,7 +61,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) => {
     }
     `
   )
-  return new InstancedShader(
+  return new Shader(
     gl,
     program,
     {

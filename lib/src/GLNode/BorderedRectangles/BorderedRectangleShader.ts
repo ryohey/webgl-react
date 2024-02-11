@@ -1,5 +1,5 @@
 import { initShaderProgram } from "../../Shader/initShaderProgram"
-import { InstancedShader } from "../../Shader/InstancedShader"
+import { Shader } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { BorderedCircleBuffer } from "../BorderedCircles/BorderedCircleShader"
 
@@ -49,7 +49,7 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) => {
       }
     `
   )
-  return new InstancedShader(
+  return new Shader(
     gl,
     program,
     {

@@ -1,6 +1,6 @@
 import { Component } from "react"
 import { Renderable } from "../Renderer/Renderer"
-import { InstancedBuffer, InstancedShader } from "../Shader/InstancedShader"
+import { InstancedBuffer, Shader } from "../Shader/Shader"
 import { VertexArray } from "../Shader/VertexArray"
 import { RendererContext } from "../hooks/useRenderer"
 
@@ -9,9 +9,7 @@ interface InstancedGLNodeProps<
   BufferProps,
   Inputs extends string
 > {
-  createShader: (
-    gl: WebGL2RenderingContext
-  ) => InstancedShader<Uniforms, Inputs>
+  createShader: (gl: WebGL2RenderingContext) => Shader<Uniforms, Inputs>
   createBuffer: (
     vertexArray: VertexArray<Inputs>
   ) => InstancedBuffer<BufferProps, Inputs>
@@ -28,7 +26,7 @@ export class GLNode<
   extends Component<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   implements Renderable
 {
-  protected shader: InstancedShader<Uniforms, Inputs> | null = null
+  protected shader: Shader<Uniforms, Inputs> | null = null
   protected buffer: InstancedBuffer<BufferProps, Inputs> | null = null
 
   constructor(props: InstancedGLNodeProps<Uniforms, BufferProps, Inputs>) {

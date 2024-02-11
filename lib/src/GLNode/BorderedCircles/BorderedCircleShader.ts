@@ -1,7 +1,7 @@
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
 import { initShaderProgram } from "../../Shader/initShaderProgram"
-import { InstancedBuffer, InstancedShader } from "../../Shader/InstancedShader"
+import { InstancedBuffer, Shader } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { VertexArray } from "../../Shader/VertexArray"
 
@@ -84,7 +84,7 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) => {
       }
     `
   )
-  return new InstancedShader(
+  return new Shader(
     gl,
     program,
     {
