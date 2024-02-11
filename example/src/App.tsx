@@ -28,8 +28,8 @@ const createRandomRects = (num: number) =>
   [...Array(num).keys()].map((i) => ({
     x: Math.random() * (SIZE - 30),
     y: Math.random() * (SIZE - 30),
-    width: 5,
-    height: 5,
+    width: 20,
+    height: 20,
     dx: (Math.random() - 0.5) * 5,
     dy: (Math.random() - 0.5) * 5,
   }))
@@ -46,7 +46,7 @@ const Border: FC<ISize> = React.memo(({ width, height }) => {
 })
 
 export const App = () => {
-  const [rects, setRects] = useState(createRandomRects(50))
+  const [rects, setRects] = useState(createRandomRects(5))
   const [circles, setCircles] = useState(createRandomRects(20))
 
   useEffect(() => {

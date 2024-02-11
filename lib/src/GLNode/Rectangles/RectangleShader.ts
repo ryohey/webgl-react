@@ -47,13 +47,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) => {
     uniform mat4 uProjectionMatrix;
 
     void main() {
-      float x = instanceTransform.x;
-      float y = instanceTransform.y;
-      float width = instanceTransform.z;
-      float height = instanceTransform.w;
-
-      vec4 transformedPosition = vec4((position.xy * vec2(width, height) + vec2(x, y)), position.zw);
-      
+      vec4 transformedPosition = vec4((position.xy * instanceTransform.zw + instanceTransform.xy), position.zw);
       gl_Position = uProjectionMatrix * transformedPosition;
     }
     `,
@@ -76,7 +70,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) => {
     },
     {
       position: { size: 2, type: gl.FLOAT },
-      instanceTransform: { size: 4, type: gl.FLOAT, divisor: 6 },
+      instanceTransform: { size: 4, type: gl.FLOAT, divisor: 1 },
     }
   )
 }

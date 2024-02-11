@@ -1,76 +1,75 @@
 import { IRect } from "../../helpers/geometry"
-import { rectToTriangleBounds, rectToTriangles } from "../../helpers/polygon"
-import { Attrib } from "../../Shader/Attrib"
-import { Shader, ShaderBuffer } from "../../Shader/Shader"
+import { rectToTriangles } from "../../helpers/polygon"
+import { initShaderProgram } from "../../Shader/initShaderProgram"
+import { InstancedBuffer, InstancedShader } from "../../Shader/InstancedShader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
+import { VertexArray } from "../../Shader/VertexArray"
 
-export class BorderedCircleBuffer
-  implements ShaderBuffer<"position" | "bounds">
-{
-  private gl: WebGL2RenderingContext
+export class BorderedCircleBuffer extends InstancedBuffer<
+  IRect[],
+  "aVertexPosition" | "aBounds"
+> {
+  private _instanceCount: number = 0
 
-  readonly buffers: {
-    position: WebGLBuffer
-    bounds: WebGLBuffer
-  }
-  private _vertexCount: number = 0
+  constructor(vertexArray: VertexArray<"aVertexPosition" | "aBounds">) {
+    super(vertexArray)
 
-  constructor(gl: WebGL2RenderingContext) {
-    this.gl = gl
-
-    this.buffers = {
-      position: gl.createBuffer()!,
-      bounds: gl.createBuffer()!,
-    }
+    this.vertexArray.updateBuffer(
+      "aVertexPosition",
+      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
+    )
   }
 
   update(rects: IRect[]) {
-    const { gl } = this
-
-    const positions = rects.flatMap(rectToTriangles)
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.position)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
-
-    const bounds = rects.flatMap(rectToTriangleBounds)
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.bounds)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bounds), gl.DYNAMIC_DRAW)
-
-    this._vertexCount = rects.length * 6
+    this.vertexArray.updateBuffer(
+      "aBounds",
+      new Float32Array(
+        rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height])
+      )
+    )
+    this._instanceCount = rects.length
   }
 
   get vertexCount() {
-    return this._vertexCount
+    return 6
+  }
+
+  get instanceCount() {
+    return this._instanceCount
   }
 }
 
-export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
-  new Shader(
+export const BorderedCircleShader = (gl: WebGL2RenderingContext) => {
+  const program = initShaderProgram(
     gl,
-    `
+    `#version 300 es
       precision lowp float;
-      attribute vec4 aVertexPosition;
+      in vec4 aVertexPosition;
 
       // XYZW -> X, Y, Width, Height
-      attribute vec4 aBounds;
+      in vec4 aBounds;
 
       uniform mat4 uProjectionMatrix;
-      varying vec4 vBounds;
-      varying vec2 vPosition;
+      out vec4 vBounds;
+      out vec2 vPosition;
 
       void main() {
-        gl_Position = uProjectionMatrix * aVertexPosition;
+        vec4 transformedPosition = vec4((aVertexPosition.xy * aBounds.zw + aBounds.xy), aVertexPosition.zw);
+        gl_Position = uProjectionMatrix * transformedPosition;
         vBounds = aBounds;
-        vPosition = aVertexPosition.xy;
+        vPosition = transformedPosition.xy;
       }
     `,
-    `
+    `#version 300 es
       precision lowp float;
 
       uniform vec4 uFillColor;
       uniform vec4 uStrokeColor;
 
-      varying vec4 vBounds;
-      varying vec2 vPosition;
+      in vec4 vBounds;
+      in vec2 vPosition;
+
+      out vec4 outColor;
 
       void main() {
         float border = 1.0;
@@ -80,19 +79,24 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
         float len = length(vPosition - center);
 
         if (len < r - border) {
-          gl_FragColor = uFillColor;
+          outColor = uFillColor;
         } else if (len < r) {
-          gl_FragColor = uStrokeColor;
+          outColor = uStrokeColor;
         }
       }
-    `,
-    (program) => ({
-      position: new Attrib(gl, program, "aVertexPosition", 2),
-      bounds: new Attrib(gl, program, "aBounds", 4),
-    }),
-    (program) => ({
+    `
+  )
+  return new InstancedShader(
+    gl,
+    program,
+    {
       projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
       fillColor: uniformVec4(gl, program, "uFillColor"),
       strokeColor: uniformVec4(gl, program, "uStrokeColor"),
-    })
+    },
+    {
+      aVertexPosition: { size: 2, type: gl.FLOAT },
+      aBounds: { size: 4, type: gl.FLOAT, divisor: 1 },
+    }
   )
+}
