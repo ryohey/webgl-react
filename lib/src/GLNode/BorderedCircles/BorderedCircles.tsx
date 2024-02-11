@@ -2,7 +2,7 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
-import { InstancedGLNode } from "../InstancedGLNode"
+import { GLNode } from "../GLNode"
 import {
   BorderedCircleBuffer,
   BorderedCircleShader,
@@ -28,7 +28,7 @@ export const BorderedCircles: FC<BorderedCirclesProps> = ({
   )
 
   return (
-    <InstancedGLNode
+    <GLNode
       createShader={BorderedCircleShader}
       createBuffer={(vertexArray) => new BorderedCircleBuffer(vertexArray)}
       uniforms={uniforms}

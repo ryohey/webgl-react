@@ -1,19 +1,20 @@
 import { Component } from "react"
 import { Renderable } from "../Renderer/Renderer"
-import { Shader, ShaderBuffer } from "../Shader/Shader"
+import { InstancedBuffer, InstancedShader } from "../Shader/InstancedShader"
+import { VertexArray } from "../Shader/VertexArray"
 import { RendererContext } from "../hooks/useRenderer"
 
-type Buffer<Props, T extends string | number | symbol> = ShaderBuffer<T> & {
-  update(props: Props): void
-}
-
-interface GLNodeProps<
+interface InstancedGLNodeProps<
   Uniforms extends { [key: string]: any },
   BufferProps,
-  Attribs extends string | number | symbol
+  Inputs extends string
 > {
-  createShader: (gl: WebGL2RenderingContext) => Shader<Attribs, Uniforms>
-  createBuffer: (gl: WebGL2RenderingContext) => Buffer<BufferProps, Attribs>
+  createShader: (
+    gl: WebGL2RenderingContext
+  ) => InstancedShader<Uniforms, Inputs>
+  createBuffer: (
+    vertexArray: VertexArray<Inputs>
+  ) => InstancedBuffer<BufferProps, Inputs>
   buffer: BufferProps
   uniforms: Uniforms
   zIndex?: number
@@ -22,15 +23,15 @@ interface GLNodeProps<
 export class GLNode<
     Uniforms extends { [key: string]: any },
     BufferProps,
-    Attribs extends string | number | symbol
+    Inputs extends string
   >
-  extends Component<GLNodeProps<Uniforms, BufferProps, Attribs>>
+  extends Component<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   implements Renderable
 {
-  protected shader: Shader<Attribs, Uniforms> | null = null
-  protected buffer: Buffer<BufferProps, Attribs> | null = null
+  protected shader: InstancedShader<Uniforms, Inputs> | null = null
+  protected buffer: InstancedBuffer<BufferProps, Inputs> | null = null
 
-  constructor(props: GLNodeProps<Uniforms, BufferProps, Attribs>) {
+  constructor(props: InstancedGLNodeProps<Uniforms, BufferProps, Inputs>) {
     super(props)
   }
 
@@ -48,7 +49,8 @@ export class GLNode<
     }
     const gl = this.context.gl
     this.shader = this.props.createShader(gl)
-    this.buffer = this.props.createBuffer(gl)
+    const vertexArray = this.shader.createVertexArray()
+    this.buffer = this.props.createBuffer(vertexArray)
     this.buffer.update(this.props.buffer)
     this.context.addObject(this)
     this.context.setNeedsDisplay()
@@ -59,7 +61,7 @@ export class GLNode<
   }
 
   shouldComponentUpdate(
-    nextProps: Readonly<GLNodeProps<Uniforms, BufferProps, Attribs>>
+    nextProps: Readonly<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   ): boolean {
     return (
       this.props.buffer !== nextProps.buffer ||

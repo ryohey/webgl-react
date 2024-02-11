@@ -2,7 +2,7 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
-import { InstancedGLNode } from "../InstancedGLNode"
+import { GLNode } from "../GLNode"
 import {
   BorderedRectangleBuffer,
   BorderedRectangleShader,
@@ -28,7 +28,7 @@ export const BorderedRectangles: FC<BorderedRectanglesProps> = ({
   )
 
   return (
-    <InstancedGLNode
+    <GLNode
       createShader={BorderedRectangleShader}
       createBuffer={(vertexArray) => new BorderedRectangleBuffer(vertexArray)}
       uniforms={uniforms}
