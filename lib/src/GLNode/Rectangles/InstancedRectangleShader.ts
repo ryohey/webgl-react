@@ -1,5 +1,6 @@
 import { InstancedBuffer, InstancedShader } from "../../Shader/InstancedShader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
+import { VertexArray } from "../../Shader/VertexArray"
 import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
@@ -8,25 +9,27 @@ export class InstancedRectangleBuffer extends InstancedBuffer<
   IRect[],
   "position" | "instanceTransform"
 > {
-  private _vertexCount: number = 0
   private _instanceCount: number = 0
 
-  update(rects: IRect[]) {
+  constructor(vertexArray: VertexArray<"position" | "instanceTransform">) {
+    super(vertexArray)
+
     this.vertexArray.updateBuffer(
       "position",
       new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
     )
+  }
+
+  update(rects: IRect[]) {
     this.vertexArray.updateBuffer(
       "instanceTransform",
       new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height]))
     )
-
-    this._vertexCount = 6
     this._instanceCount = rects.length
   }
 
   get vertexCount() {
-    return this._vertexCount
+    return 6
   }
 
   get instanceCount() {

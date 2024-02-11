@@ -34,7 +34,9 @@ export class InstancedShader<
 
     buffer.bind()
 
-    Object.values(this.uniforms).forEach((u) => u.upload(gl))
+    Object.keys(this.uniforms).forEach((key) =>
+      this.uniforms[key as keyof U].upload(gl)
+    )
 
     if (buffer.instanceCount > 0) {
       gl.drawArraysInstanced(
