@@ -1,25 +1,23 @@
-import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { Shader } from "../../Shader/Shader"
-import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { BorderedCircleBuffer } from "../BorderedCircles/BorderedCircleShader"
 
 export const BorderedRectangleBuffer = BorderedCircleBuffer
 
-export const BorderedRectangleShader = (gl: WebGL2RenderingContext) => {
-  const program = initShaderProgram(
+export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
+  new Shader(
     gl,
     `#version 300 es
       precision lowp float;
       in vec4 position;
       in vec4 bounds;  // x, y, width, height
 
-      uniform mat4 uProjectionMatrix;
+      uniform mat4 projectionMatrix;
       out vec4 vBounds;
       out vec2 vPosition;
 
       void main() {
         vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
-        gl_Position = uProjectionMatrix * transformedPosition;
+        gl_Position = projectionMatrix * transformedPosition;
         vBounds = bounds;
         vPosition = transformedPosition.xy;
       }
@@ -27,8 +25,8 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) => {
     `#version 300 es
       precision lowp float;
 
-      uniform vec4 uFillColor;
-      uniform vec4 uStrokeColor;
+      uniform vec4 fillColor;
+      uniform vec4 strokeColor;
 
       in vec4 vBounds;
       in vec2 vPosition;
@@ -42,24 +40,19 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) => {
 
         if ((localX < border) || (localX >= (vBounds.z - border)) || (localY < border) || (localY > (vBounds.w - border))) {
           // draw outline
-          outColor = uStrokeColor;
+          outColor = strokeColor;
         } else {
-          outColor = uFillColor;
+          outColor = fillColor;
         }
       }
-    `
-  )
-  return new Shader(
-    gl,
-    program,
+    `,
     {
-      projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
-      fillColor: uniformVec4(gl, program, "uFillColor"),
-      strokeColor: uniformVec4(gl, program, "uStrokeColor"),
+      projectionMatrix: { type: "mat4" },
+      fillColor: { type: "vec4" },
+      strokeColor: { type: "vec4" },
     },
     {
       position: { size: 2, type: gl.FLOAT },
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     }
   )
-}

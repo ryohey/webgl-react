@@ -1,7 +1,5 @@
 import { InstancedBuffer, Shader } from "../../Shader/Shader"
-import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { VertexArray } from "../../Shader/VertexArray"
-import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
 
@@ -37,40 +35,35 @@ export class RectangleBuffer extends InstancedBuffer<
   }
 }
 
-export const RectangleShader = (gl: WebGL2RenderingContext) => {
-  const program = initShaderProgram(
+export const RectangleShader = (gl: WebGL2RenderingContext) =>
+  new Shader(
     gl,
     `#version 300 es
     precision lowp float;
     layout (location = 0) in vec4 position;
     layout (location = 1) in vec4 bounds; // x, y, width, height
-    uniform mat4 uProjectionMatrix;
+    uniform mat4 projectionMatrix;
 
     void main() {
       vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
-      gl_Position = uProjectionMatrix * transformedPosition;
+      gl_Position = projectionMatrix * transformedPosition;
     }
     `,
     `#version 300 es
     precision lowp float;
-    uniform vec4 uColor;
+    uniform vec4 color;
     out vec4 outColor;
 
     void main() {
-      outColor = uColor;
+      outColor = color;
     }
-    `
-  )
-  return new Shader(
-    gl,
-    program,
+    `,
     {
-      projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
-      color: uniformVec4(gl, program, "uColor"),
+      projectionMatrix: { type: "mat4" },
+      color: { type: "vec4" },
     },
     {
       position: { size: 2, type: gl.FLOAT },
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     }
   )
-}

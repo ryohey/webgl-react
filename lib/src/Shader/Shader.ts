@@ -1,22 +1,78 @@
-import { Uniform } from "./Uniform"
+import { mat4, vec4 } from "gl-matrix"
+import { Uniform, uniformFloat, uniformMat4, uniformVec4 } from "./Uniform"
 import { Input, VertexArray } from "./VertexArray"
+import { initShaderProgram } from "./initShaderProgram"
+
+export type UniformDef =
+  | {
+      type: "float"
+      initialValue?: number
+    }
+  | {
+      type: "vec4"
+      initialValue?: vec4
+    }
+  | {
+      type: "mat4"
+      initialValue?: mat4
+    }
+
+type UniformTypeMap = {
+  float: number
+  vec4: vec4
+  mat4: mat4
+}
+
+type ExtractUniformType<T extends UniformDef> = T extends { type: infer U }
+  ? U extends keyof UniformTypeMap
+    ? UniformTypeMap[U]
+    : never
+  : never
+
+// mapping UniformDefs to Uniforms
+type UniformsOf<UniformDefs extends Record<string, UniformDef>> = {
+  [Key in keyof UniformDefs]: Uniform<ExtractUniformType<UniformDefs[Key]>>
+}
+
+// mapping UniformDefs to Uniform's value
+export type UniformValuesOf<UniformDefs extends Record<string, UniformDef>> = {
+  [Key in keyof UniformDefs]: ExtractUniformType<UniformDefs[Key]>
+}
 
 export class Shader<
-  U extends { [key: string]: any },
+  UniformDefs extends Record<string, UniformDef>,
   InputNames extends string
 > {
+  private readonly program: WebGLProgram
+  private readonly uniforms: UniformsOf<UniformDefs>
+
   constructor(
     private readonly gl: WebGL2RenderingContext,
-    private readonly program: WebGLProgram,
-    private readonly uniforms: {
-      [P in keyof U]: Uniform<U[P]>
-    },
+    vsSource: string,
+    fsSource: string,
+    uniforms: UniformDefs,
     private readonly inputs: { [Key in InputNames]: Input }
-  ) {}
+  ) {
+    this.program = initShaderProgram(gl, vsSource, fsSource)
+    this.uniforms = Object.fromEntries(
+      Object.keys(uniforms).map((name) => {
+        const key = name as keyof UniformDefs
+        const def = uniforms[key]
+        switch (def.type) {
+          case "float":
+            return [key, uniformFloat(gl, this.program, name, def.initialValue)]
+          case "vec4":
+            return [key, uniformVec4(gl, this.program, name, def.initialValue)]
+          case "mat4":
+            return [key, uniformMat4(gl, this.program, name, def.initialValue)]
+        }
+      })
+    )
+  }
 
-  setUniforms(props: U) {
+  setUniforms(props: UniformValuesOf<UniformDefs>) {
     for (let key in props) {
-      this.uniforms[key as keyof U].value = props[key]
+      this.uniforms[key as keyof UniformDefs].value = props[key]
     }
   }
 
@@ -35,7 +91,7 @@ export class Shader<
     buffer.bind()
 
     Object.keys(this.uniforms).forEach((key) =>
-      this.uniforms[key as keyof U].upload(gl)
+      this.uniforms[key as keyof UniformDefs].upload(gl)
     )
 
     if (buffer.instanceCount > 0) {
