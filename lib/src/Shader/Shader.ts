@@ -50,8 +50,8 @@ export class Shader<
     private readonly gl: WebGL2RenderingContext,
     vsSource: string,
     fsSource: string,
-    uniforms: UniformDefs,
-    private readonly inputs: { [Key in InputNames]: Input }
+    private readonly inputs: { [Key in InputNames]: Input },
+    uniforms: UniformDefs
   ) {
     this.program = initShaderProgram(gl, vsSource, fsSource)
     this.uniforms = Object.fromEntries(

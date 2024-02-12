@@ -59,11 +59,11 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
     }
     `,
     {
-      projectionMatrix: { type: "mat4" },
-      color: { type: "vec4" },
-    },
-    {
       position: { size: 2, type: gl.FLOAT },
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
+    },
+    {
+      projectionMatrix: { type: "mat4" },
+      color: { type: "vec4" },
     }
   )

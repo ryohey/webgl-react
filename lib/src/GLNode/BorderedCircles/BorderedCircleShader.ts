@@ -82,12 +82,12 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       }
     `,
     {
+      position: { size: 2, type: gl.FLOAT },
+      bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
+    },
+    {
       projectionMatrix: { type: "mat4" },
       fillColor: { type: "vec4" },
       strokeColor: { type: "vec4" },
-    },
-    {
-      position: { size: 2, type: gl.FLOAT },
-      bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     }
   )
