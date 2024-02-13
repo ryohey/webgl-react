@@ -57,7 +57,7 @@ export class Shader<
     this.uniforms = Object.fromEntries(
       Object.keys(uniforms).map((name) => {
         const key = name as keyof UniformDefs
-        const def = uniforms[key]
+        const def = uniforms[key]!
         switch (def.type) {
           case "float":
             return [key, uniformFloat(gl, this.program, name, def.initialValue)]

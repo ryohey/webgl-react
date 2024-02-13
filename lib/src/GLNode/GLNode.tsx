@@ -1,4 +1,4 @@
-import { Component } from "react"
+import React, { Component } from "react"
 import { Renderable } from "../Renderer/Renderer"
 import {
   InstancedBuffer,
@@ -38,15 +38,15 @@ export class GLNode<
     super(props)
   }
 
-  static contextType = RendererContext
+  static override contextType = RendererContext
   declare context: React.ContextType<typeof RendererContext>
 
-  componentDidUpdate() {
+  override componentDidUpdate() {
     this.buffer?.update(this.props.buffer)
     this.context.setNeedsDisplay()
   }
 
-  componentDidMount() {
+  override componentDidMount() {
     if (this.context === null) {
       throw new Error("Must provide RendererContext")
     }
@@ -59,11 +59,11 @@ export class GLNode<
     this.context.setNeedsDisplay()
   }
 
-  componentWillUnmount() {
+  override componentWillUnmount() {
     this.context.removeObject(this)
   }
 
-  shouldComponentUpdate(
+  override shouldComponentUpdate(
     nextProps: Readonly<InstancedGLNodeProps<UniformDefs, BufferProps, Inputs>>
   ): boolean {
     return (
@@ -82,7 +82,7 @@ export class GLNode<
     this.shader.draw(this.buffer)
   }
 
-  render() {
+  override render(): React.ReactNode {
     return <></>
   }
 
