@@ -3,10 +3,7 @@ import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
 import { GLNode } from "../GLNode"
-import {
-  SolidRectangleBuffer,
-  SolidRectangleShader,
-} from "./SolidRectangleShader"
+import { RectangleBuffer, RectangleShader } from "./RectangleShader"
 
 export interface RectanglesProps {
   rects: IRect[]
@@ -23,8 +20,8 @@ export const Rectangles: FC<RectanglesProps> = ({ rects, color, zIndex }) => {
 
   return (
     <GLNode
-      createShader={SolidRectangleShader}
-      createBuffer={(gl) => new SolidRectangleBuffer(gl)}
+      createShader={RectangleShader}
+      createBuffer={(vertexArray) => new RectangleBuffer(vertexArray)}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}

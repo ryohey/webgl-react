@@ -1,5 +1,5 @@
 import { mat4 } from "gl-matrix"
-import React, { FC, ReactNode } from "react"
+import { FC, ReactNode } from "react"
 import {
   ProjectionMatrixContext,
   useProjectionMatrix,

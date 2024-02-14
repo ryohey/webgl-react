@@ -30,7 +30,7 @@ export const BorderedRectangles: FC<BorderedRectanglesProps> = ({
   return (
     <GLNode
       createShader={BorderedRectangleShader}
-      createBuffer={(gl) => new BorderedRectangleBuffer(gl)}
+      createBuffer={(vertexArray) => new BorderedRectangleBuffer(vertexArray)}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}

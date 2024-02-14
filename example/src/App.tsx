@@ -28,8 +28,8 @@ const createRandomRects = (num: number) =>
   [...Array(num).keys()].map((i) => ({
     x: Math.random() * (SIZE - 30),
     y: Math.random() * (SIZE - 30),
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     dx: (Math.random() - 0.5) * 5,
     dy: (Math.random() - 0.5) * 5,
   }))
@@ -46,8 +46,8 @@ const Border: FC<ISize> = React.memo(({ width, height }) => {
 })
 
 export const App = () => {
-  const [rects, setRects] = useState(createRandomRects(500))
-  const [circles, setCircles] = useState(createRandomRects(500))
+  const [rects, setRects] = useState(createRandomRects(5))
+  const [circles, setCircles] = useState(createRandomRects(20))
 
   useEffect(() => {
     let handle: number
@@ -65,8 +65,14 @@ export const App = () => {
       <h1>WebGL React</h1>
       <GLCanvas height={SIZE} width={SIZE}>
         <Border width={SIZE} height={SIZE} />
-        <Rectangles rects={rects} color={[0.5, 1, 0.5, 1.0]} />
+        <Rectangles rects={rects} color={[1, 0, 0, 1.0]} />
         <BorderedCircles
+          rects={circles}
+          fillColor={[0, 0, 0.5, 0.5]}
+          strokeColor={[0, 0, 0, 1]}
+          zIndex={0}
+        />
+        <BorderedRectangles
           rects={circles}
           fillColor={[0, 0, 0.5, 0.5]}
           strokeColor={[0, 0, 0, 1]}

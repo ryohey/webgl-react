@@ -30,7 +30,7 @@ export const BorderedCircles: FC<BorderedCirclesProps> = ({
   return (
     <GLNode
       createShader={BorderedCircleShader}
-      createBuffer={(gl) => new BorderedCircleBuffer(gl)}
+      createBuffer={(vertexArray) => new BorderedCircleBuffer(vertexArray)}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}

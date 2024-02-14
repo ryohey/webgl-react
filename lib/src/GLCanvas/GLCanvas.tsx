@@ -8,9 +8,9 @@ import {
   useRef,
   useState,
 } from "react"
+import { Renderer } from "../Renderer/Renderer"
 import { ProjectionMatrixContext } from "../hooks/useProjectionMatrix"
 import { RendererContext } from "../hooks/useRenderer"
-import { Renderer } from "../Renderer/Renderer"
 
 export type GLSurfaceProps = Omit<
   React.DetailedHTMLProps<
@@ -37,7 +37,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       }
       // GL コンテキストを初期化する
       // Initialize GL context
-      const gl = canvas.getContext("webgl", {
+      const gl = canvas.getContext("webgl2", {
         alpha: true,
         antialias: false,
         depth: false,
