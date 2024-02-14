@@ -67,8 +67,8 @@ GLCanvas is a wrapper for the canvas component. You can use any of the canvas pr
 ## [Custom Shape](custom-shape)
 
 1. Write a GLSL shader and pass it to `new Shader()`
-2. Create a subclass of ShaderBuffer that matches the shader attributes
-3. Create a wrapper for the GLNode component by passing them to `createShader` and `createBuffer`
+2. Create a subclass of `InstancedBuffer` that matches the shader attributes
+3. Create a wrapper for the `GLNode` component by passing them to `createShader` and `createBuffer`
 
 ## Transform
 
