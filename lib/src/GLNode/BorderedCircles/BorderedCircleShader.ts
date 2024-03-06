@@ -3,15 +3,12 @@ import { rectToTriangles } from "../../helpers/polygon"
 import { InstancedBuffer, Shader } from "../../Shader/Shader"
 import { VertexArray } from "../../Shader/VertexArray"
 
-export class BorderedCircleBuffer extends InstancedBuffer<
-  IRect[],
-  "position" | "bounds"
-> {
+export class BorderedCircleBuffer
+  implements InstancedBuffer<IRect[], "position" | "bounds">
+{
   private _instanceCount: number = 0
 
-  constructor(vertexArray: VertexArray<"position" | "bounds">) {
-    super(vertexArray)
-
+  constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
     this.vertexArray.updateBuffer(
       "position",
       new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))

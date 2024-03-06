@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { Renderable } from "../Renderer/Renderer"
 import {
-  InstancedBuffer,
+  AnyBuffer,
   Shader,
   UniformDef,
   UniformValuesOf,
@@ -17,7 +17,7 @@ interface InstancedGLNodeProps<
   createShader: (gl: WebGL2RenderingContext) => Shader<UniformDefs, Inputs>
   createBuffer: (
     vertexArray: VertexArray<Inputs>
-  ) => InstancedBuffer<BufferProps, Inputs>
+  ) => AnyBuffer<BufferProps, Inputs>
   buffer: BufferProps
   uniforms: UniformValuesOf<UniformDefs>
   zIndex?: number
@@ -32,7 +32,7 @@ export class GLNode<
   implements Renderable
 {
   protected shader: Shader<UniformDefs, Inputs> | null = null
-  protected buffer: InstancedBuffer<BufferProps, Inputs> | null = null
+  protected buffer: AnyBuffer<BufferProps, Inputs> | null = null
 
   constructor(props: InstancedGLNodeProps<UniformDefs, BufferProps, Inputs>) {
     super(props)

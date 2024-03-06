@@ -80,21 +80,25 @@ export class Shader<
     return new VertexArray(this.gl, this.program, this.inputs)
   }
 
-  draw(buffer: InstancedBuffer<any, any>) {
+  draw(buffer: AnyBuffer<any, any>) {
     if (buffer.vertexCount === 0) {
+      return
+    }
+
+    if ("instanceCount" in buffer && buffer.instanceCount === 0) {
       return
     }
 
     const { gl } = this
     gl.useProgram(this.program)
 
-    buffer.bind()
+    buffer.vertexArray.bind()
 
     Object.keys(this.uniforms).forEach((key) =>
       this.uniforms[key as keyof UniformDefs].upload(gl)
     )
 
-    if (buffer.instanceCount > 0) {
+    if ("instanceCount" in buffer) {
       gl.drawArraysInstanced(
         gl.TRIANGLES,
         0,
@@ -105,23 +109,21 @@ export class Shader<
       gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
     }
 
-    buffer.unbind()
+    buffer.vertexArray.unbind()
   }
 }
 
-export abstract class InstancedBuffer<Params, Inputs extends string> {
-  abstract get vertexCount(): number
-  abstract get instanceCount(): number
-
-  constructor(readonly vertexArray: VertexArray<Inputs>) {}
-
-  abstract update(params: Params): void
-
-  bind() {
-    this.vertexArray.bind()
-  }
-
-  unbind() {
-    this.vertexArray.unbind()
-  }
+export interface Buffer<Params, Inputs extends string> {
+  readonly vertexCount: number
+  readonly vertexArray: VertexArray<Inputs>
+  update(params: Params): void
 }
+
+export interface InstancedBuffer<Params, Inputs extends string>
+  extends Buffer<Params, Inputs> {
+  readonly instanceCount: number
+}
+
+export type AnyBuffer<Params, Inputs extends string> =
+  | Buffer<Params, Inputs>
+  | InstancedBuffer<Params, Inputs>
