@@ -80,7 +80,7 @@ export class Shader<
     return new VertexArray(this.gl, this.program, this.inputs)
   }
 
-  draw(buffer: Buffer<any, any> | InstancedBuffer<any, any>) {
+  draw(buffer: AnyBuffer<any, any>) {
     if (buffer.vertexCount === 0) {
       return
     }
@@ -123,3 +123,7 @@ export interface InstancedBuffer<Params, Inputs extends string>
   extends Buffer<Params, Inputs> {
   readonly instanceCount: number
 }
+
+export type AnyBuffer<Params, Inputs extends string> =
+  | Buffer<Params, Inputs>
+  | InstancedBuffer<Params, Inputs>
