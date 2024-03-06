@@ -7,8 +7,6 @@ export interface Input {
 export class VertexArray<InputNames extends string> {
   private readonly vao: WebGLVertexArrayObject
   private readonly buffers: { [Key in InputNames]: WebGLBuffer }
-  vertexCount: number = 0
-  instanceCount: number = 0
 
   constructor(
     private readonly gl: WebGL2RenderingContext,
