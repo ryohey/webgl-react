@@ -1,4 +1,5 @@
 import { InstancedBuffer, Shader } from "../../Shader/Shader"
+import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { VertexArray } from "../../Shader/VertexArray"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
@@ -60,7 +61,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: { type: "mat4" },
-      color: { type: "vec4" },
+      projectionMatrix: uniformMat4(),
+      color: uniformVec4(),
     }
   )

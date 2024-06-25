@@ -1,11 +1,17 @@
 import { mat4, vec4 } from "gl-matrix"
 import { RenderProperty } from "../Renderer/RenderProperty"
 
-type UploadFunc<T> = (
+export type UploadFunc<T> = (
   gl: WebGL2RenderingContext,
   location: WebGLUniformLocation,
   value: T
 ) => void
+
+export interface UniformDef<T> {
+  initialValue: T
+  isEqual: (a: T, b: T) => boolean
+  upload: UploadFunc<T>
+}
 
 export class Uniform<T> {
   private location: WebGLUniformLocation
@@ -45,43 +51,23 @@ export class Uniform<T> {
 }
 
 export const uniformMat4 = (
-  gl: WebGL2RenderingContext,
-  program: WebGLProgram,
-  name: string,
   initialValue: mat4 = mat4.create()
-) =>
-  new Uniform<mat4>(
-    gl,
-    program,
-    name,
-    new RenderProperty<mat4>(initialValue, mat4.equals),
-    (gl, location, value) => gl.uniformMatrix4fv(location, false, value)
-  )
+): UniformDef<mat4> => ({
+  initialValue,
+  isEqual: mat4.equals,
+  upload: (gl, location, value) => gl.uniformMatrix4fv(location, false, value),
+})
 
 export const uniformVec4 = (
-  gl: WebGL2RenderingContext,
-  program: WebGLProgram,
-  name: string,
   initialValue: vec4 = vec4.create()
-) =>
-  new Uniform<vec4>(
-    gl,
-    program,
-    name,
-    new RenderProperty<vec4>(initialValue, vec4.equals),
-    (gl, location, value) => gl.uniform4fv(location, value)
-  )
+): UniformDef<vec4> => ({
+  initialValue,
+  isEqual: vec4.equals,
+  upload: (gl, location, value) => gl.uniform4fv(location, value),
+})
 
-export const uniformFloat = (
-  gl: WebGL2RenderingContext,
-  program: WebGLProgram,
-  name: string,
-  initialValue: number = 0
-) =>
-  new Uniform<number>(
-    gl,
-    program,
-    name,
-    new RenderProperty<number>(initialValue),
-    (gl, location, value) => gl.uniform1f(location, value)
-  )
+export const uniformFloat = (initialValue: number = 0): UniformDef<number> => ({
+  initialValue,
+  isEqual: (a, b) => a === b,
+  upload: (gl, location, value) => gl.uniform1f(location, value),
+})
