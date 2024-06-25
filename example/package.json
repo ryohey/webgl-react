@@ -4,23 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "parcel src/index.html --no-cache"
+    "start": "vite"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "private": true,
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
     "@types/react-dom": "^18.2.19",
-    "parcel": "^2.11.0",
-    "process": "^0.11.10",
-    "rollup": "^4.10.0",
-    "rollup-plugin-replace": "^2.2.0",
-    "rollup-plugin-serve": "^2.0.2",
-    "tslib": "^2.6.2",
-    "typescript": "^5.3.3"
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.3.1"
   },
   "dependencies": {
     "@ryohey/webgl-react": "file:../lib",

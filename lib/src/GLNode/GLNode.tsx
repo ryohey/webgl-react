@@ -1,40 +1,27 @@
 import React, { Component } from "react"
 import { Renderable } from "../Renderer/Renderer"
-import {
-  AnyBuffer,
-  Shader,
-  UniformDef,
-  UniformValuesOf,
-} from "../Shader/Shader"
+import { AnyBuffer, Shader } from "../Shader/Shader"
 import { VertexArray } from "../Shader/VertexArray"
 import { RendererContext } from "../hooks/useRenderer"
 
-interface InstancedGLNodeProps<
-  UniformDefs extends Record<string, UniformDef>,
-  BufferProps,
-  Inputs extends string
-> {
-  createShader: (gl: WebGL2RenderingContext) => Shader<UniformDefs, Inputs>
+interface InstancedGLNodeProps<Uniforms, BufferProps, Inputs extends string> {
+  createShader: (gl: WebGL2RenderingContext) => Shader<Uniforms, Inputs>
   createBuffer: (
     vertexArray: VertexArray<Inputs>
   ) => AnyBuffer<BufferProps, Inputs>
   buffer: BufferProps
-  uniforms: UniformValuesOf<UniformDefs>
+  uniforms: Uniforms
   zIndex?: number
 }
 
-export class GLNode<
-    UniformDefs extends Record<string, UniformDef>,
-    BufferProps,
-    Inputs extends string
-  >
-  extends Component<InstancedGLNodeProps<UniformDefs, BufferProps, Inputs>>
+export class GLNode<Uniforms, BufferProps, Inputs extends string>
+  extends Component<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   implements Renderable
 {
-  protected shader: Shader<UniformDefs, Inputs> | null = null
+  protected shader: Shader<Uniforms, Inputs> | null = null
   protected buffer: AnyBuffer<BufferProps, Inputs> | null = null
 
-  constructor(props: InstancedGLNodeProps<UniformDefs, BufferProps, Inputs>) {
+  constructor(props: InstancedGLNodeProps<Uniforms, BufferProps, Inputs>) {
     super(props)
   }
 
@@ -64,7 +51,7 @@ export class GLNode<
   }
 
   override shouldComponentUpdate(
-    nextProps: Readonly<InstancedGLNodeProps<UniformDefs, BufferProps, Inputs>>
+    nextProps: Readonly<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
   ): boolean {
     return (
       this.props.buffer !== nextProps.buffer ||
