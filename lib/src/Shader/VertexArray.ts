@@ -30,11 +30,11 @@ export class VertexArray<InputNames extends string> {
       buffers[name] = buffer
 
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+      gl.enableVertexAttribArray(position)
       gl.vertexAttribPointer(position, input.size, input.type, false, 0, 0)
       if (input.divisor !== undefined) {
         gl.vertexAttribDivisor(position, input.divisor)
       }
-      gl.enableVertexAttribArray(position)
     })
 
     gl.bindVertexArray(null)
