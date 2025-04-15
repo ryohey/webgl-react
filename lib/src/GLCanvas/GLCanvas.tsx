@@ -23,6 +23,15 @@ export type GLSurfaceProps = Omit<
   height: number
 }
 
+function createGLContext(
+  canvas: HTMLCanvasElement,
+  options: WebGLContextAttributes
+) {
+  return (
+    canvas.getContext("webgl2", options) ?? canvas.getContext("webgl", options)
+  )
+}
+
 export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
   ({ width, height, style, children, ...props }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -37,7 +46,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       }
       // GL コンテキストを初期化する
       // Initialize GL context
-      const gl = canvas.getContext("webgl2", {
+      const gl = createGLContext(canvas, {
         alpha: true,
         antialias: false,
         depth: false,
