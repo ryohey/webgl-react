@@ -1,5 +1,5 @@
+import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { Attrib } from "./Attrib"
-import { initShaderProgram } from "./initShaderProgram"
 import { Uniform } from "./Uniform"
 
 export interface ShaderBuffer<B extends string | number | symbol> {
