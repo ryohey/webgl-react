@@ -2,8 +2,9 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
+import { SolidRectangleShader } from "../../legacy/GLNode/Rectangles/SolidRectangleShader"
 import { GLNode } from "../GLNode"
-import { RectangleBuffer, RectangleShader } from "./RectangleShader"
+import { RectangleShader } from "./RectangleShader"
 
 export interface RectanglesProps {
   rects: IRect[]
@@ -20,8 +21,8 @@ export const Rectangles: FC<RectanglesProps> = ({ rects, color, zIndex }) => {
 
   return (
     <GLNode
-      createShader={RectangleShader}
-      createBuffer={(vertexArray) => new RectangleBuffer(vertexArray)}
+      shader={RectangleShader}
+      shaderFallback={SolidRectangleShader}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}

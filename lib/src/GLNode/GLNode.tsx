@@ -1,79 +1,54 @@
-import React, { Component } from "react"
-import { Renderable } from "../Renderer/Renderer"
-import { AnyBuffer, Shader } from "../Shader/Shader"
-import { VertexArray } from "../Shader/VertexArray"
-import { RendererContext } from "../hooks/useRenderer"
+import { useCallback } from "react"
+import { Shader } from "../Shader/Shader"
+import { Shader as LegacyShader } from "../legacy/Shader/Shader"
+import { GLNodeInternal } from "./GLNodeInternal"
+import { RenderNode } from "./RenderNode"
 
-interface InstancedGLNodeProps<Uniforms, BufferProps, Inputs extends string> {
-  createShader: (gl: WebGL2RenderingContext) => Shader<Uniforms, Inputs>
-  createBuffer: (
-    vertexArray: VertexArray<Inputs>
-  ) => AnyBuffer<BufferProps, Inputs>
-  buffer: BufferProps
+export interface GLNodeProps<
+  Uniforms extends Record<string, any>,
+  BufferProps
+> {
+  shader: (gl: WebGL2RenderingContext) => Shader<Uniforms, any>
+  shaderFallback?: (
+    gl: WebGLRenderingContext
+  ) => LegacyShader<any, Uniforms, BufferProps>
   uniforms: Uniforms
+  buffer: BufferProps
   zIndex?: number
 }
 
-export class GLNode<Uniforms, BufferProps, Inputs extends string>
-  extends Component<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
-  implements Renderable
-{
-  protected shader: Shader<Uniforms, Inputs> | null = null
-  protected buffer: AnyBuffer<BufferProps, Inputs> | null = null
+export function GLNode<Uniforms extends {}, Buffer extends {}>({
+  shader: createShader,
+  shaderFallback: createShaderFallback,
+  uniforms,
+  buffer,
+  zIndex,
+}: GLNodeProps<Uniforms, Buffer>) {
+  const createRenderNode = useCallback(
+    (gl: WebGLRenderingContext | WebGL2RenderingContext) => {
+      if (gl instanceof WebGL2RenderingContext) {
+        const shader = createShader(gl)
+        const buffer = shader.createBuffer()
+        return new RenderNode(shader, buffer)
+      }
 
-  constructor(props: InstancedGLNodeProps<Uniforms, BufferProps, Inputs>) {
-    super(props)
-  }
+      if (createShaderFallback) {
+        const shader = createShaderFallback(gl)
+        const buffer = shader.createBuffer()
+        return new RenderNode(shader, buffer)
+      }
 
-  static override contextType = RendererContext
-  declare context: React.ContextType<typeof RendererContext>
+      throw new Error("Unsupported WebGL context")
+    },
+    [createShader, createShaderFallback]
+  )
 
-  override componentDidUpdate() {
-    this.buffer?.update(this.props.buffer)
-    this.context.setNeedsDisplay()
-  }
-
-  override componentDidMount() {
-    if (this.context === null) {
-      throw new Error("Must provide RendererContext")
-    }
-    const gl = this.context.gl
-    this.shader = this.props.createShader(gl)
-    const vertexArray = this.shader.createVertexArray()
-    this.buffer = this.props.createBuffer(vertexArray)
-    this.buffer.update(this.props.buffer)
-    this.context.addObject(this)
-    this.context.setNeedsDisplay()
-  }
-
-  override componentWillUnmount() {
-    this.context.removeObject(this)
-  }
-
-  override shouldComponentUpdate(
-    nextProps: Readonly<InstancedGLNodeProps<Uniforms, BufferProps, Inputs>>
-  ): boolean {
-    return (
-      this.props.buffer !== nextProps.buffer ||
-      this.props.uniforms !== nextProps.uniforms ||
-      this.props.zIndex !== nextProps.zIndex
-    )
-  }
-
-  draw(): void {
-    if (this.shader === null || this.buffer === null) {
-      return
-    }
-
-    this.shader.setUniforms(this.props.uniforms)
-    this.shader.draw(this.buffer)
-  }
-
-  override render(): React.ReactNode {
-    return <></>
-  }
-
-  get zIndex(): number {
-    return this.props.zIndex ?? 0
-  }
+  return (
+    <GLNodeInternal
+      createNode={createRenderNode}
+      uniforms={uniforms}
+      buffer={buffer}
+      zIndex={zIndex}
+    />
+  )
 }

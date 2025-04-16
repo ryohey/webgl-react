@@ -87,5 +87,6 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       projectionMatrix: uniformMat4(),
       fillColor: uniformVec4(),
       strokeColor: uniformVec4(),
-    }
+    },
+    (vertexArray) => new BorderedCircleBuffer(vertexArray)
   )
