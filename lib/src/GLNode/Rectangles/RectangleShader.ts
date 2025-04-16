@@ -4,7 +4,7 @@ import { VertexArray } from "../../Shader/VertexArray"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
 
-export class RectangleBuffer
+class RectangleBuffer
   implements InstancedBuffer<IRect[], "position" | "bounds">
 {
   private _instanceCount: number = 0
@@ -63,5 +63,6 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
     {
       projectionMatrix: uniformMat4(),
       color: uniformVec4(),
-    }
+    },
+    (vertexArray) => new RectangleBuffer(vertexArray)
   )

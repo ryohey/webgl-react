@@ -20,7 +20,10 @@ export class Shader<Uniforms, InputNames extends string> {
     vsSource: string,
     fsSource: string,
     private readonly inputs: { [Key in InputNames]: Input },
-    uniforms: UniformDefs<Uniforms>
+    uniforms: UniformDefs<Uniforms>,
+    private readonly bufferFactory: (
+      vertexArray: VertexArray<InputNames>
+    ) => Buffer<any, InputNames>
   ) {
     this.program = initShaderProgram(gl, vsSource, fsSource)
     this.uniforms = Object.fromEntries(
@@ -47,8 +50,13 @@ export class Shader<Uniforms, InputNames extends string> {
     }
   }
 
-  createVertexArray() {
+  private createVertexArray() {
     return new VertexArray(this.gl, this.program, this.inputs)
+  }
+
+  createBuffer(): Buffer<any, InputNames> {
+    const vertexArray = this.createVertexArray()
+    return this.bufferFactory(vertexArray)
   }
 
   draw(buffer: AnyBuffer<any, any>) {

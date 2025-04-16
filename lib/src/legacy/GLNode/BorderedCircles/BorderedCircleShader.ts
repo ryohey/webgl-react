@@ -4,9 +4,7 @@ import { Attrib } from "../../Shader/Attrib"
 import { Shader, ShaderBuffer } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 
-export class BorderedCircleBuffer
-  implements ShaderBuffer<"position" | "bounds">
-{
+class BorderedCircleBuffer implements ShaderBuffer<"position" | "bounds"> {
   private gl: WebGLRenderingContext
 
   readonly buffers: {
@@ -94,5 +92,6 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
       projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
       fillColor: uniformVec4(gl, program, "uFillColor"),
       strokeColor: uniformVec4(gl, program, "uStrokeColor"),
-    })
+    }),
+    (gl) => new BorderedCircleBuffer(gl)
   )

@@ -2,8 +2,6 @@ import { Shader } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 import { BorderedCircleBuffer } from "../BorderedCircles/BorderedCircleShader"
 
-export const BorderedRectangleBuffer = BorderedCircleBuffer
-
 export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
   new Shader(
     gl,
@@ -55,5 +53,6 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
       projectionMatrix: uniformMat4(),
       fillColor: uniformVec4(),
       strokeColor: uniformVec4(),
-    }
+    },
+    (vertexArray) => new BorderedCircleBuffer(vertexArray)
   )

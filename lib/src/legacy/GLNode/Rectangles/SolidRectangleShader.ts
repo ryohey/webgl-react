@@ -4,7 +4,7 @@ import { Attrib } from "../../Shader/Attrib"
 import { Shader, ShaderBuffer } from "../../Shader/Shader"
 import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
 
-export class SolidRectangleBuffer implements ShaderBuffer<"position"> {
+class SolidRectangleBuffer implements ShaderBuffer<"position"> {
   private gl: WebGLRenderingContext
 
   readonly buffers: {
@@ -58,5 +58,6 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
     (program) => ({
       projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
       color: uniformVec4(gl, program, "uColor"),
-    })
+    }),
+    (gl) => new SolidRectangleBuffer(gl)
   )

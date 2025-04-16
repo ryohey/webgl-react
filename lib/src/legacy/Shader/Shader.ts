@@ -9,10 +9,10 @@ export interface ShaderBuffer<B extends string | number | symbol> {
 
 export class Shader<
   A extends string | number | symbol,
-  U extends { [key: string]: any }
+  U extends { [key: string]: any },
+  BufferProps
 > {
-  private gl: WebGLRenderingContext
-  private program: WebGLProgram
+  private readonly program: WebGLProgram
 
   readonly attributes: {
     [P in A]: Attrib
@@ -22,7 +22,7 @@ export class Shader<
   }
 
   constructor(
-    gl: WebGLRenderingContext,
+    private readonly gl: WebGLRenderingContext,
     vsSource: string,
     fsSource: string,
     attributes: (program: WebGLProgram) => {
@@ -30,11 +30,14 @@ export class Shader<
     },
     uniforms: (program: WebGLProgram) => {
       [P in keyof U]: Uniform<U[P]>
+    },
+    private readonly bufferFactory: (
+      gl: WebGLRenderingContext
+    ) => ShaderBuffer<A> & {
+      update: (buffer: BufferProps) => void
     }
   ) {
-    this.gl = gl
     const program = initShaderProgram(gl, vsSource, fsSource)!
-
     this.program = program
 
     this.attributes = attributes(program)
@@ -63,5 +66,9 @@ export class Shader<
     Object.values(this.uniforms).forEach((u) => u.upload(gl))
 
     gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
+  }
+
+  createBuffer() {
+    return this.bufferFactory(this.gl)
   }
 }

@@ -1,10 +1,22 @@
 {
   "name": "@ryohey/webgl-react",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "React library for 2D rendering in WebGL with screen coordinates",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./legacy": {
+      "import": "./dist/legacy/index.js",
+      "require": "./dist/legacy/index.js",
+      "types": "./dist/legacy/index.d.ts"
+    }
+  },
   "scripts": {
     "start": "rollup --config --watch",
     "build": "rollup --config",
