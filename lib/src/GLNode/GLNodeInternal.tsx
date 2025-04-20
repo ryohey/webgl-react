@@ -36,6 +36,7 @@ export class GLNodeInternal<Uniforms, BufferProps>
     }
     const gl = this.context.gl
     this.node = this.props.createNode(gl)
+    this.node.update(this.props.buffer)
     this.context.addObject(this)
     this.context.setNeedsDisplay()
   }
