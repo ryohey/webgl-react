@@ -2,7 +2,7 @@
 export function initShaderProgram(
   gl: WebGLRenderingContext,
   vsSource: string,
-  fsSource: string
+  fsSource: string,
 ) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource)!
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource)!

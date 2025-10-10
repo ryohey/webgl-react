@@ -12,7 +12,7 @@ export class BorderedCircleBuffer
   constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
     this.vertexArray.updateBuffer(
       "position",
-      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
+      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
     )
   }
 
@@ -20,8 +20,8 @@ export class BorderedCircleBuffer
     this.vertexArray.updateBuffer(
       "bounds",
       new Float32Array(
-        rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height])
-      )
+        rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height]),
+      ),
     )
     this._instanceCount = rects.length
   }
@@ -88,5 +88,5 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       fillColor: uniformVec4(),
       strokeColor: uniformVec4(),
     },
-    (vertexArray) => new BorderedCircleBuffer(vertexArray)
+    (vertexArray) => new BorderedCircleBuffer(vertexArray),
   )

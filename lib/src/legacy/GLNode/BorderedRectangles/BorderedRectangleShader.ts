@@ -92,5 +92,5 @@ export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
       fillColor: uniformVec4(gl, program, "uFillColor"),
       strokeColor: uniformVec4(gl, program, "uStrokeColor"),
     }),
-    (gl) => new BorderedRectangleBuffer(gl)
+    (gl) => new BorderedRectangleBuffer(gl),
   )

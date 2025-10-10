@@ -11,7 +11,7 @@ export class VertexArray<InputNames extends string> {
   constructor(
     private readonly gl: WebGL2RenderingContext,
     program: WebGLProgram,
-    inputs: { [Key in InputNames]: Input }
+    inputs: { [Key in InputNames]: Input },
   ) {
     gl.useProgram(program)
     this.vao = gl.createVertexArray()!

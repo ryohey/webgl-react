@@ -22,7 +22,7 @@ export const BorderedRectangles: FC<BorderedRectanglesProps> = ({
   const projectionMatrix = useProjectionMatrix()
   const uniforms = useMemo(
     () => ({ projectionMatrix, fillColor, strokeColor }),
-    [projectionMatrix, fillColor, strokeColor]
+    [projectionMatrix, fillColor, strokeColor],
   )
 
   return (

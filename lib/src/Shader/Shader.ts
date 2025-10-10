@@ -22,8 +22,8 @@ export class Shader<Uniforms, InputNames extends string> {
     private readonly inputs: { [Key in InputNames]: Input },
     uniforms: UniformDefs<Uniforms>,
     private readonly bufferFactory: (
-      vertexArray: VertexArray<InputNames>
-    ) => Buffer<any, InputNames>
+      vertexArray: VertexArray<InputNames>,
+    ) => Buffer<any, InputNames>,
   ) {
     this.program = initShaderProgram(gl, vsSource, fsSource)
     this.uniforms = Object.fromEntries(
@@ -37,10 +37,10 @@ export class Shader<Uniforms, InputNames extends string> {
             this.program,
             name,
             new RenderProperty(def.initialValue, def.isEqual),
-            def.upload
+            def.upload,
           ),
         ]
-      })
+      }),
     ) as unknown as UniformInstances<Uniforms>
   }
 
@@ -74,7 +74,7 @@ export class Shader<Uniforms, InputNames extends string> {
     buffer.vertexArray.bind()
 
     Object.keys(this.uniforms).forEach((key) =>
-      this.uniforms[key as keyof Uniforms].upload(gl)
+      this.uniforms[key as keyof Uniforms].upload(gl),
     )
 
     if ("instanceCount" in buffer) {
@@ -82,7 +82,7 @@ export class Shader<Uniforms, InputNames extends string> {
         gl.TRIANGLES,
         0,
         buffer.vertexCount,
-        buffer.instanceCount
+        buffer.instanceCount,
       )
     } else {
       gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)

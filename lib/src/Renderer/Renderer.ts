@@ -12,7 +12,7 @@ export class Renderer {
 
   private viewSize: RenderProperty<ISize> = new RenderProperty(
     { width: 0, height: 0 },
-    (a, b) => a.width === b.width && a.height === b.height
+    (a, b) => a.width === b.width && a.height === b.height,
   )
 
   private objects: Renderable[] = []
@@ -94,7 +94,7 @@ export class Renderer {
     mat4.scale(
       projectionMatrix,
       projectionMatrix,
-      vec3.fromValues(scale, scale, scale)
+      vec3.fromValues(scale, scale, scale),
     )
 
     mat4.ortho(
@@ -104,7 +104,7 @@ export class Renderer {
       canvas.clientHeight,
       0,
       zNear,
-      zFar
+      zFar,
     )
 
     return projectionMatrix

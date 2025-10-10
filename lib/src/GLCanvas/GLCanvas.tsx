@@ -25,7 +25,7 @@ export type GLSurfaceProps = Omit<
 
 function createGLContext(
   canvas: HTMLCanvasElement,
-  options: WebGLContextAttributes
+  options: WebGLContextAttributes,
 ) {
   return (
     canvas.getContext("webgl2", options) ?? canvas.getContext("webgl", options)

@@ -15,7 +15,7 @@ export function GLFallback<T extends React.PropsWithChildren<object>>({
 
   const isWebGL2 = useMemo(
     () => renderer?.gl instanceof WebGL2RenderingContext,
-    [renderer]
+    [renderer],
   )
 
   if (!renderer) {

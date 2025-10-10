@@ -12,14 +12,14 @@ class RectangleBuffer
   constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
     this.vertexArray.updateBuffer(
       "position",
-      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
+      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
     )
   }
 
   update(rects: IRect[]) {
     this.vertexArray.updateBuffer(
       "bounds",
-      new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height]))
+      new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
     )
     this._instanceCount = rects.length
   }
@@ -64,5 +64,5 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       projectionMatrix: uniformMat4(),
       color: uniformVec4(),
     },
-    (vertexArray) => new RectangleBuffer(vertexArray)
+    (vertexArray) => new RectangleBuffer(vertexArray),
   )

@@ -54,5 +54,5 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
       fillColor: uniformVec4(),
       strokeColor: uniformVec4(),
     },
-    (vertexArray) => new BorderedCircleBuffer(vertexArray)
+    (vertexArray) => new BorderedCircleBuffer(vertexArray),
   )

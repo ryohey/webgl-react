@@ -5,7 +5,7 @@ import { RenderNode } from "./RenderNode"
 
 interface GLNodeProps<Uniforms, BufferProps> {
   createNode: (
-    gl: WebGLRenderingContext | WebGL2RenderingContext
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
   ) => RenderNode<BufferProps, Uniforms>
   buffer: BufferProps
   uniforms: Uniforms
@@ -46,7 +46,7 @@ export class GLNodeInternal<Uniforms, BufferProps>
   }
 
   override shouldComponentUpdate(
-    nextProps: Readonly<GLNodeProps<Uniforms, BufferProps>>
+    nextProps: Readonly<GLNodeProps<Uniforms, BufferProps>>,
   ): boolean {
     return (
       this.props.buffer !== nextProps.buffer ||

@@ -59,5 +59,5 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
       projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
       color: uniformVec4(gl, program, "uColor"),
     }),
-    (gl) => new SolidRectangleBuffer(gl)
+    (gl) => new SolidRectangleBuffer(gl),
   )

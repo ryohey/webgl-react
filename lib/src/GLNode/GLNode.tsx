@@ -6,11 +6,11 @@ import { RenderNode } from "./RenderNode"
 
 export interface GLNodeProps<
   Uniforms extends Record<string, any>,
-  BufferProps
+  BufferProps,
 > {
   shader: (gl: WebGL2RenderingContext) => Shader<Uniforms, any>
   shaderFallback?: (
-    gl: WebGLRenderingContext
+    gl: WebGLRenderingContext,
   ) => LegacyShader<any, Uniforms, BufferProps>
   uniforms: Uniforms
   buffer: BufferProps
@@ -40,7 +40,7 @@ export function GLNode<Uniforms extends {}, Buffer extends {}>({
 
       throw new Error("Unsupported WebGL context")
     },
-    [createShader, createShaderFallback]
+    [createShader, createShaderFallback],
   )
 
   return (

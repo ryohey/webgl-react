@@ -22,7 +22,7 @@ export const BorderedCircles: FC<BorderedCirclesProps> = ({
   const projectionMatrix = useProjectionMatrix()
   const uniforms = useMemo(
     () => ({ projectionMatrix, fillColor, strokeColor }),
-    [projectionMatrix, fillColor, strokeColor]
+    [projectionMatrix, fillColor, strokeColor],
   )
 
   return (

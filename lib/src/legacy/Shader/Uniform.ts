@@ -4,7 +4,7 @@ import { RenderProperty } from "../../Renderer/RenderProperty"
 type UploadFunc<T> = (
   gl: WebGLRenderingContext,
   location: WebGLUniformLocation,
-  value: T
+  value: T,
 ) => void
 
 export class Uniform<T> {
@@ -17,7 +17,7 @@ export class Uniform<T> {
     program: WebGLProgram,
     name: string,
     initialValue: RenderProperty<T>,
-    fn: UploadFunc<T>
+    fn: UploadFunc<T>,
   ) {
     const location = gl.getUniformLocation(program, name)
     if (location === null) {
@@ -48,40 +48,40 @@ export const uniformMat4 = (
   gl: WebGLRenderingContext,
   program: WebGLProgram,
   name: string,
-  initialValue: mat4 = mat4.create()
+  initialValue: mat4 = mat4.create(),
 ) =>
   new Uniform<mat4>(
     gl,
     program,
     name,
     new RenderProperty<mat4>(initialValue, mat4.equals),
-    (gl, location, value) => gl.uniformMatrix4fv(location, false, value)
+    (gl, location, value) => gl.uniformMatrix4fv(location, false, value),
   )
 
 export const uniformVec4 = (
   gl: WebGLRenderingContext,
   program: WebGLProgram,
   name: string,
-  initialValue: vec4 = vec4.create()
+  initialValue: vec4 = vec4.create(),
 ) =>
   new Uniform<vec4>(
     gl,
     program,
     name,
     new RenderProperty<vec4>(initialValue, vec4.equals),
-    (gl, location, value) => gl.uniform4fv(location, value)
+    (gl, location, value) => gl.uniform4fv(location, value),
   )
 
 export const uniformFloat = (
   gl: WebGLRenderingContext,
   program: WebGLProgram,
   name: string,
-  initialValue: number = 0
+  initialValue: number = 0,
 ) =>
   new Uniform<number>(
     gl,
     program,
     name,
     new RenderProperty<number>(initialValue),
-    (gl, location, value) => gl.uniform1f(location, value)
+    (gl, location, value) => gl.uniform1f(location, value),
   )

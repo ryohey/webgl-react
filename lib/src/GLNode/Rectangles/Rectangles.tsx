@@ -16,7 +16,7 @@ export const Rectangles: FC<RectanglesProps> = ({ rects, color, zIndex }) => {
   const projectionMatrix = useProjectionMatrix()
   const uniforms = useMemo(
     () => ({ projectionMatrix, color }),
-    [projectionMatrix, color]
+    [projectionMatrix, color],
   )
 
   return (

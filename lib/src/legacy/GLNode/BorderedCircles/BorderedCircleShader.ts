@@ -93,5 +93,5 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
       fillColor: uniformVec4(gl, program, "uFillColor"),
       strokeColor: uniformVec4(gl, program, "uStrokeColor"),
     }),
-    (gl) => new BorderedCircleBuffer(gl)
+    (gl) => new BorderedCircleBuffer(gl),
   )
