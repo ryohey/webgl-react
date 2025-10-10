@@ -10,7 +10,8 @@
     "start:example": "npm start --workspace=example",
     "build": "npm run build --workspace=lib",
     "publish": "npm publish --workspace=lib",
-    "test": "npm run test --workspace=lib"
+    "test": "npm run test --workspace=lib",
+    "format": "npm run format --workspaces"
   },
   "author": "ryohey",
   "license": "MIT",
@@ -19,6 +20,7 @@
     "example"
   ],
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^9.0.1",
+    "prettier": "^3.6.2"
   }
 }

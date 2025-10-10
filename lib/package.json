@@ -21,7 +21,8 @@
     "start": "rollup --config --watch",
     "build": "rollup --config",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "repository": {
     "type": "git",
