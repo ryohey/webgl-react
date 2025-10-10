@@ -1,7 +1,8 @@
 import Reconciler from "react-reconciler"
 import { DefaultEventPriority } from "react-reconciler/constants"
 import { RenderNode } from "../GLNode/RenderNode"
-import { GLContainer, GLHostContext, GLPrimitiveProps } from "./types"
+import { Renderer } from "../Renderer/Renderer"
+import { GLPrimitiveProps } from "./types"
 
 const GLReconciler = Reconciler({
   supportsMutation: true,
@@ -10,11 +11,9 @@ const GLReconciler = Reconciler({
   createInstance: (
     type: string,
     props: GLPrimitiveProps,
-    _rootContainerInstance: GLContainer,
-    hostContext: GLHostContext,
-    _internalInstanceHandle: any,
+    rootContainer: Renderer,
   ) => {
-    const instance = props.createNode(hostContext.gl)
+    const instance = props.createNode(rootContainer.gl)
 
     instance.type = type
     instance.update(props.buffer)
@@ -35,8 +34,8 @@ const GLReconciler = Reconciler({
     parentInstance.children.push(child)
   },
 
-  appendChildToContainer: (container: GLContainer, child: RenderNode) => {
-    container.renderer.rootNode.children.push(child)
+  appendChildToContainer: (container: Renderer, child: RenderNode) => {
+    container.rootNode.children.push(child)
   },
 
   insertBefore: (
@@ -53,15 +52,15 @@ const GLReconciler = Reconciler({
   },
 
   insertInContainerBefore: (
-    container: GLContainer,
+    container: Renderer,
     child: RenderNode,
     beforeChild: RenderNode,
   ) => {
-    const index = container.renderer.rootNode.children.indexOf(beforeChild)
+    const index = container.rootNode.children.indexOf(beforeChild)
     if (index !== -1) {
-      container.renderer.rootNode.children.splice(index, 0, child)
+      container.rootNode.children.splice(index, 0, child)
     } else {
-      container.renderer.rootNode.children.push(child)
+      container.rootNode.children.push(child)
     }
   },
 
@@ -72,10 +71,10 @@ const GLReconciler = Reconciler({
     }
   },
 
-  removeChildFromContainer: (container: GLContainer, child: RenderNode) => {
-    const index = container.renderer.rootNode.children.indexOf(child)
+  removeChildFromContainer: (container: Renderer, child: RenderNode) => {
+    const index = container.rootNode.children.indexOf(child)
     if (index !== -1) {
-      container.renderer.rootNode.children.splice(index, 1)
+      container.rootNode.children.splice(index, 1)
     }
   },
 
@@ -97,29 +96,15 @@ const GLReconciler = Reconciler({
     }
   },
 
-  commitMount: () => {
-    // マウント後の処理が必要な場合はここに
-  },
-
-  getPublicInstance: (instance: RenderNode) => instance,
-
-  getRootHostContext: (rootContainerInstance: GLContainer): GLHostContext => ({
-    gl: rootContainerInstance.renderer.gl,
-    renderer: rootContainerInstance.renderer,
-    transform: rootContainerInstance.renderer.createProjectionMatrix(),
-  }),
-
-  getChildHostContext: (
-    parentHostContext: GLHostContext,
-    _type: string,
-  ): GLHostContext => parentHostContext,
-
+  commitMount: () => {},
+  getPublicInstance: (instance) => instance,
+  getRootHostContext: () => null,
+  getChildHostContext: () => null,
   shouldSetTextContent: () => false,
-
   finalizeInitialChildren: () => false,
 
-  clearContainer: (container: GLContainer) => {
-    container.renderer.rootNode.children = []
+  clearContainer: (container: Renderer) => {
+    container.rootNode.children = []
   },
 
   commitTextUpdate: () => {
@@ -128,7 +113,7 @@ const GLReconciler = Reconciler({
 
   prepareForCommit: () => null,
   resetAfterCommit: (container) => {
-    container.renderer.setNeedsDisplay()
+    container.setNeedsDisplay()
   },
   preparePortalMount: () => {},
 
@@ -153,7 +138,6 @@ const GLReconciler = Reconciler({
       ? queueMicrotask
       : (fn: () => void) => Promise.resolve().then(fn),
 
-  // 必須メソッドの追加
   NotPendingTransition: null,
   HostTransitionContext: {} as any,
   preloadInstance: () => true,

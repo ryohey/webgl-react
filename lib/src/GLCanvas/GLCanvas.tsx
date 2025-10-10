@@ -11,7 +11,6 @@ import {
 } from "react"
 import { EventSystem } from "../EventSystem/EventSystem"
 import GLReconciler from "../reconciler/GLReconciler"
-import { GLContainer } from "../reconciler/types"
 import { Renderer } from "../Renderer/Renderer"
 import { Providers } from "./Providers"
 
@@ -42,7 +41,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
     const [eventSystem, setEventSystem] = useState<EventSystem | null>(null)
-    const [_container, setContainer] = useState<GLContainer | null>(null)
     const [fiberRoot, setFiberRoot] = useState<any>(null)
     const size = useComponentSize(canvasRef)
 
@@ -75,14 +73,9 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       const rendererInstance = new Renderer(gl)
       const eventSystemInstance = new EventSystem()
 
-      const containerInstance: GLContainer = {
-        renderer: rendererInstance,
-        eventSystem: eventSystemInstance,
-      }
-
       // reconcilerコンテナを作成
       const root = GLReconciler.createContainer(
-        containerInstance,
+        rendererInstance,
         0,
         null,
         false,
@@ -94,7 +87,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       setRenderer(rendererInstance)
       setEventSystem(eventSystemInstance)
-      setContainer(containerInstance)
       setFiberRoot(root)
 
       return () => {

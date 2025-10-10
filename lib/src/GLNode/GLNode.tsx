@@ -1,18 +1,14 @@
 import { useCallback } from "react"
 import { Shader } from "../Shader/Shader"
 import { Shader as LegacyShader } from "../legacy/Shader/Shader"
+import { GLPrimitiveProps } from "../reconciler/types"
 import { RenderNode } from "./RenderNode"
 
 // reconciler用のJSX型定義
-declare global {
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
-      "gl-node": {
-        uniforms?: any
-        buffer?: any
-        zIndex?: number
-        createNode?: any
-      }
+      "gl-node": GLPrimitiveProps
     }
   }
 }
