@@ -2,6 +2,7 @@ import useComponentSize from "@rehooks/component-size"
 import { mat4 } from "gl-matrix"
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -10,8 +11,8 @@ import {
 } from "react"
 import { EventSystem } from "../EventSystem/EventSystem"
 import { EventSystemContext } from "../hooks/useEventSystem"
-import { TransformContext } from "../hooks/useTransform"
 import { RendererContext } from "../hooks/useRenderer"
+import { TransformContext } from "../hooks/useTransform"
 import { Renderer } from "../Renderer/Renderer"
 
 export type GLSurfaceProps = Omit<
@@ -47,7 +48,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       if (canvas === null) {
         throw new Error("canvas is not mounted")
       }
-      // GL コンテキストを初期化する
       // Initialize GL context
       const gl = createGLContext(canvas, {
         alpha: true,
@@ -59,7 +59,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         preserveDrawingBuffer: false,
       })
 
-      // WebGL が使用可能で動作している場合にのみ続行します
       // Continue only if WebGL is enabled
       if (gl === null) {
         alert("WebGL can't be initialized. May be browser doesn't support")
@@ -78,63 +77,96 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       [renderer, size.width, size.height],
     )
 
-    // Canvas event handlers are now handled directly in the JSX
+    const handleMouseDown = useCallback(
+      (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
+        }
+        props.onMouseDown?.(event)
+      },
+      [eventSystem, props.onMouseDown],
+    )
 
-    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handleMouseUp = useCallback(
+      (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
+        }
+        props.onMouseUp?.(event)
+      },
+      [eventSystem, props.onMouseUp],
+    )
 
-    const handleMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handleMouseMove = useCallback(
+      (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
+        }
+        props.onMouseMove?.(event)
+      },
+      [eventSystem, props.onMouseMove],
+    )
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handleClick = useCallback(
+      (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handleClick(event.nativeEvent, canvasRef.current)
+        }
+        props.onClick?.(event)
+      },
+      [eventSystem, props.onClick],
+    )
 
-    const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handleClick(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handlePointerDown = useCallback(
+      (event: React.PointerEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
+        }
+        props.onPointerDown?.(event)
+      },
+      [eventSystem, props.onPointerDown],
+    )
 
-    const handlePointerDown = (
-      event: React.PointerEvent<HTMLCanvasElement>,
-    ) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handlePointerUp = useCallback(
+      (event: React.PointerEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
+        }
+        props.onPointerUp?.(event)
+      },
+      [eventSystem, props.onPointerUp],
+    )
 
-    const handlePointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handlePointerMove = useCallback(
+      (event: React.PointerEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
+        }
+        props.onPointerMove?.(event)
+      },
+      [eventSystem, props.onPointerMove],
+    )
 
-    const handlePointerMove = (
-      event: React.PointerEvent<HTMLCanvasElement>,
-    ) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
-      }
-    }
-
-    const handlePointerCancel = (
-      event: React.PointerEvent<HTMLCanvasElement>,
-    ) => {
-      if (eventSystem && canvasRef.current) {
-        eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
-      }
-    }
+    const handlePointerCancel = useCallback(
+      (event: React.PointerEvent<HTMLCanvasElement>) => {
+        if (eventSystem && canvasRef.current) {
+          eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
+        }
+        props.onPointerCancel?.(event)
+      },
+      [eventSystem, props.onPointerCancel],
+    )
 
     const canvasScale = window.devicePixelRatio
+
+    const canvasStyle = useMemo(
+      () => ({
+        ...style,
+        width,
+        height,
+      }),
+      [style, width, height],
+    )
 
     return (
       <>
@@ -143,43 +175,15 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
           ref={canvasRef}
           width={width * canvasScale}
           height={height * canvasScale}
-          style={{
-            ...style,
-            width: width,
-            height: height,
-          }}
-          onMouseDown={(event) => {
-            handleMouseDown(event)
-            props.onMouseDown?.(event)
-          }}
-          onMouseUp={(event) => {
-            handleMouseUp(event)
-            props.onMouseUp?.(event)
-          }}
-          onMouseMove={(event) => {
-            handleMouseMove(event)
-            props.onMouseMove?.(event)
-          }}
-          onClick={(event) => {
-            handleClick(event)
-            props.onClick?.(event)
-          }}
-          onPointerDown={(event) => {
-            handlePointerDown(event)
-            props.onPointerDown?.(event)
-          }}
-          onPointerUp={(event) => {
-            handlePointerUp(event)
-            props.onPointerUp?.(event)
-          }}
-          onPointerMove={(event) => {
-            handlePointerMove(event)
-            props.onPointerMove?.(event)
-          }}
-          onPointerCancel={(event) => {
-            handlePointerCancel(event)
-            props.onPointerCancel?.(event)
-          }}
+          style={canvasStyle}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          onClick={handleClick}
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          onPointerMove={handlePointerMove}
+          onPointerCancel={handlePointerCancel}
         />
         {renderer && eventSystem && (
           <RendererContext.Provider value={renderer}>
