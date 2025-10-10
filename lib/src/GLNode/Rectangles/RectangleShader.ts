@@ -40,11 +40,11 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
     precision lowp float;
     layout (location = 0) in vec4 position;
     layout (location = 1) in vec4 bounds; // x, y, width, height
-    uniform mat4 projectionMatrix;
+    uniform mat4 transform;
 
     void main() {
       vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
-      gl_Position = projectionMatrix * transformedPosition;
+      gl_Position = transform * transformedPosition;
     }
     `,
     `#version 300 es
@@ -61,7 +61,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: uniformMat4(),
+      transform: uniformMat4(),
       color: uniformVec4(),
     },
     (vertexArray) => new RectangleBuffer(vertexArray),

@@ -2,7 +2,7 @@ import { mat4 } from "gl-matrix"
 import { useEffect, useMemo } from "react"
 import { IRect } from "../helpers/geometry"
 import { useEventSystem } from "../hooks/useEventSystem"
-import { useProjectionMatrix } from "../hooks/useProjectionMatrix"
+import { useTransform } from "../hooks/useTransform"
 import { HitAreaEventHandler } from "../EventSystem/EventSystem"
 
 export interface HitAreaProps<T = unknown> {
@@ -41,11 +41,11 @@ export const HitArea = <T,>({
   data,
 }: HitAreaProps<T>) => {
   const eventSystem = useEventSystem()
-  const projectionMatrix = useProjectionMatrix()
+  const transform = useTransform()
 
   const finalTransform = useMemo(() => {
-    return mat4.clone(projectionMatrix)
-  }, [projectionMatrix])
+    return mat4.clone(transform)
+  }, [transform])
 
   const hitAreaId = useMemo(() => `hit-area-${Math.random()}`, [])
 

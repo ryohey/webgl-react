@@ -10,7 +10,7 @@ import {
 } from "react"
 import { EventSystem } from "../EventSystem/EventSystem"
 import { EventSystemContext } from "../hooks/useEventSystem"
-import { ProjectionMatrixContext } from "../hooks/useProjectionMatrix"
+import { TransformContext } from "../hooks/useTransform"
 import { RendererContext } from "../hooks/useRenderer"
 import { Renderer } from "../Renderer/Renderer"
 
@@ -73,7 +73,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       setEventSystem(eventSystem)
     }, [])
 
-    const projectionMatrix = useMemo(
+    const transform = useMemo(
       () => renderer?.createProjectionMatrix() ?? mat4.create(),
       [renderer, size.width, size.height],
     )
@@ -184,9 +184,9 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         {renderer && eventSystem && (
           <RendererContext.Provider value={renderer}>
             <EventSystemContext.Provider value={eventSystem}>
-              <ProjectionMatrixContext.Provider value={projectionMatrix}>
+              <TransformContext.Provider value={transform}>
                 {children}
-              </ProjectionMatrixContext.Provider>
+              </TransformContext.Provider>
             </EventSystemContext.Provider>
           </RendererContext.Provider>
         )}

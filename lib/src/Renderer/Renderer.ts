@@ -86,19 +86,19 @@ export class Renderer {
   createProjectionMatrix() {
     const zNear = 0
     const zFar = 100.0
-    const projectionMatrix = mat4.create()
+    const transform = mat4.create()
 
     const canvas = this.gl.canvas as HTMLCanvasElement
 
     const scale = canvas.clientWidth / canvas.width
     mat4.scale(
-      projectionMatrix,
-      projectionMatrix,
+      transform,
+      transform,
       vec3.fromValues(scale, scale, scale),
     )
 
     mat4.ortho(
-      projectionMatrix,
+      transform,
       0,
       canvas.clientWidth,
       canvas.clientHeight,
@@ -107,6 +107,6 @@ export class Renderer {
       zFar,
     )
 
-    return projectionMatrix
+    return transform
   }
 }

@@ -1,20 +1,20 @@
 import { mat4 } from "gl-matrix"
 import { FC, ReactNode } from "react"
 import {
-  ProjectionMatrixContext,
-  useProjectionMatrix,
-} from "../hooks/useProjectionMatrix"
+  TransformContext,
+  useTransform,
+} from "../hooks/useTransform"
 
 export const Transform: FC<{ matrix: mat4; children: ReactNode }> = ({
   matrix,
   children,
 }) => {
-  const projectionMatrix = useProjectionMatrix()
+  const transform = useTransform()
   const t = mat4.create()
-  mat4.multiply(t, projectionMatrix, matrix)
+  mat4.multiply(t, transform, matrix)
   return (
-    <ProjectionMatrixContext.Provider value={t}>
+    <TransformContext.Provider value={t}>
       {children}
-    </ProjectionMatrixContext.Provider>
+    </TransformContext.Provider>
   )
 }

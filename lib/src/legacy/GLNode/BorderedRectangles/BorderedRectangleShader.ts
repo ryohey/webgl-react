@@ -51,12 +51,12 @@ export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
       // XYZW -> X, Y, Width, Height
       attribute vec4 aBounds;
 
-      uniform mat4 uProjectionMatrix;
+      uniform mat4 uTransform;
       varying vec4 vBounds;
       varying vec2 vPosition;
 
       void main() {
-        gl_Position = uProjectionMatrix * aVertexPosition;
+        gl_Position = uTransform * aVertexPosition;
         vBounds = aBounds;
         vPosition = aVertexPosition.xy;
       }
@@ -88,7 +88,7 @@ export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
       bounds: new Attrib(gl, program, "aBounds", 4),
     }),
     (program) => ({
-      projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
+      transform: uniformMat4(gl, program, "uTransform"),
       fillColor: uniformVec4(gl, program, "uFillColor"),
       strokeColor: uniformVec4(gl, program, "uStrokeColor"),
     }),

@@ -43,13 +43,13 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       in vec4 position;
       in vec4 bounds;  // x, y, width, height
 
-      uniform mat4 projectionMatrix;
+      uniform mat4 transform;
       out vec4 vBounds;
       out vec2 vPosition;
 
       void main() {
         vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
-        gl_Position = projectionMatrix * transformedPosition;
+        gl_Position = transform * transformedPosition;
         vBounds = bounds;
         vPosition = transformedPosition.xy;
       }
@@ -84,7 +84,7 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: uniformMat4(),
+      transform: uniformMat4(),
       fillColor: uniformVec4(),
       strokeColor: uniformVec4(),
     },
