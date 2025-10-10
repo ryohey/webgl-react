@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
 import { mat4, vec2 } from "gl-matrix"
-import { EventSystem, HitArea } from "./EventSystem"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { EventSystem } from "./EventSystem"
+import { HitArea } from "./HitArea"
 
 // Mock MouseEvent and PointerEvent for Node.js environment
 global.MouseEvent = vi.fn().mockImplementation((type: string, init?: any) => ({

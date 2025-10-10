@@ -1,9 +1,9 @@
 import { mat4 } from "gl-matrix"
 import { useEffect, useMemo } from "react"
+import { HitAreaEventHandler } from "../EventSystem/HitArea"
 import { IRect } from "../helpers/geometry"
 import { useEventSystem } from "../hooks/useEventSystem"
 import { useTransform } from "../hooks/useTransform"
-import { HitAreaEventHandler } from "../EventSystem/EventSystem"
 
 export interface HitAreaProps<T = unknown> {
   bounds: IRect
