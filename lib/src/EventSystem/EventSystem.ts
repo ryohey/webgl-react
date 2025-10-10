@@ -38,14 +38,6 @@ export class EventSystem {
     this.hitAreas = this.hitAreas.filter((area) => area.id !== id)
   }
 
-  private createHitAreaEvent<T>(
-    nativeEvent: InputEvent,
-    point: vec2,
-    hitArea: HitArea<T>,
-  ): HitAreaEvent<T> {
-    return new HitAreaEvent(nativeEvent, point, hitArea.data)
-  }
-
   private handleHitAreaEvent<T>(
     hitArea: HitArea<T>,
     eventType: keyof Pick<
@@ -68,7 +60,7 @@ export class EventSystem {
   ): boolean {
     const handler = hitArea[eventType]
     if (handler) {
-      const event = this.createHitAreaEvent(nativeEvent, point, hitArea)
+      const event = new HitAreaEvent(nativeEvent, point)
       handler(event)
       return true
     }
@@ -213,22 +205,10 @@ export class EventSystem {
   }
 }
 
-// Function to extract coordinates from either MouseEvent or PointerEvent
-function getEventCoordinates(event: InputEvent): {
-  clientX: number
-  clientY: number
-} {
-  return {
-    clientX: event.clientX,
-    clientY: event.clientY,
-  }
-}
-
 function getLocalPoint(event: InputEvent, element: HTMLElement): vec2 {
   const rect = element.getBoundingClientRect()
-  const coords = getEventCoordinates(event)
-  const x = coords.clientX - rect.left
-  const y = coords.clientY - rect.top
+  const x = event.clientX - rect.left
+  const y = event.clientY - rect.top
   return vec2.fromValues(x, y)
 }
 

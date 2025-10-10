@@ -4,15 +4,13 @@ import { InputEvent } from "./EventSystem"
 export class HitAreaEvent<T = unknown> {
   public readonly nativeEvent: InputEvent
   public readonly point: vec2
-  public readonly data?: T
 
   private propagationStopped = false
   private defaultPrevented = false
 
-  constructor(nativeEvent: InputEvent, point: vec2, data?: T) {
+  constructor(nativeEvent: InputEvent, point: vec2) {
     this.nativeEvent = nativeEvent
     this.point = point
-    this.data = data
   }
 
   stopPropagation(): void {

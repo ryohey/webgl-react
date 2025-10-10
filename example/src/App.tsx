@@ -73,7 +73,7 @@ export const App = () => {
   }, [])
 
   const handleRectClick = (index: number) => (event: any) => {
-    console.log(`Clicked rect ${index}:`, event.point, event.data)
+    console.log(`Clicked rect ${index}:`, event.point)
     setRectColors((prev) => ({
       ...prev,
       [index]: getRandomColor(),
@@ -101,7 +101,6 @@ export const App = () => {
             <HitArea
               bounds={rect}
               onClick={handleRectClick(index)}
-              data={{ rectIndex: index, name: `Rect ${index}` }}
               zIndex={1}
             />
           </React.Fragment>

@@ -19,7 +19,6 @@ export interface HitArea<T = unknown> {
   onPointerEnter?: HitAreaEventHandler<T>
   onPointerLeave?: HitAreaEventHandler<T>
   onPointerCancel?: HitAreaEventHandler<T>
-  data?: T
 }
 export interface HitAreaEventHandler<T = unknown> {
   (event: HitAreaEvent<T>): void

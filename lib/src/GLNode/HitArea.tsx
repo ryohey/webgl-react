@@ -20,7 +20,6 @@ export interface HitAreaProps<T = unknown> {
   onPointerEnter?: HitAreaEventHandler<T>
   onPointerLeave?: HitAreaEventHandler<T>
   onPointerCancel?: HitAreaEventHandler<T>
-  data?: T
 }
 
 export const HitArea = <T,>({
@@ -38,7 +37,6 @@ export const HitArea = <T,>({
   onPointerEnter,
   onPointerLeave,
   onPointerCancel,
-  data,
 }: HitAreaProps<T>) => {
   const eventSystem = useEventSystem()
   const transform = useTransform()
@@ -67,7 +65,6 @@ export const HitArea = <T,>({
       onPointerEnter,
       onPointerLeave,
       onPointerCancel,
-      data,
     }
 
     eventSystem.addHitArea(hitArea)
@@ -93,7 +90,6 @@ export const HitArea = <T,>({
     onPointerEnter,
     onPointerLeave,
     onPointerCancel,
-    data,
   ])
 
   return null
