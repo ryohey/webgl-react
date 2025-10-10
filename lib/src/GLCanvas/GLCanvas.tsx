@@ -10,10 +10,10 @@ import {
   useState,
 } from "react"
 import { EventSystem } from "../EventSystem/EventSystem"
-import { EventSystemContext } from "../hooks/useEventSystem"
-import { RendererContext } from "../hooks/useRenderer"
-import { TransformContext } from "../hooks/useTransform"
+import GLReconciler from "../reconciler/GLReconciler"
+import { GLContainer } from "../reconciler/types"
 import { Renderer } from "../Renderer/Renderer"
+import { Providers } from "./Providers"
 
 export type GLSurfaceProps = Omit<
   React.DetailedHTMLProps<
@@ -24,7 +24,7 @@ export type GLSurfaceProps = Omit<
 > & {
   width: number
   height: number
-  onInitError?: (error: string) => void
+  onInitError?: () => void
 }
 
 function createGLContext(
@@ -37,11 +37,13 @@ function createGLContext(
 }
 
 export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
-  ({ width, height, style, children, onInitError = (error) => alert(error), ...props }, ref) => {
+  ({ width, height, style, children, onInitError, ...props }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
     const [eventSystem, setEventSystem] = useState<EventSystem | null>(null)
+    const [_container, setContainer] = useState<GLContainer | null>(null)
+    const [fiberRoot, setFiberRoot] = useState<any>(null)
     const size = useComponentSize(canvasRef)
 
     useEffect(() => {
@@ -62,21 +64,70 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       // Continue only if WebGL is enabled
       if (gl === null) {
-        onInitError("WebGL can't be initialized. May be browser doesn't support")
+        if (onInitError) {
+          onInitError()
+        } else {
+          alert("WebGL can't be initialized. May be browser doesn't support")
+        }
         return
       }
 
-      const renderer = new Renderer(gl)
-      const eventSystem = new EventSystem()
+      const rendererInstance = new Renderer(gl)
+      const eventSystemInstance = new EventSystem()
 
-      setRenderer(renderer)
-      setEventSystem(eventSystem)
+      const containerInstance: GLContainer = {
+        type: "ROOT",
+        children: [],
+        renderer: rendererInstance,
+        eventSystem: eventSystemInstance,
+      }
+
+      // reconcilerコンテナを作成
+      const root = GLReconciler.createContainer(
+        containerInstance,
+        0,
+        null,
+        false,
+        null,
+        "",
+        () => {},
+        null,
+      )
+
+      setRenderer(rendererInstance)
+      setEventSystem(eventSystemInstance)
+      setContainer(containerInstance)
+      setFiberRoot(root)
+
+      return () => {
+        // クリーンアップ
+        if (root) {
+          GLReconciler.updateContainer(null, root, null, () => {})
+        }
+      }
     }, [onInitError])
 
     const transform = useMemo(
       () => renderer?.createProjectionMatrix() ?? mat4.create(),
       [renderer, size.width, size.height],
     )
+
+    const content = (
+      <Providers
+        renderer={renderer}
+        transform={transform}
+        eventSystem={eventSystem}
+      >
+        {children}
+      </Providers>
+    )
+
+    // reconcilerに子要素をレンダリング
+    useEffect(() => {
+      if (fiberRoot) {
+        GLReconciler.updateContainer(content, fiberRoot, null, () => {})
+      }
+    }, [fiberRoot, content])
 
     const handleMouseDown = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -169,33 +220,34 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       [style, width, height],
     )
 
-    return (
-      <>
+    if (!renderer || !eventSystem) {
+      return (
         <canvas
           {...props}
           ref={canvasRef}
           width={width * canvasScale}
           height={height * canvasScale}
           style={canvasStyle}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          onClick={handleClick}
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-          onPointerMove={handlePointerMove}
-          onPointerCancel={handlePointerCancel}
         />
-        {renderer && eventSystem && (
-          <RendererContext.Provider value={renderer}>
-            <EventSystemContext.Provider value={eventSystem}>
-              <TransformContext.Provider value={transform}>
-                {children}
-              </TransformContext.Provider>
-            </EventSystemContext.Provider>
-          </RendererContext.Provider>
-        )}
-      </>
+      )
+    }
+
+    return (
+      <canvas
+        {...props}
+        ref={canvasRef}
+        width={width * canvasScale}
+        height={height * canvasScale}
+        style={canvasStyle}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerMove={handlePointerMove}
+        onPointerCancel={handlePointerCancel}
+      />
     )
   },
 )

@@ -33,10 +33,6 @@ export class Renderer {
     })
   }
 
-  setObjects(objects: Renderable[]) {
-    this.objects = objects
-  }
-
   addObject(object: Renderable) {
     this.objects.push(object)
   }
@@ -78,6 +74,7 @@ export class Renderer {
 
     this.clear()
 
+    // オブジェクトをzIndexでソートしてレンダリング
     this.objects
       .sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0))
       .forEach((o) => o.draw())
@@ -91,11 +88,7 @@ export class Renderer {
     const canvas = this.gl.canvas as HTMLCanvasElement
 
     const scale = canvas.clientWidth / canvas.width
-    mat4.scale(
-      transform,
-      transform,
-      vec3.fromValues(scale, scale, scale),
-    )
+    mat4.scale(transform, transform, vec3.fromValues(scale, scale, scale))
 
     mat4.ortho(
       transform,

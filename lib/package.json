@@ -22,6 +22,7 @@
     "build": "rollup --config",
     "test": "vitest run",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "repository": {
@@ -39,16 +40,18 @@
   },
   "homepage": "https://github.com/ryohey/webgl-react#readme",
   "peerDependencies": {
-    "react": ">=18.1.0"
+    "react": ">=19.2.0"
   },
   "dependencies": {
     "@rehooks/component-size": "^1.0.3",
-    "gl-matrix": "^3.4.3"
+    "gl-matrix": "^3.4.3",
+    "react-reconciler": "^0.33.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-typescript": "^12.1.1",
-    "@types/react": "^18.3.12",
+    "@types/react": "^19.2.2",
+    "@types/react-reconciler": "^0.32.1",
     "rollup": "^4.24.3",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"

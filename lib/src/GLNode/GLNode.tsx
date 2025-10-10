@@ -1,8 +1,21 @@
 import { useCallback } from "react"
 import { Shader } from "../Shader/Shader"
 import { Shader as LegacyShader } from "../legacy/Shader/Shader"
-import { GLNodeInternal } from "./GLNodeInternal"
 import { RenderNode } from "./RenderNode"
+
+// reconciler用のJSX型定義
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "gl-node": {
+        uniforms?: any
+        buffer?: any
+        zIndex?: number
+        createNode?: any
+      }
+    }
+  }
+}
 
 export interface GLNodeProps<
   Uniforms extends Record<string, any>,
@@ -44,7 +57,7 @@ export function GLNode<Uniforms extends {}, Buffer extends {}>({
   )
 
   return (
-    <GLNodeInternal
+    <gl-node
       createNode={createRenderNode}
       uniforms={uniforms}
       buffer={buffer}

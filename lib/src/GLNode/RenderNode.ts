@@ -7,7 +7,11 @@ interface Shader<Uniforms, Buffer> {
   draw: (buffer: Buffer) => void
 }
 
-export class RenderNode<Props, Uniforms> {
+export class RenderNode<Props = any, Uniforms = any> {
+  type: string = "RENDER_NODE"
+  zIndex = 0
+  children: RenderNode<any, any>[] = []
+
   constructor(
     private readonly shader: Shader<Uniforms, any>,
     private readonly buffer: Buffer<Props>,

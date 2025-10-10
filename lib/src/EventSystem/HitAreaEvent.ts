@@ -1,7 +1,7 @@
 import { vec2 } from "gl-matrix"
 import { InputEvent } from "./EventSystem"
 
-export class HitAreaEvent<T = unknown> {
+export class HitAreaEvent<_T = unknown> {
   public readonly nativeEvent: InputEvent
   public readonly point: vec2
 
