@@ -64,6 +64,45 @@ GLCanvas is a wrapper for the canvas component. You can use any of the canvas pr
 - BorderedRectangles
 - BorderedCircles
 
+## Event Handling
+
+### HitArea
+
+HitArea is a component that enables mouse and pointer event handling for WebGL rendered shapes. It defines an invisible interactive area that can respond to user input.
+
+```tsx
+import { HitArea } from "@ryohey/webgl-react"
+
+<HitArea
+  bounds={{ x: 100, y: 200, width: 30, height: 50 }}
+  zIndex={1}
+  onClick={(event) => console.log('Clicked!', event.point)}
+  onMouseEnter={(event) => console.log('Mouse entered')}
+  onMouseLeave={(event) => console.log('Mouse left')}
+/>
+```
+
+#### Props
+
+- `bounds`: Rectangle defining the hit area (`{ x, y, width, height }`)
+- `zIndex`: Optional z-index for layering (higher values are on top)
+- Event handlers:
+  - `onClick`, `onMouseDown`, `onMouseUp`, `onMouseMove`
+  - `onMouseEnter`, `onMouseLeave`
+  - `onPointerDown`, `onPointerUp`, `onPointerMove`
+  - `onPointerEnter`, `onPointerLeave`, `onPointerCancel`
+
+### EventSystem
+
+The EventSystem manages hit testing and event routing for all HitArea components within a GLCanvas. It automatically handles z-index ordering and ensures events are delivered to the topmost interactive element.
+
+Features:
+- Z-index based hit testing (higher z-index elements receive events first)
+- Mouse enter/leave tracking
+- Support for both mouse and pointer events
+- Coordinate transformation from canvas to local space
+- Canvas-level event fallback when no hit areas are targeted
+
 ## [Custom Shape](custom-shape)
 
 1. Write a GLSL shader and pass it to `new Shader()`
