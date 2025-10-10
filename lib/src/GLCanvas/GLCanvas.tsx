@@ -24,6 +24,7 @@ export type GLSurfaceProps = Omit<
 > & {
   width: number
   height: number
+  onInitError?: (error: string) => void
 }
 
 function createGLContext(
@@ -36,7 +37,7 @@ function createGLContext(
 }
 
 export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
-  ({ width, height, style, children, ...props }, ref) => {
+  ({ width, height, style, children, onInitError = (error) => alert(error), ...props }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
@@ -61,7 +62,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       // Continue only if WebGL is enabled
       if (gl === null) {
-        alert("WebGL can't be initialized. May be browser doesn't support")
+        onInitError("WebGL can't be initialized. May be browser doesn't support")
         return
       }
 
@@ -70,7 +71,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       setRenderer(renderer)
       setEventSystem(eventSystem)
-    }, [])
+    }, [onInitError])
 
     const transform = useMemo(
       () => renderer?.createProjectionMatrix() ?? mat4.create(),
