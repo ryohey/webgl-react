@@ -1,11 +1,7 @@
 import { mat4, vec3 } from "gl-matrix"
+import { ContainerNode } from "../GLNode/RenderNode"
 import { ISize } from "../helpers/geometry"
 import { RenderProperty } from "./RenderProperty"
-
-export interface Renderable {
-  draw(): void
-  zIndex?: number
-}
 
 export class Renderer {
   readonly gl: WebGLRenderingContext | WebGL2RenderingContext
@@ -15,8 +11,8 @@ export class Renderer {
     (a, b) => a.width === b.width && a.height === b.height,
   )
 
-  private objects: Renderable[] = []
   private isQueued = false
+  readonly rootNode = new ContainerNode()
 
   constructor(gl: WebGLRenderingContext | WebGL2RenderingContext) {
     this.gl = gl
@@ -31,14 +27,6 @@ export class Renderer {
       this.isQueued = false
       this.render()
     })
-  }
-
-  addObject(object: Renderable) {
-    this.objects.push(object)
-  }
-
-  removeObject(object: Renderable) {
-    this.objects = this.objects.filter((obj) => obj !== object)
   }
 
   private clear() {
@@ -74,10 +62,7 @@ export class Renderer {
 
     this.clear()
 
-    // オブジェクトをzIndexでソートしてレンダリング
-    this.objects
-      .sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0))
-      .forEach((o) => o.draw())
+    this.rootNode.draw()
   }
 
   createProjectionMatrix() {

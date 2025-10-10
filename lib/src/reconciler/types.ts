@@ -14,8 +14,6 @@ export interface GLPrimitiveProps {
 }
 
 export type GLContainer = {
-  type: "ROOT"
-  children: RenderNode[]
   renderer: Renderer
   eventSystem: EventSystem
 }

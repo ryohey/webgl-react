@@ -20,9 +20,6 @@ const GLReconciler = Reconciler({
     instance.update(props.buffer)
     instance.setUniforms(props.uniforms)
 
-    hostContext.renderer.addObject(instance)
-    hostContext.renderer.setNeedsDisplay()
-
     return instance
   },
 
@@ -39,7 +36,7 @@ const GLReconciler = Reconciler({
   },
 
   appendChildToContainer: (container: GLContainer, child: RenderNode) => {
-    container.children.push(child)
+    container.renderer.rootNode.children.push(child)
   },
 
   insertBefore: (
@@ -60,11 +57,11 @@ const GLReconciler = Reconciler({
     child: RenderNode,
     beforeChild: RenderNode,
   ) => {
-    const index = container.children.indexOf(beforeChild)
+    const index = container.renderer.rootNode.children.indexOf(beforeChild)
     if (index !== -1) {
-      container.children.splice(index, 0, child)
+      container.renderer.rootNode.children.splice(index, 0, child)
     } else {
-      container.children.push(child)
+      container.renderer.rootNode.children.push(child)
     }
   },
 
@@ -76,13 +73,10 @@ const GLReconciler = Reconciler({
   },
 
   removeChildFromContainer: (container: GLContainer, child: RenderNode) => {
-    const index = container.children.indexOf(child)
+    const index = container.renderer.rootNode.children.indexOf(child)
     if (index !== -1) {
-      container.children.splice(index, 1)
+      container.renderer.rootNode.children.splice(index, 1)
     }
-    // レンダラーから削除
-    container.renderer?.removeObject(child)
-    container.renderer?.setNeedsDisplay()
   },
 
   commitUpdate: (
@@ -125,7 +119,7 @@ const GLReconciler = Reconciler({
   finalizeInitialChildren: () => false,
 
   clearContainer: (container: GLContainer) => {
-    container.children = []
+    container.renderer.rootNode.children = []
   },
 
   commitTextUpdate: () => {

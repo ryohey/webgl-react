@@ -76,8 +76,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       const eventSystemInstance = new EventSystem()
 
       const containerInstance: GLContainer = {
-        type: "ROOT",
-        children: [],
         renderer: rendererInstance,
         eventSystem: eventSystemInstance,
       }

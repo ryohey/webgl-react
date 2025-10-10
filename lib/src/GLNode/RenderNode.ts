@@ -7,15 +7,25 @@ interface Shader<Uniforms, Buffer> {
   draw: (buffer: Buffer) => void
 }
 
-export class RenderNode<Props = any, Uniforms = any> {
-  type: string = "RENDER_NODE"
+export class ContainerNode {
+  type: string = "NODE"
   zIndex = 0
-  children: RenderNode<any, any>[] = []
+  children: ContainerNode[] = []
 
+  draw() {
+    this.children
+      .sort((a, b) => a.zIndex - b.zIndex)
+      .forEach((child) => child.draw())
+  }
+}
+
+export class RenderNode<Props = any, Uniforms = any> extends ContainerNode {
   constructor(
     private readonly shader: Shader<Uniforms, any>,
     private readonly buffer: Buffer<Props>,
-  ) {}
+  ) {
+    super()
+  }
 
   update(props: Props) {
     this.buffer.update(props)
@@ -25,7 +35,8 @@ export class RenderNode<Props = any, Uniforms = any> {
     this.shader.setUniforms(uniforms)
   }
 
-  draw() {
+  override draw() {
     this.shader.draw(this.buffer)
+    super.draw()
   }
 }
