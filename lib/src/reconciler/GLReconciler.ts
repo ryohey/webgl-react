@@ -85,7 +85,6 @@ const GLReconciler = Reconciler({
     nextProps: GLPrimitiveProps,
     _internalHandle: any,
   ) => {
-    // バッファとuniformsを更新
     if (instance) {
       if (prevProps.buffer !== nextProps.buffer) {
         instance.update(nextProps.buffer)

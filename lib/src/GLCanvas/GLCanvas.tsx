@@ -46,10 +46,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     useEffect(() => {
       const canvas = canvasRef.current
+
       if (canvas === null) {
         throw new Error("canvas is not mounted")
       }
-      // Initialize GL context
+
       const gl = createGLContext(canvas, {
         alpha: true,
         antialias: false,
@@ -60,7 +61,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         preserveDrawingBuffer: false,
       })
 
-      // Continue only if WebGL is enabled
       if (gl === null) {
         if (onInitError) {
           onInitError()
@@ -73,7 +73,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       const rendererInstance = new Renderer(gl)
       const eventSystemInstance = new EventSystem()
 
-      // reconcilerコンテナを作成
       const root = GLReconciler.createContainer(
         rendererInstance,
         0,
@@ -90,7 +89,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       setFiberRoot(root)
 
       return () => {
-        // クリーンアップ
         if (root) {
           GLReconciler.updateContainer(null, root, null, () => {})
         }
@@ -112,7 +110,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       </Providers>
     )
 
-    // reconcilerに子要素をレンダリング
+    // Render
     useEffect(() => {
       if (fiberRoot) {
         GLReconciler.updateContainer(content, fiberRoot, null, () => {})
