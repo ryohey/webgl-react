@@ -85,13 +85,11 @@ const GLReconciler = Reconciler({
     nextProps: GLPrimitiveProps,
     _internalHandle: any,
   ) => {
-    if (instance) {
-      if (prevProps.buffer !== nextProps.buffer) {
-        instance.update(nextProps.buffer)
-      }
-      if (prevProps.uniforms !== nextProps.uniforms) {
-        instance.setUniforms(nextProps.uniforms)
-      }
+    if (prevProps.buffer !== nextProps.buffer) {
+      instance.update(nextProps.buffer)
+    }
+    if (prevProps.uniforms !== nextProps.uniforms) {
+      instance.setUniforms(nextProps.uniforms)
     }
   },
 
