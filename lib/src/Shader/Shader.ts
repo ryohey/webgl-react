@@ -1,14 +1,6 @@
-import { RenderProperty } from "../Renderer/RenderProperty"
-import { Uniform, UniformDef } from "./Uniform"
-import { Input, VertexArray } from "./VertexArray"
-
-export type UniformDefs<T> = {
-  [K in keyof T]: UniformDef<T[K]>
-}
-
-type UniformInstances<T> = {
-  [K in keyof T]: Uniform<T[K]>
-}
+import { VertexArray } from "./VertexArray"
+import { UniformInstances } from "./createUniforms"
+import { AttributeInputs } from "./createAttributes"
 
 export class Shader<Uniforms, InputNames extends string> {
   private readonly uniforms: UniformInstances<Uniforms>
@@ -16,28 +8,13 @@ export class Shader<Uniforms, InputNames extends string> {
   constructor(
     private readonly gl: WebGL2RenderingContext,
     private readonly program: WebGLProgram,
-    private readonly inputs: { [Key in InputNames]: Input },
-    uniforms: UniformDefs<Uniforms>,
+    private readonly inputs: AttributeInputs<InputNames>,
+    uniforms: UniformInstances<Uniforms>,
     private readonly bufferFactory: (
       vertexArray: VertexArray<InputNames>,
     ) => Buffer<any, InputNames>,
   ) {
-    this.uniforms = Object.fromEntries(
-      Object.keys(uniforms).map((name) => {
-        const key = name as keyof Uniforms
-        const def = uniforms[key]
-        return [
-          key,
-          new Uniform(
-            gl,
-            this.program,
-            name,
-            new RenderProperty(def.initialValue, def.isEqual),
-            def.upload,
-          ),
-        ]
-      }),
-    ) as unknown as UniformInstances<Uniforms>
+    this.uniforms = uniforms
   }
 
   setUniforms(props: Uniforms) {
