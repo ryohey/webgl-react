@@ -1,7 +1,6 @@
 import { RenderProperty } from "../Renderer/RenderProperty"
 import { Uniform, UniformDef } from "./Uniform"
 import { Input, VertexArray } from "./VertexArray"
-import { initShaderProgram } from "./initShaderProgram"
 
 export type UniformDefs<T> = {
   [K in keyof T]: UniformDef<T[K]>
@@ -12,20 +11,17 @@ type UniformInstances<T> = {
 }
 
 export class Shader<Uniforms, InputNames extends string> {
-  private readonly program: WebGLProgram
   private readonly uniforms: UniformInstances<Uniforms>
 
   constructor(
     private readonly gl: WebGL2RenderingContext,
-    vsSource: string,
-    fsSource: string,
+    private readonly program: WebGLProgram,
     private readonly inputs: { [Key in InputNames]: Input },
     uniforms: UniformDefs<Uniforms>,
     private readonly bufferFactory: (
       vertexArray: VertexArray<InputNames>,
     ) => Buffer<any, InputNames>,
   ) {
-    this.program = initShaderProgram(gl, vsSource, fsSource)
     this.uniforms = Object.fromEntries(
       Object.keys(uniforms).map((name) => {
         const key = name as keyof Uniforms

@@ -1,13 +1,19 @@
-import { Shader } from "../../Shader/Shader"
-import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
+import { mat4, vec4 } from "gl-matrix"
+import { createShader } from "../../Shader/createShader"
 import { BorderedCircleBuffer } from "../BorderedCircles/BorderedCircleShader"
 
+interface BorderedRectangleUniforms {
+  transform: mat4
+  fillColor: vec4
+  strokeColor: vec4
+}
+
 export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
-  new Shader(
+  createShader<BorderedRectangleUniforms, "position" | "bounds">(
     gl,
     `#version 300 es
       precision lowp float;
-      in vec4 position;
+      in vec2 position;
       in vec4 bounds;  // x, y, width, height
 
       uniform mat4 transform;
@@ -15,7 +21,7 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
       out vec2 vPosition;
 
       void main() {
-        vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
+        vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), 0.0, 1.0);
         gl_Position = transform * transformedPosition;
         vBounds = bounds;
         vPosition = transformedPosition.xy;
@@ -45,14 +51,8 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
         }
       }
     `,
-    {
-      position: { size: 2, type: gl.FLOAT },
-      bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
-    },
-    {
-      transform: uniformMat4(),
-      fillColor: uniformVec4(),
-      strokeColor: uniformVec4(),
-    },
     (vertexArray) => new BorderedCircleBuffer(vertexArray),
+    {
+      instanceAttributes: ["bounds"]
+    }
   )
