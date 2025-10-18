@@ -1,22 +1,22 @@
 import { Buffer, InstancedBuffer } from "./Shader"
 import { VertexArray } from "./VertexArray"
 
-// Abstract interface to hide VertexArray implementation details
-export interface BufferUpdater<TAttributes extends string> {
-  updateBuffer(attributeName: TAttributes, data: Float32Array): void
+// Buffer data type for returning attribute data
+export type BufferData<TAttributes extends string> = {
+  [K in TAttributes]?: Float32Array
 }
 
-// Initialization function that runs once to set up static geometry
+// Initialization function that returns static geometry data
 export interface BufferInitFunction<TAttributes extends string> {
-  (updater: BufferUpdater<TAttributes>): void
+  (): BufferData<TAttributes>
 }
 
 export interface BufferUpdateFunction<TData, TAttributes extends string> {
-  (updater: BufferUpdater<TAttributes>, data: TData): number
+  (data: TData): BufferData<TAttributes> & { vertexCount: number }
 }
 
 export interface InstancedBufferUpdateFunction<TData, TAttributes extends string> {
-  (updater: BufferUpdater<TAttributes>, data: TData): { vertexCount: number; instanceCount: number }
+  (data: TData): BufferData<TAttributes> & { vertexCount: number; instanceCount: number }
 }
 
 // For regular buffers
@@ -27,15 +27,15 @@ export function createBuffer<TData, TAttributes extends string>(
 ): Buffer<TData, TAttributes> {
   let vertexCount = 0
 
-  // Create updater that wraps VertexArray to hide implementation
-  const updater: BufferUpdater<TAttributes> = {
-    updateBuffer(attributeName: TAttributes, data: Float32Array) {
-      vertexArray.updateBuffer(attributeName, data)
+  // Run initialization function once if provided
+  if (initFunction) {
+    const initData = initFunction()
+    for (const [attributeName, data] of Object.entries(initData) as [string, unknown][]) {
+      if (data instanceof Float32Array) {
+        vertexArray.updateBuffer(attributeName as TAttributes, data)
+      }
     }
   }
-
-  // Run initialization function once if provided
-  initFunction?.(updater)
 
   const buffer: Buffer<TData, TAttributes> = {
     get vertexCount() {
@@ -43,7 +43,15 @@ export function createBuffer<TData, TAttributes extends string>(
     },
     vertexArray,
     update(data: TData) {
-      vertexCount = updateFunction(updater, data)
+      const result = updateFunction(data)
+      vertexCount = result.vertexCount
+      
+      // Update all buffers from the result
+      for (const [attributeName, bufferData] of Object.entries(result) as [string, unknown][]) {
+        if (bufferData instanceof Float32Array) {
+          vertexArray.updateBuffer(attributeName as TAttributes, bufferData)
+        }
+      }
     },
   }
 
@@ -59,15 +67,15 @@ export function createInstancedBuffer<TData, TAttributes extends string>(
   let vertexCount = 0
   let instanceCount = 0
 
-  // Create updater that wraps VertexArray to hide implementation
-  const updater: BufferUpdater<TAttributes> = {
-    updateBuffer(attributeName: TAttributes, data: Float32Array) {
-      vertexArray.updateBuffer(attributeName, data)
+  // Run initialization function once if provided
+  if (initFunction) {
+    const initData = initFunction()
+    for (const [attributeName, data] of Object.entries(initData) as [string, unknown][]) {
+      if (data instanceof Float32Array) {
+        vertexArray.updateBuffer(attributeName as TAttributes, data)
+      }
     }
   }
-
-  // Run initialization function once if provided
-  initFunction?.(updater)
 
   const buffer: InstancedBuffer<TData, TAttributes> = {
     get vertexCount() {
@@ -78,9 +86,16 @@ export function createInstancedBuffer<TData, TAttributes extends string>(
     },
     vertexArray,
     update(data: TData) {
-      const result = updateFunction(updater, data)
+      const result = updateFunction(data)
       vertexCount = result.vertexCount
       instanceCount = result.instanceCount
+      
+      // Update all buffers from the result
+      for (const [attributeName, bufferData] of Object.entries(result) as [string, unknown][]) {
+        if (bufferData instanceof Float32Array) {
+          vertexArray.updateBuffer(attributeName as TAttributes, bufferData)
+        }
+      }
     },
   }
 

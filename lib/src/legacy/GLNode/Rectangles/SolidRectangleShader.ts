@@ -2,7 +2,6 @@ import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangles } from "../../../helpers/polygon"
 import { createShader } from "../../Shader/createShader"
-import { LegacyBufferUpdater } from "../../Shader/createBuffer"
 
 interface SolidRectangleUniforms {
   uTransform: mat4
@@ -30,9 +29,8 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
       }
     `,
     attributeNames: ["position"] as const,
-    updateFunction: (updater: LegacyBufferUpdater<"position">, rects: IRect[]) => {
-      const positions = rects.flatMap(rectToTriangles)
-      updater.updateBuffer("position", new Float32Array(positions))
-      return rects.length * 6
-    },
+    updateFunction: (rects: IRect[]) => ({
+      position: new Float32Array(rects.flatMap(rectToTriangles)),
+      vertexCount: rects.length * 6,
+    }),
   })

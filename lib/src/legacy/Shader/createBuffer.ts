@@ -1,17 +1,17 @@
 import { ShaderBuffer } from "./Shader"
 
-// Abstract interface to hide WebGL buffer implementation details
-export interface LegacyBufferUpdater<TAttributes extends string> {
-  updateBuffer(attributeName: TAttributes, data: Float32Array): void
+// Buffer data type for returning attribute data
+export type LegacyBufferData<TAttributes extends string> = {
+  [K in TAttributes]?: Float32Array
 }
 
-// Initialization function that runs once to set up static geometry
+// Initialization function that returns static geometry data
 export interface LegacyBufferInitFunction<TAttributes extends string> {
-  (updater: LegacyBufferUpdater<TAttributes>): void
+  (): LegacyBufferData<TAttributes>
 }
 
 export interface BufferUpdateFunction<TData, TAttributes extends string> {
-  (updater: LegacyBufferUpdater<TAttributes>, data: TData): number
+  (data: TData): LegacyBufferData<TAttributes> & { vertexCount: number }
 }
 
 export function createBuffer<TData, TAttributes extends string>(
@@ -28,16 +28,16 @@ export function createBuffer<TData, TAttributes extends string>(
 
   let vertexCount = 0
 
-  // Create updater that wraps WebGL buffers to hide implementation
-  const updater: LegacyBufferUpdater<TAttributes> = {
-    updateBuffer(attributeName: TAttributes, data: Float32Array) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffers[attributeName])
-      gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
+  // Run initialization function once if provided
+  if (initFunction) {
+    const initData = initFunction()
+    for (const [attributeName, data] of Object.entries(initData) as [string, unknown][]) {
+      if (data instanceof Float32Array) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers[attributeName as TAttributes])
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
+      }
     }
   }
-
-  // Run initialization function once if provided
-  initFunction?.(updater)
 
   const buffer = {
     get vertexCount() {
@@ -45,7 +45,16 @@ export function createBuffer<TData, TAttributes extends string>(
     },
     buffers,
     update(data: TData) {
-      vertexCount = updateFunction(updater, data)
+      const result = updateFunction(data)
+      vertexCount = result.vertexCount
+      
+      // Update all buffers from the result
+      for (const [attributeName, bufferData] of Object.entries(result) as [string, unknown][]) {
+        if (bufferData instanceof Float32Array) {
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffers[attributeName as TAttributes])
+          gl.bufferData(gl.ARRAY_BUFFER, bufferData, gl.DYNAMIC_DRAW)
+        }
+      }
     },
   }
 

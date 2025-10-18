@@ -2,7 +2,6 @@ import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangleBounds, rectToTriangles } from "../../../helpers/polygon"
 import { createShader } from "../../Shader/createShader"
-import { LegacyBufferUpdater } from "../../Shader/createBuffer"
 
 interface BorderedCircleUniforms {
   uTransform: mat4
@@ -53,13 +52,9 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
       }
     `,
     attributeNames: ["position", "bounds"] as const,
-    updateFunction: (updater: LegacyBufferUpdater<"position" | "bounds">, rects: IRect[]) => {
-      const positions = rects.flatMap(rectToTriangles)
-      updater.updateBuffer("position", new Float32Array(positions))
-
-      const bounds = rects.flatMap(rectToTriangleBounds)
-      updater.updateBuffer("bounds", new Float32Array(bounds))
-
-      return rects.length * 6
-    },
+    updateFunction: (rects: IRect[]) => ({
+      position: new Float32Array(rects.flatMap(rectToTriangles)),
+      bounds: new Float32Array(rects.flatMap(rectToTriangleBounds)),
+      vertexCount: rects.length * 6,
+    }),
   })

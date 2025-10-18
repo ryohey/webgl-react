@@ -11,6 +11,7 @@
     "build": "npm run build --workspace=lib",
     "publish": "npm publish --workspace=lib",
     "test": "npm run test --workspace=lib",
+    "typecheck": "npm run typecheck --workspace=lib",
     "format": "npm run format --workspaces"
   },
   "author": "ryohey",
