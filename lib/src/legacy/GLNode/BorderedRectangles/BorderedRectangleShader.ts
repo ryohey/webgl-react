@@ -1,8 +1,7 @@
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangleBounds, rectToTriangles } from "../../../helpers/polygon"
-import { Attrib } from "../../Shader/Attrib"
-import { Shader, ShaderBuffer } from "../../Shader/Shader"
-import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
+import { ShaderBuffer } from "../../Shader/Shader"
+import { createShader } from "../../Shader/createShader"
 
 class BorderedRectangleBuffer implements ShaderBuffer<"position" | "bounds"> {
   private gl: WebGLRenderingContext
@@ -41,8 +40,8 @@ class BorderedRectangleBuffer implements ShaderBuffer<"position" | "bounds"> {
   }
 }
 
-export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
-  new Shader(
+export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
+  createShader(
     gl,
     `
       precision lowp float;
@@ -83,14 +82,5 @@ export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
         }
       }
     `,
-    (program) => ({
-      position: new Attrib(gl, program, "aVertexPosition", 2),
-      bounds: new Attrib(gl, program, "aBounds", 4),
-    }),
-    (program) => ({
-      transform: uniformMat4(gl, program, "uTransform"),
-      fillColor: uniformVec4(gl, program, "uFillColor"),
-      strokeColor: uniformVec4(gl, program, "uStrokeColor"),
-    }),
-    (gl) => new BorderedRectangleBuffer(gl),
+    (vertexArray) => new BorderedRectangleBuffer(gl),
   )
