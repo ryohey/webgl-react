@@ -1,12 +1,11 @@
-import { mat4, vec4 } from "gl-matrix"
-import { Uniform, UniformInstances } from "./Uniform"
+import { Mat4Uniform, Vec4Uniform, FloatUniform, UniformInstances, UniformInstance } from "./Uniform"
 
-export function createUniforms<T>(
+export function createUniforms<T extends Record<string, any>>(
   gl: WebGLRenderingContext,
   program: WebGLProgram,
 ): UniformInstances<T> {
   const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
-  const uniforms: Record<string, Uniform<any>> = {}
+  const uniforms: Record<string, UniformInstance<any>> = {}
 
   for (let i = 0; i < numUniforms; i++) {
     const uniformInfo = gl.getActiveUniform(program, i)
@@ -18,28 +17,13 @@ export function createUniforms<T>(
 
       switch (uniformInfo.type) {
         case gl.FLOAT_MAT4:
-          uniforms[uniformInfo.name] = new Uniform(
-            location,
-            uniformInfo.type,
-            mat4.create(),
-            mat4.equals,
-          )
+          uniforms[uniformInfo.name] = new Mat4Uniform(location)
           break
         case gl.FLOAT_VEC4:
-          uniforms[uniformInfo.name] = new Uniform(
-            location,
-            uniformInfo.type,
-            vec4.create(),
-            vec4.equals,
-          )
+          uniforms[uniformInfo.name] = new Vec4Uniform(location)
           break
         case gl.FLOAT:
-          uniforms[uniformInfo.name] = new Uniform(
-            location,
-            uniformInfo.type,
-            0 as number,
-            (a: number, b: number) => a === b,
-          )
+          uniforms[uniformInfo.name] = new FloatUniform(location)
           break
         default:
           throw new Error(
