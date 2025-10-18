@@ -28,4 +28,5 @@ export * from "./GLNode/GLNode"
 export * from "./GLNode/HitArea"
 export * from "./Renderer/Renderer"
 export * from "./Shader/createShader"
-export * from "./Shader/VertexArray"
+export type { BufferUpdater } from "./Shader/createBuffer"
+// Note: VertexArray is now hidden - use BufferUpdater interface instead

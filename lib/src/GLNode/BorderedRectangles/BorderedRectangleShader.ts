@@ -2,7 +2,7 @@ import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
 import { createInstancedShader } from "../../Shader/createShader"
-import { VertexArray } from "../../Shader/VertexArray"
+import { BufferUpdater } from "../../Shader/createBuffer"
 
 interface BorderedRectangleUniforms {
   transform: mat4
@@ -52,15 +52,15 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
         }
       }
     `,
-    updateFunction: (vertexArray: VertexArray<"position" | "bounds">, rects: IRect[]) => {
+    updateFunction: (updater: BufferUpdater<"position" | "bounds">, rects: IRect[]) => {
       // Set up base rectangle geometry
-      vertexArray.updateBuffer(
+      updater.updateBuffer(
         "position",
         new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
       )
       
       // Update instance data
-      vertexArray.updateBuffer(
+      updater.updateBuffer(
         "bounds",
         new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
       )
