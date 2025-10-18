@@ -9,9 +9,8 @@ interface RectangleUniforms {
 }
 
 export const RectangleShader = (gl: WebGL2RenderingContext) =>
-  createInstancedShader<RectangleUniforms, "position" | "bounds", IRect[]>(
-    gl,
-    `#version 300 es
+  createInstancedShader<RectangleUniforms, "position" | "bounds", IRect[]>(gl, {
+    vertexShader: `#version 300 es
     precision lowp float;
     in vec2 position;
     in vec4 bounds; // x, y, width, height
@@ -22,7 +21,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       gl_Position = transform * transformedPosition;
     }
     `,
-    `#version 300 es
+    fragmentShader: `#version 300 es
     precision lowp float;
     uniform vec4 color;
     out vec4 outColor;
@@ -31,7 +30,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       outColor = color;
     }
     `,
-    (vertexArray, rects: IRect[]) => {
+    updateFunction: (vertexArray, rects: IRect[]) => {
       // Set up base rectangle geometry
       vertexArray.updateBuffer(
         "position",
@@ -46,7 +45,5 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       
       return { vertexCount: 6, instanceCount: rects.length }
     },
-    {
-      instanceAttributes: ["bounds"],
-    },
-  )
+    instanceAttributes: ["bounds"],
+  })

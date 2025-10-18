@@ -4,9 +4,12 @@ import { createUniforms } from "../../Shader/createUniforms"
 import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { Shader } from "./Shader"
 
-// Shader configuration options
-export interface ShaderOptions {
-  instanceAttributes?: string[]
+// Legacy shader configuration options
+export interface CreateShaderOptions<TData, TAttributes extends string> {
+  vertexShader: string
+  fragmentShader: string
+  attributeNames: readonly TAttributes[]
+  updateFunction: BufferUpdateFunction<TData, TAttributes>
 }
 
 // Legacy-compatible createShader with auto-detection and buffer creation
@@ -16,10 +19,12 @@ export function createShader<
   TData,
 >(
   gl: WebGLRenderingContext,
-  vertexShader: string,
-  fragmentShader: string,
-  attributeNames: readonly TAttributes[],
-  updateFunction: BufferUpdateFunction<TData, TAttributes>,
+  {
+    vertexShader,
+    fragmentShader,
+    attributeNames,
+    updateFunction,
+  }: CreateShaderOptions<TData, TAttributes>,
 ) {
   const program = initShaderProgram(gl, vertexShader, fragmentShader)
 

@@ -10,9 +10,8 @@ interface BorderedRectangleUniforms {
 }
 
 export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
-  createInstancedShader<BorderedRectangleUniforms, "position" | "bounds", IRect[]>(
-    gl,
-    `#version 300 es
+  createInstancedShader<BorderedRectangleUniforms, "position" | "bounds", IRect[]>(gl, {
+    vertexShader: `#version 300 es
       precision lowp float;
       in vec2 position;
       in vec4 bounds;  // x, y, width, height
@@ -28,7 +27,7 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
         vPosition = transformedPosition.xy;
       }
     `,
-    `#version 300 es
+    fragmentShader: `#version 300 es
       precision lowp float;
 
       uniform vec4 fillColor;
@@ -52,7 +51,7 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
         }
       }
     `,
-    (vertexArray, rects: IRect[]) => {
+    updateFunction: (vertexArray, rects: IRect[]) => {
       // Set up base rectangle geometry
       vertexArray.updateBuffer(
         "position",
@@ -67,7 +66,5 @@ export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
       
       return { vertexCount: 6, instanceCount: rects.length }
     },
-    {
-      instanceAttributes: ["bounds"]
-    }
-  )
+    instanceAttributes: ["bounds"]
+  })

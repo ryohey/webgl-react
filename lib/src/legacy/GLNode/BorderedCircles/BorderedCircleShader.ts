@@ -3,9 +3,8 @@ import { rectToTriangleBounds, rectToTriangles } from "../../../helpers/polygon"
 import { createShader } from "../../Shader/createShader"
 
 export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
-  createShader(
-    gl,
-    `
+  createShader(gl, {
+    vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
 
@@ -22,7 +21,7 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
         vPosition = aVertexPosition.xy;
       }
     `,
-    `
+    fragmentShader: `
       precision lowp float;
 
       uniform vec4 uFillColor;
@@ -45,8 +44,8 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
         }
       }
     `,
-    ["position", "bounds"] as const,
-    (gl, buffers, rects: IRect[]) => {
+    attributeNames: ["position", "bounds"] as const,
+    updateFunction: (gl, buffers, rects: IRect[]) => {
       const positions = rects.flatMap(rectToTriangles)
       gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
@@ -57,4 +56,4 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
 
       return rects.length * 6
     },
-  )
+  })

@@ -6,7 +6,17 @@ import { createUniforms } from "./createUniforms"
 import { initShaderProgram } from "./initShaderProgram"
 
 // Shader configuration options
-export interface ShaderOptions {
+export interface CreateShaderOptions<TData, TAttributes extends string> {
+  vertexShader: string
+  fragmentShader: string
+  updateFunction: BufferUpdateFunction<TData, TAttributes>
+  instanceAttributes?: string[]
+}
+
+export interface CreateInstancedShaderOptions<TData, TAttributes extends string> {
+  vertexShader: string
+  fragmentShader: string
+  updateFunction: InstancedBufferUpdateFunction<TData, TAttributes>
   instanceAttributes?: string[]
 }
 
@@ -17,10 +27,12 @@ export function createShader<
   TData,
 >(
   gl: WebGL2RenderingContext,
-  vertexShader: string,
-  fragmentShader: string,
-  updateFunction: BufferUpdateFunction<TData, TAttributes>,
-  options: ShaderOptions = {},
+  {
+    vertexShader,
+    fragmentShader,
+    updateFunction,
+    instanceAttributes,
+  }: CreateShaderOptions<TData, TAttributes>,
 ) {
   const program = initShaderProgram(gl, vertexShader, fragmentShader)
 
@@ -29,7 +41,7 @@ export function createShader<
   const inputs = createAttributes<TAttributes>(
     gl,
     program,
-    options.instanceAttributes,
+    instanceAttributes,
   )
 
   // Create buffer factory that uses createBuffer
@@ -52,10 +64,12 @@ export function createInstancedShader<
   TData,
 >(
   gl: WebGL2RenderingContext,
-  vertexShader: string,
-  fragmentShader: string,
-  updateFunction: InstancedBufferUpdateFunction<TData, TAttributes>,
-  options: ShaderOptions = {},
+  {
+    vertexShader,
+    fragmentShader,
+    updateFunction,
+    instanceAttributes,
+  }: CreateInstancedShaderOptions<TData, TAttributes>,
 ) {
   const program = initShaderProgram(gl, vertexShader, fragmentShader)
 
@@ -64,7 +78,7 @@ export function createInstancedShader<
   const inputs = createAttributes<TAttributes>(
     gl,
     program,
-    options.instanceAttributes,
+    instanceAttributes,
   )
 
   // Create buffer factory that uses createInstancedBuffer
