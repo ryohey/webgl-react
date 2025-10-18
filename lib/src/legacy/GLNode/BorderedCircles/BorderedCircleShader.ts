@@ -1,6 +1,5 @@
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangleBounds, rectToTriangles } from "../../../helpers/polygon"
-import { createBuffer } from "../../Shader/createBuffer"
 import { createShader } from "../../Shader/createShader"
 
 export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
@@ -46,19 +45,16 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
         }
       }
     `,
-    (gl) => createBuffer(
-      gl,
-      ["position", "bounds"] as const,
-      (gl, buffers, rects: IRect[]) => {
-        const positions = rects.flatMap(rectToTriangles)
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
+    ["position", "bounds"] as const,
+    (gl, buffers, rects: IRect[]) => {
+      const positions = rects.flatMap(rectToTriangles)
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
 
-        const bounds = rects.flatMap(rectToTriangleBounds)
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.bounds)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bounds), gl.DYNAMIC_DRAW)
+      const bounds = rects.flatMap(rectToTriangleBounds)
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.bounds)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bounds), gl.DYNAMIC_DRAW)
 
-        return rects.length * 6
-      },
-    ),
+      return rects.length * 6
+    },
   )

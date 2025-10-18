@@ -1,6 +1,5 @@
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangles } from "../../../helpers/polygon"
-import { createBuffer } from "../../Shader/createBuffer"
 import { createShader } from "../../Shader/createShader"
 
 export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
@@ -24,14 +23,11 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
         gl_FragColor = uColor;
       }
     `,
-    (gl) => createBuffer(
-      gl,
-      ["position"] as const,
-      (gl, buffers, rects: IRect[]) => {
-        const positions = rects.flatMap(rectToTriangles)
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
-        return rects.length * 6
-      },
-    ),
+    ["position"] as const,
+    (gl, buffers, rects: IRect[]) => {
+      const positions = rects.flatMap(rectToTriangles)
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
+      return rects.length * 6
+    },
   )

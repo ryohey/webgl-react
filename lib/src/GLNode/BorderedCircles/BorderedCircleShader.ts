@@ -1,9 +1,7 @@
 import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
-import { createShader } from "../../Shader/createShader"
-import { InstancedBuffer } from "../../Shader/Shader"
-import { VertexArray } from "../../Shader/VertexArray"
+import { createInstancedShader } from "../../Shader/createShader"
 
 interface BorderedCircleUniforms {
   transform: mat4
@@ -11,39 +9,8 @@ interface BorderedCircleUniforms {
   strokeColor: vec4
 }
 
-export class BorderedCircleBuffer
-  implements InstancedBuffer<IRect[], "position" | "bounds">
-{
-  private _instanceCount: number = 0
-
-  constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
-    this.vertexArray.updateBuffer(
-      "position",
-      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
-    )
-  }
-
-  update(rects: IRect[]) {
-    this.vertexArray.updateBuffer(
-      "bounds",
-      new Float32Array(
-        rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height]),
-      ),
-    )
-    this._instanceCount = rects.length
-  }
-
-  get vertexCount() {
-    return 6
-  }
-
-  get instanceCount() {
-    return this._instanceCount
-  }
-}
-
 export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
-  createShader<BorderedCircleUniforms, "position" | "bounds">(
+  createInstancedShader<BorderedCircleUniforms, "position" | "bounds", IRect[]>(
     gl,
     `#version 300 es
       precision lowp float;
@@ -86,7 +53,21 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
         }
       }
     `,
-    (vertexArray) => new BorderedCircleBuffer(vertexArray),
+    (vertexArray, rects: IRect[]) => {
+      // Set up base rectangle geometry
+      vertexArray.updateBuffer(
+        "position",
+        new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
+      )
+      
+      // Update instance data
+      vertexArray.updateBuffer(
+        "bounds",
+        new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
+      )
+      
+      return { vertexCount: 6, instanceCount: rects.length }
+    },
     {
       instanceAttributes: ["bounds"],
     },
