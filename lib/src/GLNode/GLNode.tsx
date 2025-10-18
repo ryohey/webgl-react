@@ -20,7 +20,7 @@ export interface GLNodeProps<
   shader: (gl: WebGL2RenderingContext) => Shader<Uniforms, any>
   shaderFallback?: (
     gl: WebGLRenderingContext,
-  ) => LegacyShader<any, Uniforms, BufferProps>
+  ) => LegacyShader<any, any, BufferProps>
   uniforms: Uniforms
   buffer: BufferProps
   zIndex?: number

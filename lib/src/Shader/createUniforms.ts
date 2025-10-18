@@ -58,7 +58,7 @@ export function createUniforms<T>(
           break
         }
         case gl.FLOAT: {
-          const prop = new RenderProperty(0, (a: number, b: number) => a === b)
+          const prop = new RenderProperty(0 as number, (a: number, b: number) => a === b)
           uniforms[uniformInfo.name] = {
             get value() { return prop.value },
             set value(val: number) { prop.value = val },
