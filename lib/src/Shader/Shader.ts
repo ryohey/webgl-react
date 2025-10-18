@@ -1,5 +1,5 @@
 import { VertexArray } from "./VertexArray"
-import { UniformInstances } from "./createUniforms"
+import { UniformInstances } from "./Uniform"
 import { AttributeInputs } from "./createAttributes"
 import { Buffer } from "./Buffer"
 
