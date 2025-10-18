@@ -1,9 +1,15 @@
+import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangles } from "../../../helpers/polygon"
 import { createShader } from "../../Shader/createShader"
 
+interface SolidRectangleUniforms {
+  uTransform: mat4
+  uColor: vec4
+}
+
 export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
-  createShader(gl, {
+  createShader<SolidRectangleUniforms, "position", IRect[]>(gl, {
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
@@ -23,7 +29,7 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
       }
     `,
     attributeNames: ["position"] as const,
-    updateFunction: (gl, buffers, rects: IRect[]) => {
+    updateFunction: (gl: WebGLRenderingContext, buffers: { [K in "position"]: WebGLBuffer }, rects: IRect[]) => {
       const positions = rects.flatMap(rectToTriangles)
       gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)

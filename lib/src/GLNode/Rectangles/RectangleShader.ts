@@ -2,6 +2,7 @@ import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
 import { createInstancedShader } from "../../Shader/createShader"
+import { VertexArray } from "../../Shader/VertexArray"
 
 interface RectangleUniforms {
   transform: mat4
@@ -30,7 +31,7 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       outColor = color;
     }
     `,
-    updateFunction: (vertexArray, rects: IRect[]) => {
+    updateFunction: (vertexArray: VertexArray<"position" | "bounds">, rects: IRect[]) => {
       // Set up base rectangle geometry
       vertexArray.updateBuffer(
         "position",

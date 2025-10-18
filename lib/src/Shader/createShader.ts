@@ -22,9 +22,9 @@ export interface CreateInstancedShaderOptions<TData, TAttributes extends string>
 
 // Main createShader function for regular buffers
 export function createShader<
-  TUniforms extends Record<string, any>,
-  TAttributes extends string,
-  TData,
+  TUniforms extends Record<string, any> = {},
+  TAttributes extends string = string,
+  TData = any,
 >(
   gl: WebGL2RenderingContext,
   {
@@ -59,9 +59,9 @@ export function createShader<
 
 // Instanced shader function for instanced rendering
 export function createInstancedShader<
-  TUniforms extends Record<string, any>,
-  TAttributes extends string,
-  TData,
+  TUniforms extends Record<string, any> = {},
+  TAttributes extends string = string,
+  TData = any,
 >(
   gl: WebGL2RenderingContext,
   {

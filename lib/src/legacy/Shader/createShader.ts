@@ -14,9 +14,9 @@ export interface CreateShaderOptions<TData, TAttributes extends string> {
 
 // Legacy-compatible createShader with auto-detection and buffer creation
 export function createShader<
-  TUniforms extends Record<string, any>,
-  TAttributes extends string,
-  TData,
+  TUniforms extends Record<string, any> = {},
+  TAttributes extends string = string,
+  TData = any,
 >(
   gl: WebGLRenderingContext,
   {
