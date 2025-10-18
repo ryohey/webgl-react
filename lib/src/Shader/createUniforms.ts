@@ -3,7 +3,7 @@ import { RenderProperty } from "../Renderer/RenderProperty"
 
 type UniformInstance<T> = {
   value: T
-  upload: (gl: WebGL2RenderingContext) => void
+  upload: (gl: WebGLRenderingContext) => void
 }
 
 export type UniformInstances<T> = {
@@ -11,14 +11,17 @@ export type UniformInstances<T> = {
 }
 
 export function createUniforms<T>(
-  gl: WebGL2RenderingContext,
+  gl: WebGLRenderingContext,
   program: WebGLProgram,
 ): UniformInstances<T> {
   const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
-  const uniforms: Record<string, {
-    value: mat4 | vec4 | number
-    upload: (gl: WebGL2RenderingContext) => void
-  }> = {}
+  const uniforms: Record<
+    string,
+    {
+      value: mat4 | vec4 | number
+      upload: (gl: WebGLRenderingContext) => void
+    }
+  > = {}
 
   for (let i = 0; i < numUniforms; i++) {
     const uniformInfo = gl.getActiveUniform(program, i)
@@ -27,47 +30,62 @@ export function createUniforms<T>(
       if (location === null) {
         throw new Error(`Failed to get uniform location: ${uniformInfo.name}`)
       }
-      
+
       switch (uniformInfo.type) {
         case gl.FLOAT_MAT4: {
           const prop = new RenderProperty(mat4.create(), mat4.equals)
           uniforms[uniformInfo.name] = {
-            get value() { return prop.value },
-            set value(val: mat4) { prop.value = val },
-            upload: (gl: WebGL2RenderingContext) => {
+            get value() {
+              return prop.value
+            },
+            set value(val: mat4) {
+              prop.value = val
+            },
+            upload: (gl: WebGLRenderingContext) => {
               if (prop.isDirty) {
                 gl.uniformMatrix4fv(location, false, prop.value)
                 prop.mark()
               }
-            }
+            },
           }
           break
         }
         case gl.FLOAT_VEC4: {
           const prop = new RenderProperty(vec4.create(), vec4.equals)
           uniforms[uniformInfo.name] = {
-            get value() { return prop.value },
-            set value(val: vec4) { prop.value = val },
-            upload: (gl: WebGL2RenderingContext) => {
+            get value() {
+              return prop.value
+            },
+            set value(val: vec4) {
+              prop.value = val
+            },
+            upload: (gl: WebGLRenderingContext) => {
               if (prop.isDirty) {
                 gl.uniform4fv(location, prop.value)
                 prop.mark()
               }
-            }
+            },
           }
           break
         }
         case gl.FLOAT: {
-          const prop = new RenderProperty(0 as number, (a: number, b: number) => a === b)
+          const prop = new RenderProperty(
+            0 as number,
+            (a: number, b: number) => a === b,
+          )
           uniforms[uniformInfo.name] = {
-            get value() { return prop.value },
-            set value(val: number) { prop.value = val },
-            upload: (gl: WebGL2RenderingContext) => {
+            get value() {
+              return prop.value
+            },
+            set value(val: number) {
+              prop.value = val
+            },
+            upload: (gl: WebGLRenderingContext) => {
               if (prop.isDirty) {
                 gl.uniform1f(location, prop.value)
                 prop.mark()
               }
-            }
+            },
           }
           break
         }

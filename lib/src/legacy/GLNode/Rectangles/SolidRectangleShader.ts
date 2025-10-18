@@ -1,9 +1,7 @@
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangles } from "../../../helpers/polygon"
 import { ShaderBuffer } from "../../Shader/Shader"
-import { createLegacyShader } from "../../../Shader/createShader"
-import { Attrib } from "../../Shader/Attrib"
-import { uniformMat4, uniformVec4 } from "../../Shader/Uniform"
+import { createShader } from "../../Shader/createShader"
 
 class SolidRectangleBuffer implements ShaderBuffer<"position"> {
   private gl: WebGLRenderingContext
@@ -33,7 +31,7 @@ class SolidRectangleBuffer implements ShaderBuffer<"position"> {
 }
 
 export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
-  createLegacyShader(
+  createShader(
     gl,
     `
       precision lowp float;
@@ -53,12 +51,5 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
         gl_FragColor = uColor;
       }
     `,
-    (program) => ({
-      position: new Attrib(gl, program, "aVertexPosition", 2),
-    }),
-    (program) => ({
-      transform: uniformMat4(gl, program, "uTransform"),
-      color: uniformVec4(gl, program, "uColor"),
-    }),
     (gl) => new SolidRectangleBuffer(gl),
   )

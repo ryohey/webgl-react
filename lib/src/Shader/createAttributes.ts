@@ -5,7 +5,7 @@ export type AttributeInputs<T extends string> = {
 }
 
 export function createAttributes<TAttributes extends string>(
-  gl: WebGL2RenderingContext,
+  gl: WebGLRenderingContext,
   program: WebGLProgram,
   instanceAttributes: string[] = [],
 ): AttributeInputs<TAttributes> {
@@ -28,7 +28,10 @@ export function createAttributes<TAttributes extends string>(
 }
 
 // Create attribute input from WebGL attribute info
-function createAttributeInput(gl: WebGL2RenderingContext, attribInfo: WebGLActiveInfo): Input {
+function createAttributeInput(
+  gl: WebGLRenderingContext,
+  attribInfo: WebGLActiveInfo,
+): Input {
   switch (attribInfo.type) {
     case gl.FLOAT_VEC2:
       return { size: 2, type: gl.FLOAT }

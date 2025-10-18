@@ -1,47 +1,34 @@
-import { initShaderProgram } from "../../Shader/initShaderProgram"
-import { Attrib } from "./Attrib"
-import { Uniform } from "./Uniform"
+import { AttributeInstances } from "./createAttributes"
+import { UniformInstances } from "../../Shader/createUniforms"
 
-export interface ShaderBuffer<B extends string | number | symbol> {
+export interface ShaderBuffer<B extends string> {
   vertexCount: number
   buffers: { [P in B]: WebGLBuffer }
 }
 
 export class Shader<
-  A extends string | number | symbol,
+  A extends string,
   U extends { [key: string]: any },
   BufferProps,
 > {
-  private readonly program: WebGLProgram
-
-  readonly attributes: {
-    [P in A]: Attrib
-  }
-  readonly uniforms: {
-    [P in keyof U]: Uniform<U[P]>
-  }
+  readonly program: WebGLProgram
+  readonly attributes: AttributeInstances<A>
+  readonly uniforms: UniformInstances<U>
 
   constructor(
     private readonly gl: WebGLRenderingContext,
-    vsSource: string,
-    fsSource: string,
-    attributes: (program: WebGLProgram) => {
-      [P in A]: Attrib
-    },
-    uniforms: (program: WebGLProgram) => {
-      [P in keyof U]: Uniform<U[P]>
-    },
+    program: WebGLProgram,
+    attributes: AttributeInstances<A>,
+    uniforms: UniformInstances<U>,
     private readonly bufferFactory: (
       gl: WebGLRenderingContext,
     ) => ShaderBuffer<A> & {
       update: (buffer: BufferProps) => void
     },
   ) {
-    const program = initShaderProgram(gl, vsSource, fsSource)!
     this.program = program
-
-    this.attributes = attributes(program)
-    this.uniforms = uniforms(program)
+    this.attributes = attributes
+    this.uniforms = uniforms
   }
 
   setUniforms(props: U) {
@@ -57,15 +44,26 @@ export class Shader<
 
     const { gl } = this
 
-    Object.keys(this.attributes).forEach((k) =>
-      this.attributes[k as A].upload(buffer.buffers[k as A]),
-    )
-
     gl.useProgram(this.program)
 
+    // Bind buffers for each attribute
+    Object.keys(this.attributes).forEach((name) => {
+      const attrib = this.attributes[name as A]
+      const webglBuffer = buffer.buffers[name as A]
+      gl.bindBuffer(gl.ARRAY_BUFFER, webglBuffer)
+      attrib.enable()
+    })
+
+    // Upload uniforms
     Object.values(this.uniforms).forEach((u) => u.upload(gl))
 
     gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
+
+    // Disable attribute arrays
+    Object.keys(this.attributes).forEach((name) => {
+      const attrib = this.attributes[name as A]
+      attrib.disable()
+    })
   }
 
   createBuffer() {
