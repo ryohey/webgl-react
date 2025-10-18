@@ -29,7 +29,7 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
       }
     `,
     attributeNames: ["position"] as const,
-    updateFunction: (rects: IRect[]) => ({
+    update: (rects: IRect[]) => ({
       position: new Float32Array(rects.flatMap(rectToTriangles)),
       vertexCount: rects.length * 6,
     }),

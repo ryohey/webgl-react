@@ -21,11 +21,11 @@ export class Buffer<TData, TAttributes extends string> {
   constructor(
     public readonly vertexArray: VertexArray<TAttributes>,
     private readonly updateFunction: BufferUpdateFunction<TData, TAttributes>,
-    initFunction?: BufferInitFunction<TAttributes>,
+    init?: BufferInitFunction<TAttributes>,
   ) {
     // Run initialization function once if provided
-    if (initFunction) {
-      const initData = initFunction()
+    if (init) {
+      const initData = init()
       for (const [attributeName, data] of Object.entries(initData) as [string, unknown][]) {
         if (data instanceof Float32Array) {
           vertexArray.updateBuffer(attributeName as TAttributes, data)

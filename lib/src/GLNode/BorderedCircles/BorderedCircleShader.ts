@@ -1,7 +1,7 @@
 import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
-import { createInstancedShader } from "../../Shader/createShader"
+import { createShader } from "../../Shader/createShader"
 
 interface BorderedCircleUniforms {
   transform: mat4
@@ -10,7 +10,7 @@ interface BorderedCircleUniforms {
 }
 
 export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
-  createInstancedShader<BorderedCircleUniforms, "position" | "bounds", IRect[]>(gl, {
+  createShader<BorderedCircleUniforms, "position" | "bounds", IRect[]>(gl, {
     vertexShader: `#version 300 es
       precision lowp float;
       in vec2 position;
@@ -52,11 +52,11 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
         }
       }
     `,
-    initFunction: () => ({
+    init: () => ({
       // Set up base rectangle geometry (runs once)
       position: new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
     }),
-    updateFunction: (rects: IRect[]) => ({
+    update: (rects: IRect[]) => ({
       // Update instance data only
       bounds: new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
       vertexCount: 6,

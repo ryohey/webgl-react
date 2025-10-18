@@ -8,11 +8,11 @@ export class LegacyShaderBuffer<TData, TAttributes extends string> implements Sh
     private readonly gl: WebGLRenderingContext,
     public readonly buffers: { [K in TAttributes]: WebGLBuffer },
     private readonly updateFunction: BufferUpdateFunction<TData, TAttributes>,
-    initFunction?: LegacyBufferInitFunction<TAttributes>,
+    init?: LegacyBufferInitFunction<TAttributes>,
   ) {
     // Run initialization function once if provided
-    if (initFunction) {
-      const initData = initFunction()
+    if (init) {
+      const initData = init()
       for (const [attributeName, data] of Object.entries(initData) as [string, unknown][]) {
         if (data instanceof Float32Array) {
           gl.bindBuffer(gl.ARRAY_BUFFER, buffers[attributeName as TAttributes])

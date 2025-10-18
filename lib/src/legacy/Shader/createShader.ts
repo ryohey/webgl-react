@@ -9,8 +9,8 @@ export interface CreateShaderOptions<TData, TAttributes extends string> {
   vertexShader: string
   fragmentShader: string
   attributeNames: readonly TAttributes[]
-  initFunction?: LegacyBufferInitFunction<TAttributes>
-  updateFunction: BufferUpdateFunction<TData, TAttributes>
+  init?: LegacyBufferInitFunction<TAttributes>
+  update: BufferUpdateFunction<TData, TAttributes>
 }
 
 // Legacy-compatible createShader with auto-detection and buffer creation
@@ -24,8 +24,8 @@ export function createShader<
     vertexShader,
     fragmentShader,
     attributeNames,
-    initFunction,
-    updateFunction,
+    init,
+    update,
   }: CreateShaderOptions<TData, TAttributes>,
 ) {
   const program = initShaderProgram(gl, vertexShader, fragmentShader)
@@ -36,7 +36,7 @@ export function createShader<
 
   // Create buffer factory that uses createBuffer
   const bufferFactory = (gl: WebGLRenderingContext) => 
-    createBuffer(gl, attributeNames, updateFunction, initFunction)
+    createBuffer(gl, attributeNames, update, init)
 
   return new Shader<TAttributes, TUniforms, TData>(
     gl,

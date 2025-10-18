@@ -51,7 +51,7 @@ export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
       }
     `,
     attributeNames: ["position", "bounds"] as const,
-    updateFunction: (rects: IRect[]) => ({
+    update: (rects: IRect[]) => ({
       position: new Float32Array(rects.flatMap(rectToTriangles)),
       bounds: new Float32Array(rects.flatMap(rectToTriangleBounds)),
       vertexCount: rects.length * 6,

@@ -17,8 +17,8 @@ export interface BufferUpdateFunction<TData, TAttributes extends string> {
 export function createBuffer<TData, TAttributes extends string>(
   gl: WebGLRenderingContext,
   attributeNames: readonly TAttributes[],
-  updateFunction: BufferUpdateFunction<TData, TAttributes>,
-  initFunction?: LegacyBufferInitFunction<TAttributes>,
+  update: BufferUpdateFunction<TData, TAttributes>,
+  init?: LegacyBufferInitFunction<TAttributes>,
 ): LegacyShaderBuffer<TData, TAttributes> {
   // Create buffers for each attribute
   const buffers = {} as { [K in TAttributes]: WebGLBuffer }
@@ -26,5 +26,5 @@ export function createBuffer<TData, TAttributes extends string>(
     buffers[name] = gl.createBuffer()!
   }
 
-  return new LegacyShaderBuffer(gl, buffers, updateFunction, initFunction)
+  return new LegacyShaderBuffer(gl, buffers, update, init)
 }
