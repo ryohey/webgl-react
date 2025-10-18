@@ -1,7 +1,7 @@
 import { Shader } from "./Shader"
 import { VertexArray } from "./VertexArray"
+import { Buffer, BufferUpdateFunction, BufferInitFunction } from "./Buffer"
 import { createAttributes } from "./createAttributes"
-import { createBuffer, createInstancedBuffer, BufferUpdateFunction, InstancedBufferUpdateFunction, BufferInitFunction } from "./createBuffer"
 import { createUniforms } from "./createUniforms"
 import { initShaderProgram } from "./initShaderProgram"
 
@@ -18,7 +18,7 @@ export interface CreateInstancedShaderOptions<TData, TAttributes extends string>
   vertexShader: string
   fragmentShader: string
   initFunction?: BufferInitFunction<TAttributes>
-  updateFunction: InstancedBufferUpdateFunction<TData, TAttributes>
+  updateFunction: BufferUpdateFunction<TData, TAttributes>
   instanceAttributes?: string[]
 }
 
@@ -47,9 +47,9 @@ export function createShader<
     instanceAttributes,
   )
 
-  // Create buffer factory that uses createBuffer
+  // Create buffer factory that uses new Buffer
   const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-    createBuffer(vertexArray, updateFunction, initFunction)
+    new Buffer(vertexArray, updateFunction, initFunction)
 
   return new Shader<TUniforms, TAttributes>(
     gl,
@@ -85,9 +85,9 @@ export function createInstancedShader<
     instanceAttributes,
   )
 
-  // Create buffer factory that uses createInstancedBuffer
+  // Create buffer factory that uses new Buffer
   const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-    createInstancedBuffer(vertexArray, updateFunction, initFunction)
+    new Buffer(vertexArray, updateFunction, initFunction)
 
   return new Shader<TUniforms, TAttributes>(
     gl,

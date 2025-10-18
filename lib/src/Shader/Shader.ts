@@ -1,6 +1,7 @@
 import { VertexArray } from "./VertexArray"
 import { UniformInstances } from "./createUniforms"
 import { AttributeInputs } from "./createAttributes"
+import { Buffer } from "./Buffer"
 
 export class Shader<Uniforms, InputNames extends string> {
   private readonly uniforms: UniformInstances<Uniforms>
@@ -37,10 +38,6 @@ export class Shader<Uniforms, InputNames extends string> {
       return
     }
 
-    if ("instanceCount" in buffer && buffer.instanceCount === 0) {
-      return
-    }
-
     const { gl } = this
     gl.useProgram(this.program)
 
@@ -50,7 +47,7 @@ export class Shader<Uniforms, InputNames extends string> {
       this.uniforms[key as keyof Uniforms].upload(gl),
     )
 
-    if ("instanceCount" in buffer) {
+    if (buffer.instanceCount !== undefined) {
       gl.drawArraysInstanced(
         gl.TRIANGLES,
         0,
@@ -65,17 +62,7 @@ export class Shader<Uniforms, InputNames extends string> {
   }
 }
 
-export interface Buffer<Params, Inputs extends string> {
-  readonly vertexCount: number
-  readonly vertexArray: VertexArray<Inputs>
-  update(params: Params): void
-}
+// Export classes for external use
+export { Buffer } from "./Buffer"
 
-export interface InstancedBuffer<Params, Inputs extends string>
-  extends Buffer<Params, Inputs> {
-  readonly instanceCount: number
-}
-
-export type AnyBuffer<Params, Inputs extends string> =
-  | Buffer<Params, Inputs>
-  | InstancedBuffer<Params, Inputs>
+export type AnyBuffer<Params, Inputs extends string> = Buffer<Params, Inputs>
