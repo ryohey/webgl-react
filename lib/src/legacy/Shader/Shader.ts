@@ -1,5 +1,5 @@
 import { AttributeInstances } from "./createAttributes"
-import { UniformInstances } from "../../Shader/createUniforms"
+import { UniformInstances } from "../../Shader/Uniform"
 
 export interface ShaderBuffer<B extends string> {
   vertexCount: number
@@ -55,7 +55,7 @@ export class Shader<
     })
 
     // Upload uniforms
-    Object.values(this.uniforms).forEach((u) => u.upload(gl))
+    Object.values(this.uniforms).forEach((u: any) => u.upload(gl))
 
     gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
 

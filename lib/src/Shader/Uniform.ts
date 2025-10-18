@@ -1,4 +1,3 @@
-import { mat4, vec4 } from "gl-matrix"
 import { RenderProperty } from "../Renderer/RenderProperty"
 
 export type UniformInstance<T> = {

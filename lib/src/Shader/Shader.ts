@@ -1,7 +1,7 @@
-import { VertexArray } from "./VertexArray"
-import { UniformInstances } from "./Uniform"
-import { AttributeInputs } from "./createAttributes"
 import { Buffer } from "./Buffer"
+import { UniformInstances } from "./Uniform"
+import { VertexArray } from "./VertexArray"
+import { AttributeInputs } from "./createAttributes"
 
 export class Shader<Uniforms, InputNames extends string> {
   private readonly uniforms: UniformInstances<Uniforms>
@@ -33,7 +33,7 @@ export class Shader<Uniforms, InputNames extends string> {
     return this.bufferFactory(vertexArray)
   }
 
-  draw(buffer: AnyBuffer<any, any>) {
+  draw(buffer: Buffer<any, any>) {
     if (buffer.vertexCount === 0) {
       return
     }
@@ -62,7 +62,3 @@ export class Shader<Uniforms, InputNames extends string> {
   }
 }
 
-// Export classes for external use
-export { Buffer } from "./Buffer"
-
-export type AnyBuffer<Params, Inputs extends string> = Buffer<Params, Inputs>
