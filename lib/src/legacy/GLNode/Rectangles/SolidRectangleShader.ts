@@ -1,34 +1,7 @@
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangles } from "../../../helpers/polygon"
-import { ShaderBuffer } from "../../Shader/Shader"
+import { createBuffer } from "../../Shader/createBuffer"
 import { createShader } from "../../Shader/createShader"
-
-class SolidRectangleBuffer implements ShaderBuffer<"position"> {
-  private gl: WebGLRenderingContext
-
-  readonly buffers: {
-    position: WebGLBuffer
-  }
-  private _vertexCount: number = 0
-
-  constructor(gl: WebGLRenderingContext) {
-    this.gl = gl
-    this.buffers = { position: gl.createBuffer()! }
-  }
-
-  update(rects: IRect[]) {
-    const { gl } = this
-    const positions = rects.flatMap(rectToTriangles)
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.position)
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
-
-    this._vertexCount = rects.length * 6
-  }
-
-  get vertexCount() {
-    return this._vertexCount
-  }
-}
 
 export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
   createShader(
@@ -51,5 +24,14 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
         gl_FragColor = uColor;
       }
     `,
-    (gl) => new SolidRectangleBuffer(gl),
+    (gl) => createBuffer(
+      gl,
+      ["position"] as const,
+      (gl, buffers, rects: IRect[]) => {
+        const positions = rects.flatMap(rectToTriangles)
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.DYNAMIC_DRAW)
+        return rects.length * 6
+      },
+    ),
   )

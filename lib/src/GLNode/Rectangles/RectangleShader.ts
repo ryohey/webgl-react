@@ -1,42 +1,12 @@
 import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../helpers/geometry"
 import { rectToTriangles } from "../../helpers/polygon"
+import { createInstancedBuffer } from "../../Shader/createBuffer"
 import { createShader } from "../../Shader/createShader"
-import { InstancedBuffer } from "../../Shader/Shader"
-import { VertexArray } from "../../Shader/VertexArray"
 
 interface RectangleUniforms {
   transform: mat4
   color: vec4
-}
-
-class RectangleBuffer
-  implements InstancedBuffer<IRect[], "position" | "bounds">
-{
-  private _instanceCount: number = 0
-
-  constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
-    this.vertexArray.updateBuffer(
-      "position",
-      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
-    )
-  }
-
-  update(rects: IRect[]) {
-    this.vertexArray.updateBuffer(
-      "bounds",
-      new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
-    )
-    this._instanceCount = rects.length
-  }
-
-  get vertexCount() {
-    return 6
-  }
-
-  get instanceCount() {
-    return this._instanceCount
-  }
 }
 
 export const RectangleShader = (gl: WebGL2RenderingContext) =>
@@ -62,7 +32,24 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       outColor = color;
     }
     `,
-    (vertexArray) => new RectangleBuffer(vertexArray),
+    (vertexArray) => createInstancedBuffer(
+      vertexArray,
+      (vertexArray, rects: IRect[]) => {
+        // Set up base rectangle geometry
+        vertexArray.updateBuffer(
+          "position",
+          new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
+        )
+        
+        // Update instance data
+        vertexArray.updateBuffer(
+          "bounds",
+          new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
+        )
+        
+        return { vertexCount: 6, instanceCount: rects.length }
+      },
+    ),
     {
       instanceAttributes: ["bounds"],
     },
