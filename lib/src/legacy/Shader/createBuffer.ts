@@ -5,6 +5,11 @@ export interface LegacyBufferUpdater<TAttributes extends string> {
   updateBuffer(attributeName: TAttributes, data: Float32Array): void
 }
 
+// Initialization function that runs once to set up static geometry
+export interface LegacyBufferInitFunction<TAttributes extends string> {
+  (updater: LegacyBufferUpdater<TAttributes>): void
+}
+
 export interface BufferUpdateFunction<TData, TAttributes extends string> {
   (updater: LegacyBufferUpdater<TAttributes>, data: TData): number
 }
@@ -13,6 +18,7 @@ export function createBuffer<TData, TAttributes extends string>(
   gl: WebGLRenderingContext,
   attributeNames: readonly TAttributes[],
   updateFunction: BufferUpdateFunction<TData, TAttributes>,
+  initFunction?: LegacyBufferInitFunction<TAttributes>,
 ): ShaderBuffer<TAttributes> & { update: (data: TData) => void } {
   // Create buffers for each attribute
   const buffers = {} as { [K in TAttributes]: WebGLBuffer }
@@ -29,6 +35,9 @@ export function createBuffer<TData, TAttributes extends string>(
       gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
     }
   }
+
+  // Run initialization function once if provided
+  initFunction?.(updater)
 
   const buffer = {
     get vertexCount() {

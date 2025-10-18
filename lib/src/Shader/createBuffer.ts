@@ -6,6 +6,11 @@ export interface BufferUpdater<TAttributes extends string> {
   updateBuffer(attributeName: TAttributes, data: Float32Array): void
 }
 
+// Initialization function that runs once to set up static geometry
+export interface BufferInitFunction<TAttributes extends string> {
+  (updater: BufferUpdater<TAttributes>): void
+}
+
 export interface BufferUpdateFunction<TData, TAttributes extends string> {
   (updater: BufferUpdater<TAttributes>, data: TData): number
 }
@@ -18,6 +23,7 @@ export interface InstancedBufferUpdateFunction<TData, TAttributes extends string
 export function createBuffer<TData, TAttributes extends string>(
   vertexArray: VertexArray<TAttributes>,
   updateFunction: BufferUpdateFunction<TData, TAttributes>,
+  initFunction?: BufferInitFunction<TAttributes>,
 ): Buffer<TData, TAttributes> {
   let vertexCount = 0
 
@@ -27,6 +33,9 @@ export function createBuffer<TData, TAttributes extends string>(
       vertexArray.updateBuffer(attributeName, data)
     }
   }
+
+  // Run initialization function once if provided
+  initFunction?.(updater)
 
   const buffer: Buffer<TData, TAttributes> = {
     get vertexCount() {
@@ -45,6 +54,7 @@ export function createBuffer<TData, TAttributes extends string>(
 export function createInstancedBuffer<TData, TAttributes extends string>(
   vertexArray: VertexArray<TAttributes>,
   updateFunction: InstancedBufferUpdateFunction<TData, TAttributes>,
+  initFunction?: BufferInitFunction<TAttributes>,
 ): InstancedBuffer<TData, TAttributes> {
   let vertexCount = 0
   let instanceCount = 0
@@ -55,6 +65,9 @@ export function createInstancedBuffer<TData, TAttributes extends string>(
       vertexArray.updateBuffer(attributeName, data)
     }
   }
+
+  // Run initialization function once if provided
+  initFunction?.(updater)
 
   const buffer: InstancedBuffer<TData, TAttributes> = {
     get vertexCount() {

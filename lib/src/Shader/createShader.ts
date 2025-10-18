@@ -1,7 +1,7 @@
 import { Shader } from "./Shader"
 import { VertexArray } from "./VertexArray"
 import { createAttributes } from "./createAttributes"
-import { createBuffer, createInstancedBuffer, BufferUpdateFunction, InstancedBufferUpdateFunction } from "./createBuffer"
+import { createBuffer, createInstancedBuffer, BufferUpdateFunction, InstancedBufferUpdateFunction, BufferInitFunction } from "./createBuffer"
 import { createUniforms } from "./createUniforms"
 import { initShaderProgram } from "./initShaderProgram"
 
@@ -9,6 +9,7 @@ import { initShaderProgram } from "./initShaderProgram"
 export interface CreateShaderOptions<TData, TAttributes extends string> {
   vertexShader: string
   fragmentShader: string
+  initFunction?: BufferInitFunction<TAttributes>
   updateFunction: BufferUpdateFunction<TData, TAttributes>
   instanceAttributes?: string[]
 }
@@ -16,6 +17,7 @@ export interface CreateShaderOptions<TData, TAttributes extends string> {
 export interface CreateInstancedShaderOptions<TData, TAttributes extends string> {
   vertexShader: string
   fragmentShader: string
+  initFunction?: BufferInitFunction<TAttributes>
   updateFunction: InstancedBufferUpdateFunction<TData, TAttributes>
   instanceAttributes?: string[]
 }
@@ -30,6 +32,7 @@ export function createShader<
   {
     vertexShader,
     fragmentShader,
+    initFunction,
     updateFunction,
     instanceAttributes,
   }: CreateShaderOptions<TData, TAttributes>,
@@ -46,7 +49,7 @@ export function createShader<
 
   // Create buffer factory that uses createBuffer
   const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-    createBuffer(vertexArray, updateFunction)
+    createBuffer(vertexArray, updateFunction, initFunction)
 
   return new Shader<TUniforms, TAttributes>(
     gl,
@@ -67,6 +70,7 @@ export function createInstancedShader<
   {
     vertexShader,
     fragmentShader,
+    initFunction,
     updateFunction,
     instanceAttributes,
   }: CreateInstancedShaderOptions<TData, TAttributes>,
@@ -83,7 +87,7 @@ export function createInstancedShader<
 
   // Create buffer factory that uses createInstancedBuffer
   const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-    createInstancedBuffer(vertexArray, updateFunction)
+    createInstancedBuffer(vertexArray, updateFunction, initFunction)
 
   return new Shader<TUniforms, TAttributes>(
     gl,
