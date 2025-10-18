@@ -32,11 +32,11 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
     `,
     init: () => ({
       // Set up base rectangle geometry (runs once)
-      position: new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
+      position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
     }),
     update: (rects: IRect[]) => ({
       // Update instance data only
-      bounds: new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
+      bounds: rects.flatMap((r) => [r.x, r.y, r.width, r.height]),
       vertexCount: 6,
       instanceCount: rects.length,
     }),

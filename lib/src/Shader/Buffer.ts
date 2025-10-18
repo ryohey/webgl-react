@@ -1,8 +1,9 @@
 import { VertexArray } from "./VertexArray"
+import { BufferPool } from "./BufferPool"
 
-// Buffer data type for returning attribute data
+// Buffer data type for returning attribute data as number arrays
 export type BufferData<TAttributes extends string> = {
-  [K in TAttributes]?: Float32Array
+  [K in TAttributes]?: number[]
 }
 
 // Initialization function that returns static geometry data
@@ -17,6 +18,7 @@ export interface BufferUpdateFunction<TData, TAttributes extends string> {
 export class Buffer<TData, TAttributes extends string> {
   private _vertexCount = 0
   private _instanceCount: number | undefined = undefined
+  private bufferPool = new BufferPool()
 
   constructor(
     public readonly vertexArray: VertexArray<TAttributes>,
@@ -26,10 +28,10 @@ export class Buffer<TData, TAttributes extends string> {
     // Run initialization function once if provided
     if (init) {
       const initData = init()
-      for (const [attributeName, data] of Object.entries(initData) as [string, unknown][]) {
-        if (data instanceof Float32Array) {
-          vertexArray.updateBuffer(attributeName as TAttributes, data)
-        }
+      for (const attributeName in initData) {
+        const data = initData[attributeName as TAttributes]!
+        const float32Array = this.bufferPool.setBufferData(attributeName, data)
+        vertexArray.updateBuffer(attributeName as TAttributes, float32Array)
       }
     }
   }
@@ -49,10 +51,12 @@ export class Buffer<TData, TAttributes extends string> {
     // Set instanceCount if it exists in the result (instanced buffer)
     this._instanceCount = result.instanceCount
     
-    // Update all buffers from the result
-    for (const [attributeName, bufferData] of Object.entries(result) as [string, unknown][]) {
-      if (bufferData instanceof Float32Array) {
-        this.vertexArray.updateBuffer(attributeName as TAttributes, bufferData)
+    // Update all buffers from the result, converting number[] to Float32Array
+    for (const attributeName in result) {
+      if (attributeName !== 'vertexCount' && attributeName !== 'instanceCount') {
+        const bufferData = result[attributeName as TAttributes]!
+        const float32Array = this.bufferPool.setBufferData(attributeName, bufferData)
+        this.vertexArray.updateBuffer(attributeName as TAttributes, float32Array)
       }
     }
   }
