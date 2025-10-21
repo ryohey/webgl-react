@@ -1,7 +1,7 @@
 import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangleBounds, rectToTriangles } from "../../../helpers/polygon"
-import { createShader } from "../../Shader/createShader"
+import { createShader } from "../../../Shader/createShader"
 
 interface BorderedRectangleUniforms {
   uTransform: mat4
@@ -9,8 +9,11 @@ interface BorderedRectangleUniforms {
   uStrokeColor: vec4
 }
 
-export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, IRect[]>({
-    vertexShader: `
+export const BorderedRectangleShader = createShader<
+  BorderedRectangleUniforms,
+  IRect[]
+>({
+  vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
 
@@ -27,7 +30,7 @@ export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, I
         vPosition = aVertexPosition.xy;
       }
     `,
-    fragmentShader: `
+  fragmentShader: `
       precision lowp float;
 
       uniform vec4 uFillColor;
@@ -49,12 +52,15 @@ export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, I
         }
       }
     `,
-    init: {
-      position: [],
-      bounds: [],
-    },
-    update: (rects: IRect[]) => ({
+  init: {
+    position: [],
+    bounds: [],
+  },
+  update: (rects: IRect[]) => ({
+    bufferData: {
       position: rects.flatMap(rectToTriangles),
       bounds: rects.flatMap(rectToTriangleBounds),
-    }),
-  })
+    },
+    vertexCount: rects.length * 6,
+  }),
+})

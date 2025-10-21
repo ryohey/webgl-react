@@ -9,8 +9,11 @@ interface BorderedCircleUniforms {
   strokeColor: vec4
 }
 
-export const BorderedCircleShader = createShader<BorderedCircleUniforms, IRect[]>({
-    vertexShader: `#version 300 es
+export const BorderedCircleShader = createShader<
+  BorderedCircleUniforms,
+  IRect[]
+>({
+  vertexShader: `#version 300 es
       precision lowp float;
       in vec2 position;
       in vec4 bounds;  // x, y, width, height
@@ -26,7 +29,7 @@ export const BorderedCircleShader = createShader<BorderedCircleUniforms, IRect[]
         vPosition = transformedPosition.xy;
       }
     `,
-    fragmentShader: `#version 300 es
+  fragmentShader: `#version 300 es
       precision lowp float;
 
       uniform vec4 fillColor;
@@ -51,18 +54,20 @@ export const BorderedCircleShader = createShader<BorderedCircleUniforms, IRect[]
         }
       }
     `,
-    init: {
-      // Set up base rectangle geometry (initial data)
-      position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
-      bounds: {
-        data: [],
-        numComponents: 4, // x, y, width, height per instance
-        divisor: 1, // Instance attribute
-      },
+  init: {
+    // Set up base rectangle geometry (initial data)
+    position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
+    bounds: {
+      data: [],
+      numComponents: 4, // x, y, width, height per instance
+      divisor: 1, // Instance attribute
     },
-    update: (rects: IRect[]) => ({
-      // Update instance data and position
-      position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
+  },
+  update: (rects: IRect[]) => ({
+    bufferData: {
       bounds: rects.flatMap((r) => [r.x, r.y, r.width, r.height]),
-    }),
-  })
+    },
+    vertexCount: 6,
+    instanceCount: rects.length,
+  }),
+})

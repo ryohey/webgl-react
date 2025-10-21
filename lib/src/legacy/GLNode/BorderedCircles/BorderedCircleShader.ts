@@ -1,7 +1,7 @@
 import { mat4, vec4 } from "gl-matrix"
 import { IRect } from "../../../helpers/geometry"
 import { rectToTriangleBounds, rectToTriangles } from "../../../helpers/polygon"
-import { createShader } from "../../Shader/createShader"
+import { createShader } from "../../../Shader/createShader"
 
 interface BorderedCircleUniforms {
   uTransform: mat4
@@ -9,8 +9,11 @@ interface BorderedCircleUniforms {
   uStrokeColor: vec4
 }
 
-export const BorderedCircleShader = createShader<BorderedCircleUniforms, IRect[]>({
-    vertexShader: `
+export const BorderedCircleShader = createShader<
+  BorderedCircleUniforms,
+  IRect[]
+>({
+  vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
 
@@ -27,7 +30,7 @@ export const BorderedCircleShader = createShader<BorderedCircleUniforms, IRect[]
         vPosition = aVertexPosition.xy;
       }
     `,
-    fragmentShader: `
+  fragmentShader: `
       precision lowp float;
 
       uniform vec4 uFillColor;
@@ -50,12 +53,15 @@ export const BorderedCircleShader = createShader<BorderedCircleUniforms, IRect[]
         }
       }
     `,
-    init: {
-      position: [],
-      bounds: [],
-    },
-    update: (rects: IRect[]) => ({
+  init: {
+    position: [],
+    bounds: [],
+  },
+  update: (rects: IRect[]) => ({
+    bufferData: {
       position: rects.flatMap(rectToTriangles),
       bounds: rects.flatMap(rectToTriangleBounds),
-    }),
-  })
+    },
+    vertexCount: rects.length * 6,
+  }),
+})
