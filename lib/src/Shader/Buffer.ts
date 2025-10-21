@@ -6,6 +6,21 @@ export type BufferData<TAttributes extends string> = {
   [K in TAttributes]?: number[]
 }
 
+// Type utility to extract attribute names from buffer data
+export type InferAttributes<T> = T extends BufferData<infer U> ? U : never
+
+// Type utility to extract attributes from init function
+export type InferInitAttributes<T> = T extends () => infer R 
+  ? InferAttributes<R>
+  : never
+
+// Type utility to extract attributes from update function  
+export type InferUpdateAttributes<T> = T extends (data: any) => infer R
+  ? R extends BufferData<infer U> & { vertexCount: number; instanceCount?: number }
+    ? U
+    : InferAttributes<R>
+  : never
+
 // Initialization function that returns static geometry data
 export interface BufferInitFunction<TAttributes extends string> {
   (): BufferData<TAttributes>

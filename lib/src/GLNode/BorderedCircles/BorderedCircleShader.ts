@@ -61,5 +61,5 @@ export const BorderedCircleShader = createShader<BorderedCircleUniforms, "positi
       vertexCount: 6,
       instanceCount: rects.length,
     }),
-    instanceAttributes: ["bounds"],
+    instanceAttributes: ["bounds"] as const,
   })

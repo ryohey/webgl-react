@@ -39,5 +39,5 @@ export const RectangleShader = createShader<RectangleUniforms, "position" | "bou
       vertexCount: 6,
       instanceCount: rects.length,
     }),
-    instanceAttributes: ["bounds"],
+    instanceAttributes: ["bounds"] as const,
   })

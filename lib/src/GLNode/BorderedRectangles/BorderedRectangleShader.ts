@@ -60,5 +60,5 @@ export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, "
       vertexCount: 6,
       instanceCount: rects.length,
     }),
-    instanceAttributes: ["bounds"]
+    instanceAttributes: ["bounds"] as const
   })
