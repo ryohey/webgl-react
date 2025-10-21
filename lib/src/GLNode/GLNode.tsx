@@ -1,4 +1,3 @@
-import { useCallback } from "react"
 import { GLPrimitiveProps } from "../reconciler/types"
 import { RenderNode } from "./RenderNode"
 
@@ -15,9 +14,8 @@ export interface GLNodeProps<
   Uniforms extends Record<string, any>,
   BufferProps,
 > {
-  shader: (gl: WebGL2RenderingContext) => RenderNode<BufferProps, Uniforms>
-  shaderFallback?: (
-    gl: WebGLRenderingContext,
+  shader: (
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
   ) => RenderNode<BufferProps, Uniforms>
   uniforms: Uniforms
   buffer: BufferProps
@@ -26,29 +24,13 @@ export interface GLNodeProps<
 
 export function GLNode<Uniforms extends {}, Buffer extends {}>({
   shader: createShader,
-  shaderFallback: createShaderFallback,
   uniforms,
   buffer,
   zIndex,
 }: GLNodeProps<Uniforms, Buffer>) {
-  const createRenderNode = useCallback(
-    (gl: WebGLRenderingContext | WebGL2RenderingContext) => {
-      if (gl instanceof WebGL2RenderingContext) {
-        return createShader(gl)
-      }
-
-      if (createShaderFallback) {
-        return createShaderFallback(gl)
-      }
-
-      throw new Error("Unsupported WebGL context")
-    },
-    [createShader, createShaderFallback],
-  )
-
   return (
     <gl-node
-      createNode={createRenderNode}
+      createNode={createShader}
       uniforms={uniforms}
       buffer={buffer}
       zIndex={zIndex}

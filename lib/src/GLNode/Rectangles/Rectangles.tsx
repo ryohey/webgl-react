@@ -2,9 +2,12 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useTransform } from "../../hooks/useTransform"
+import { withFallback } from "../../Shader/withFallback"
 import { GLNode } from "../GLNode"
 import { LegacyRectangleShader } from "./LegacyRectangleShader"
 import { RectangleShader } from "./RectangleShader"
+
+const shader = withFallback(RectangleShader, LegacyRectangleShader)
 
 export interface RectanglesProps {
   rects: IRect[]
@@ -18,8 +21,7 @@ export const Rectangles: FC<RectanglesProps> = ({ rects, color, zIndex }) => {
 
   return (
     <GLNode
-      shader={RectangleShader}
-      shaderFallback={LegacyRectangleShader}
+      shader={shader}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}

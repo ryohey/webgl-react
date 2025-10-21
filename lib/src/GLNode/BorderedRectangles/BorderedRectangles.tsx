@@ -2,9 +2,15 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useTransform } from "../../hooks/useTransform"
+import { withFallback } from "../../Shader/withFallback"
 import { GLNode } from "../GLNode"
 import { BorderedRectangleShader } from "./BorderedRectangleShader"
 import { LegacyBorderedRectangleShader } from "./LegacyBorderedRectangleShader"
+
+const shader = withFallback(
+  BorderedRectangleShader,
+  LegacyBorderedRectangleShader,
+)
 
 export interface BorderedRectanglesProps {
   rects: IRect[]
@@ -27,8 +33,7 @@ export const BorderedRectangles: FC<BorderedRectanglesProps> = ({
 
   return (
     <GLNode
-      shader={BorderedRectangleShader}
-      shaderFallback={LegacyBorderedRectangleShader}
+      shader={shader}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}

@@ -2,9 +2,12 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useTransform } from "../../hooks/useTransform"
+import { withFallback } from "../../Shader/withFallback"
 import { GLNode } from "../GLNode"
 import { BorderedCircleShader } from "./BorderedCircleShader"
 import { LegacyBorderedCircleShader } from "./LegacyBorderedCircleShader"
+
+const shader = withFallback(BorderedCircleShader, LegacyBorderedCircleShader)
 
 export interface BorderedCirclesProps {
   rects: IRect[]
@@ -27,8 +30,7 @@ export const BorderedCircles: FC<BorderedCirclesProps> = ({
 
   return (
     <GLNode
-      shader={BorderedCircleShader}
-      shaderFallback={LegacyBorderedCircleShader}
+      shader={shader}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}
