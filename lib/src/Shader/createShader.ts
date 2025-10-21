@@ -4,6 +4,7 @@ import { Buffer, BufferUpdateFunction, BufferInitFunction } from "./Buffer"
 import { createAttributes } from "./createAttributes"
 import { createUniforms } from "./createUniforms"
 import { initShaderProgram } from "./initShaderProgram"
+import { ProgramInfo } from "./ProgramInfo"
 
 // Main createShader function with strict type safety
 export function createShader<
@@ -36,6 +37,9 @@ export function createShader<
       instanceAttributes,
     )
 
+    // Create ProgramInfo
+    const programInfo = new ProgramInfo(gl, program, uniforms)
+
     // Create buffer factory that uses new Buffer
     const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
       new Buffer(vertexArray, update, init)
@@ -44,7 +48,7 @@ export function createShader<
       gl,
       program,
       inputs,
-      uniforms,
+      programInfo,
       bufferFactory,
     )
   }
@@ -86,6 +90,9 @@ export function createShaderLegacy<
       instanceAttributes,
     )
 
+    // Create ProgramInfo
+    const programInfo = new ProgramInfo(gl, program, uniforms)
+
     // Create buffer factory that uses new Buffer
     const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
       new Buffer(vertexArray, update, init)
@@ -94,7 +101,7 @@ export function createShaderLegacy<
       gl,
       program,
       inputs,
-      uniforms,
+      programInfo,
       bufferFactory,
     )
   }

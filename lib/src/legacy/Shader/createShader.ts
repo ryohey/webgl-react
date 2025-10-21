@@ -3,6 +3,7 @@ import { createBuffer, BufferUpdateFunction, LegacyBufferInitFunction } from "./
 import { createUniforms } from "../../Shader/createUniforms"
 import { initShaderProgram } from "../../Shader/initShaderProgram"
 import { Shader } from "./Shader"
+import { ProgramInfo } from "./ProgramInfo"
 
 // Legacy shader configuration options
 export interface CreateShaderOptions<TData, TAttributes extends string> {
@@ -36,6 +37,9 @@ export function createShader<TUniforms extends Record<string, any>>(
     const uniforms = createUniforms<TUniforms>(gl, program)
     const attributes = createAttributes(gl, program)
 
+    // Create ProgramInfo
+    const programInfo = new ProgramInfo(gl, program, uniforms)
+
     // Create buffer factory that uses createBuffer with auto-detected attributes
     const bufferFactory = (gl: WebGLRenderingContext) => 
       createBuffer(gl, attributes, update, init)
@@ -45,6 +49,7 @@ export function createShader<TUniforms extends Record<string, any>>(
       program,
       attributes,
       uniforms,
+      programInfo,
       bufferFactory,
     )
   }

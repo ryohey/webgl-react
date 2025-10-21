@@ -60,34 +60,58 @@ describe("createShader", () => {
   })
 
   it("should create shader with auto-detected uniforms and attributes", () => {
-    const mockBufferFactory = vi.fn()
+    const mockUpdate = vi.fn().mockReturnValue({
+      position: [0, 0, 1, 0, 0, 1, 1, 1],
+      vertexCount: 4
+    })
     
-    const shader = createShader(
-      gl,
-      "vertex shader source",
-      "fragment shader source", 
-      mockBufferFactory
-    )
+    const shaderFactory = createShader<
+      { transform: any; color: any },
+      "position" | "bounds",
+      any
+    >({
+      vertexShader: "vertex shader source",
+      fragmentShader: "fragment shader source",
+      update: mockUpdate
+    })
+
+    const shader = shaderFactory(gl)
+    const bufferInfo = shader.createBuffer()
 
     expect(shader).toBeDefined()
     expect(typeof shader.setUniforms).toBe("function")
     expect(typeof shader.createBuffer).toBe("function")
     expect(typeof shader.draw).toBe("function")
+    expect(bufferInfo).toBeDefined()
+    expect(typeof bufferInfo.update).toBe("function")
+    expect(bufferInfo.buffer).toBeDefined()
   })
 
   it("should handle instanced rendering with instanceAttributes", () => {
-    const mockBufferFactory = vi.fn()
+    const mockUpdate = vi.fn().mockReturnValue({
+      position: [0, 0, 1, 0, 0, 1, 1, 1],
+      bounds: [0, 0, 100, 100],
+      vertexCount: 4,
+      instanceCount: 1
+    })
     
-    const shader = createShader(
-      gl,
-      "vertex shader source",
-      "fragment shader source",
-      mockBufferFactory,
-      {
-        instanceAttributes: ["bounds"]
-      }
-    )
+    const shaderFactory = createShader<
+      { transform: any; color: any },
+      "position" | "bounds",
+      any
+    >({
+      vertexShader: "vertex shader source",
+      fragmentShader: "fragment shader source",
+      update: mockUpdate,
+      instanceAttributes: ["bounds"]
+    })
+
+    const shader = shaderFactory(gl)
+    const bufferInfo = shader.createBuffer()
 
     expect(shader).toBeDefined()
+    expect(bufferInfo).toBeDefined()
+    expect(typeof bufferInfo.update).toBe("function")
+    expect(bufferInfo.buffer).toBeDefined()
   })
 })

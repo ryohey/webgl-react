@@ -1,5 +1,7 @@
 import { AttributeInstances } from "./createAttributes"
 import { UniformInstances } from "../../Shader/Uniform"
+import { ProgramInfo } from "./ProgramInfo"
+import { BufferInfo } from "./BufferInfo"
 
 export interface ShaderBuffer<B extends string> {
   vertexCount: number
@@ -14,12 +16,14 @@ export class Shader<
   readonly program: WebGLProgram
   readonly attributes: AttributeInstances<A>
   readonly uniforms: UniformInstances<U>
+  public readonly programInfo: ProgramInfo<U>
 
   constructor(
     private readonly gl: WebGLRenderingContext,
     program: WebGLProgram,
     attributes: AttributeInstances<A>,
     uniforms: UniformInstances<U>,
+    programInfo: ProgramInfo<U>,
     private readonly bufferFactory: (
       gl: WebGLRenderingContext,
     ) => ShaderBuffer<A> & {
@@ -29,44 +33,26 @@ export class Shader<
     this.program = program
     this.attributes = attributes
     this.uniforms = uniforms
+    this.programInfo = programInfo
   }
 
   setUniforms(props: U) {
-    for (let key in props) {
-      this.uniforms[key as keyof U].value = props[key]
-    }
+    this.programInfo.setUniforms(props)
   }
 
-  draw(buffer: ShaderBuffer<A>) {
-    if (buffer.vertexCount === 0) {
+  draw(bufferInfo: BufferInfo<A, BufferProps>) {
+    if (bufferInfo.buffer.vertexCount === 0) {
       return
     }
 
-    const { gl } = this
-
-    gl.useProgram(this.program)
-
-    // Bind buffers for each attribute
-    Object.keys(this.attributes).forEach((name) => {
-      const attrib = this.attributes[name as A]
-      const webglBuffer = buffer.buffers[name as A]
-      gl.bindBuffer(gl.ARRAY_BUFFER, webglBuffer)
-      attrib.enable()
-    })
-
-    // Upload uniforms
-    Object.values(this.uniforms).forEach((u: any) => u.upload(gl))
-
-    gl.drawArrays(gl.TRIANGLES, 0, buffer.vertexCount)
-
-    // Disable attribute arrays
-    Object.keys(this.attributes).forEach((name) => {
-      const attrib = this.attributes[name as A]
-      attrib.disable()
-    })
+    this.programInfo.use()
+    bufferInfo.setBuffersAndAttributes()
+    this.programInfo.uploadUniforms()
+    bufferInfo.drawArrays()
+    bufferInfo.unbind()
   }
 
-  createBuffer() {
-    return this.bufferFactory(this.gl)
+  createBuffer(): BufferInfo<A, BufferProps> {
+    return new BufferInfo(this.gl, this.attributes, this.bufferFactory)
   }
 }
