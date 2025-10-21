@@ -9,8 +9,7 @@ interface BorderedRectangleUniforms {
   strokeColor: vec4
 }
 
-export const BorderedRectangleShader = (gl: WebGL2RenderingContext) =>
-  createShader<BorderedRectangleUniforms, "position" | "bounds", IRect[]>(gl, {
+export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, "position" | "bounds", IRect[]>({
     vertexShader: `#version 300 es
       precision lowp float;
       in vec2 position;

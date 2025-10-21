@@ -18,34 +18,34 @@ export function createShader<
   TAttributes extends string = string,
   TData = any,
 >(
-  gl: WebGLRenderingContext,
   options: CreateShaderOptions<TData, TAttributes>,
-): Shader<TAttributes, TUniforms, TData>
+): (gl: WebGLRenderingContext) => Shader<TAttributes, TUniforms, TData>
 export function createShader<TUniforms extends Record<string, any>>(
-  gl: WebGLRenderingContext,
   options: CreateShaderOptions<any, any>,
 ) {
-  const {
-    vertexShader,
-    fragmentShader,
-    init,
-    update,
-  } = options
-  const program = initShaderProgram(gl, vertexShader, fragmentShader)
+  return (gl: WebGLRenderingContext) => {
+    const {
+      vertexShader,
+      fragmentShader,
+      init,
+      update,
+    } = options
+    const program = initShaderProgram(gl, vertexShader, fragmentShader)
 
-  // Use modern uniform creation and legacy attribute creation
-  const uniforms = createUniforms<TUniforms>(gl, program)
-  const attributes = createAttributes(gl, program)
+    // Use modern uniform creation and legacy attribute creation
+    const uniforms = createUniforms<TUniforms>(gl, program)
+    const attributes = createAttributes(gl, program)
 
-  // Create buffer factory that uses createBuffer with auto-detected attributes
-  const bufferFactory = (gl: WebGLRenderingContext) => 
-    createBuffer(gl, attributes, update, init)
+    // Create buffer factory that uses createBuffer with auto-detected attributes
+    const bufferFactory = (gl: WebGLRenderingContext) => 
+      createBuffer(gl, attributes, update, init)
 
-  return new Shader(
-    gl,
-    program,
-    attributes,
-    uniforms,
-    bufferFactory,
-  )
+    return new Shader(
+      gl,
+      program,
+      attributes,
+      uniforms,
+      bufferFactory,
+    )
+  }
 }

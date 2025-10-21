@@ -9,8 +9,7 @@ interface BorderedCircleUniforms {
   strokeColor: vec4
 }
 
-export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
-  createShader<BorderedCircleUniforms, "position" | "bounds", IRect[]>(gl, {
+export const BorderedCircleShader = createShader<BorderedCircleUniforms, "position" | "bounds", IRect[]>({
     vertexShader: `#version 300 es
       precision lowp float;
       in vec2 position;

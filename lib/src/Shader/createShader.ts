@@ -21,7 +21,6 @@ export function createShader<
   TAttributes extends string = string,
   TData = any,
 >(
-  gl: WebGL2RenderingContext,
   {
     vertexShader,
     fragmentShader,
@@ -29,26 +28,28 @@ export function createShader<
     update,
     instanceAttributes,
   }: CreateShaderOptions<TData, TAttributes>,
-) {
-  const program = initShaderProgram(gl, vertexShader, fragmentShader)
+): (gl: WebGL2RenderingContext) => Shader<TUniforms, TAttributes> {
+  return (gl: WebGL2RenderingContext) => {
+    const program = initShaderProgram(gl, vertexShader, fragmentShader)
 
-  // Auto-detect and create uniforms and attributes
-  const uniforms = createUniforms<TUniforms>(gl, program)
-  const inputs = createAttributes<TAttributes>(
-    gl,
-    program,
-    instanceAttributes,
-  )
+    // Auto-detect and create uniforms and attributes
+    const uniforms = createUniforms<TUniforms>(gl, program)
+    const inputs = createAttributes<TAttributes>(
+      gl,
+      program,
+      instanceAttributes,
+    )
 
-  // Create buffer factory that uses new Buffer
-  const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-    new Buffer(vertexArray, update, init)
+    // Create buffer factory that uses new Buffer
+    const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
+      new Buffer(vertexArray, update, init)
 
-  return new Shader<TUniforms, TAttributes>(
-    gl,
-    program,
-    inputs,
-    uniforms,
-    bufferFactory,
-  )
+    return new Shader<TUniforms, TAttributes>(
+      gl,
+      program,
+      inputs,
+      uniforms,
+      bufferFactory,
+    )
+  }
 }

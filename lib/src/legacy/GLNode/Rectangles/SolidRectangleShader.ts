@@ -8,8 +8,7 @@ interface SolidRectangleUniforms {
   uColor: vec4
 }
 
-export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
-  createShader<SolidRectangleUniforms>(gl, {
+export const SolidRectangleShader = createShader<SolidRectangleUniforms>({
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;

@@ -9,8 +9,7 @@ interface BorderedRectangleUniforms {
   uStrokeColor: vec4
 }
 
-export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
-  createShader<BorderedRectangleUniforms>(gl, {
+export const BorderedRectangleShader = createShader<BorderedRectangleUniforms>({
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;

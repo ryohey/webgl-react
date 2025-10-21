@@ -8,8 +8,7 @@ interface RectangleUniforms {
   color: vec4
 }
 
-export const RectangleShader = (gl: WebGL2RenderingContext) =>
-  createShader<RectangleUniforms, "position" | "bounds", IRect[]>(gl, {
+export const RectangleShader = createShader<RectangleUniforms, "position" | "bounds", IRect[]>({
     vertexShader: `#version 300 es
     precision lowp float;
     in vec2 position;
