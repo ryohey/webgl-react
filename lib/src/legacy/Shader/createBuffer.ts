@@ -1,29 +1,40 @@
 import { LegacyShaderBuffer } from "./ShaderBufferImpl"
+import { AttributeInstances } from "./createAttributes"
+import { BufferData } from "../../Shader/Buffer"
 
-// Buffer data type for returning attribute data
+// Re-export BufferData for legacy modules
+export type { BufferData }
+
+// Legacy type alias for backward compatibility
 export type LegacyBufferData<TAttributes extends string> = {
-  [K in TAttributes]?: Float32Array
+  [K in TAttributes]?: number[]
 }
 
 // Initialization function that returns static geometry data
 export interface LegacyBufferInitFunction<TAttributes extends string> {
-  (): LegacyBufferData<TAttributes>
+  (): BufferData<TAttributes>
+}
+
+// Split buffer data and vertex count to avoid type conflicts
+export interface BufferUpdateResult<TAttributes extends string> {
+  readonly bufferData: BufferData<TAttributes>
+  readonly vertexCount: number
 }
 
 export interface BufferUpdateFunction<TData, TAttributes extends string> {
-  (data: TData): LegacyBufferData<TAttributes> & { vertexCount: number }
+  (data: TData): BufferUpdateResult<TAttributes>
 }
 
 export function createBuffer<TData, TAttributes extends string>(
   gl: WebGLRenderingContext,
-  attributeNames: readonly TAttributes[],
+  attributes: AttributeInstances<TAttributes>,
   update: BufferUpdateFunction<TData, TAttributes>,
   init?: LegacyBufferInitFunction<TAttributes>,
 ): LegacyShaderBuffer<TData, TAttributes> {
-  // Create buffers for each attribute
+  // Create buffers for each attribute from auto-detected attributes
   const buffers = {} as { [K in TAttributes]: WebGLBuffer }
-  for (const name of attributeNames) {
-    buffers[name] = gl.createBuffer()!
+  for (const attributeName in attributes) {
+    buffers[attributeName] = gl.createBuffer()!
   }
 
   return new LegacyShaderBuffer(gl, buffers, update, init)

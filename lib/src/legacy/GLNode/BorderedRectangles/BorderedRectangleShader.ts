@@ -10,7 +10,7 @@ interface BorderedRectangleUniforms {
 }
 
 export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
-  createShader<BorderedRectangleUniforms, "position" | "bounds", IRect[]>(gl, {
+  createShader<BorderedRectangleUniforms>(gl, {
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
@@ -50,10 +50,11 @@ export const BorderedRectangleShader = (gl: WebGLRenderingContext) =>
         }
       }
     `,
-    attributeNames: ["position", "bounds"] as const,
     update: (rects: IRect[]) => ({
-      position: new Float32Array(rects.flatMap(rectToTriangles)),
-      bounds: new Float32Array(rects.flatMap(rectToTriangleBounds)),
+      bufferData: {
+        position: rects.flatMap(rectToTriangles),
+        bounds: rects.flatMap(rectToTriangleBounds),
+      },
       vertexCount: rects.length * 6,
     }),
   })

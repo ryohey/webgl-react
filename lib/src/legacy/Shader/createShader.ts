@@ -8,7 +8,6 @@ import { Shader } from "./Shader"
 export interface CreateShaderOptions<TData, TAttributes extends string> {
   vertexShader: string
   fragmentShader: string
-  attributeNames: readonly TAttributes[]
   init?: LegacyBufferInitFunction<TAttributes>
   update: BufferUpdateFunction<TData, TAttributes>
 }
@@ -20,25 +19,29 @@ export function createShader<
   TData = any,
 >(
   gl: WebGLRenderingContext,
-  {
+  options: CreateShaderOptions<TData, TAttributes>,
+): Shader<TAttributes, TUniforms, TData>
+export function createShader<TUniforms extends Record<string, any>>(
+  gl: WebGLRenderingContext,
+  options: CreateShaderOptions<any, any>,
+) {
+  const {
     vertexShader,
     fragmentShader,
-    attributeNames,
     init,
     update,
-  }: CreateShaderOptions<TData, TAttributes>,
-) {
+  } = options
   const program = initShaderProgram(gl, vertexShader, fragmentShader)
 
   // Use modern uniform creation and legacy attribute creation
   const uniforms = createUniforms<TUniforms>(gl, program)
-  const attributes = createAttributes<TAttributes>(gl, program)
+  const attributes = createAttributes(gl, program)
 
-  // Create buffer factory that uses createBuffer
+  // Create buffer factory that uses createBuffer with auto-detected attributes
   const bufferFactory = (gl: WebGLRenderingContext) => 
-    createBuffer(gl, attributeNames, update, init)
+    createBuffer(gl, attributes, update, init)
 
-  return new Shader<TAttributes, TUniforms, TData>(
+  return new Shader(
     gl,
     program,
     attributes,

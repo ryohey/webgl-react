@@ -10,7 +10,7 @@ interface BorderedCircleUniforms {
 }
 
 export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
-  createShader<BorderedCircleUniforms, "position" | "bounds", IRect[]>(gl, {
+  createShader<BorderedCircleUniforms>(gl, {
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
@@ -51,10 +51,11 @@ export const BorderedCircleShader = (gl: WebGLRenderingContext) =>
         }
       }
     `,
-    attributeNames: ["position", "bounds"] as const,
     update: (rects: IRect[]) => ({
-      position: new Float32Array(rects.flatMap(rectToTriangles)),
-      bounds: new Float32Array(rects.flatMap(rectToTriangleBounds)),
+      bufferData: {
+        position: rects.flatMap(rectToTriangles),
+        bounds: rects.flatMap(rectToTriangleBounds),
+      },
       vertexCount: rects.length * 6,
     }),
   })
