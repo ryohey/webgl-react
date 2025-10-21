@@ -9,7 +9,7 @@ interface BorderedRectangleUniforms {
   strokeColor: vec4
 }
 
-export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, "position" | "bounds", IRect[]>({
+export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, IRect[]>({
     vertexShader: `#version 300 es
       precision lowp float;
       in vec2 position;
@@ -50,15 +50,18 @@ export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, "
         }
       }
     `,
-    init: () => ({
-      // Set up base rectangle geometry (runs once)
+    init: {
+      // Set up base rectangle geometry (initial data)
       position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
-    }),
+      bounds: {
+        data: [],
+        numComponents: 4, // x, y, width, height per instance
+        divisor: 1, // Instance attribute
+      },
+    },
     update: (rects: IRect[]) => ({
-      // Update instance data only
+      // Update instance data and position
+      position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
       bounds: rects.flatMap((r) => [r.x, r.y, r.width, r.height]),
-      vertexCount: 6,
-      instanceCount: rects.length,
     }),
-    instanceAttributes: ["bounds"] as const
   })

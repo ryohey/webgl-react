@@ -9,7 +9,7 @@ interface BorderedRectangleUniforms {
   uStrokeColor: vec4
 }
 
-export const BorderedRectangleShader = createShader<BorderedRectangleUniforms>({
+export const BorderedRectangleShader = createShader<BorderedRectangleUniforms, IRect[]>({
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
@@ -49,11 +49,12 @@ export const BorderedRectangleShader = createShader<BorderedRectangleUniforms>({
         }
       }
     `,
+    init: {
+      position: [],
+      bounds: [],
+    },
     update: (rects: IRect[]) => ({
-      bufferData: {
-        position: rects.flatMap(rectToTriangles),
-        bounds: rects.flatMap(rectToTriangleBounds),
-      },
-      vertexCount: rects.length * 6,
+      position: rects.flatMap(rectToTriangles),
+      bounds: rects.flatMap(rectToTriangleBounds),
     }),
   })

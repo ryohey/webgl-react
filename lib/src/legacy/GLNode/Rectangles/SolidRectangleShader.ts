@@ -8,7 +8,7 @@ interface SolidRectangleUniforms {
   uColor: vec4
 }
 
-export const SolidRectangleShader = createShader<SolidRectangleUniforms>({
+export const SolidRectangleShader = createShader<SolidRectangleUniforms, IRect[]>({
     vertexShader: `
       precision lowp float;
       attribute vec4 aVertexPosition;
@@ -27,10 +27,10 @@ export const SolidRectangleShader = createShader<SolidRectangleUniforms>({
         gl_FragColor = uColor;
       }
     `,
+    init: {
+      position: [],
+    },
     update: (rects: IRect[]) => ({
-      bufferData: {
-        position: rects.flatMap(rectToTriangles),
-      },
-      vertexCount: rects.length * 6,
+      position: rects.flatMap(rectToTriangles),
     }),
   })

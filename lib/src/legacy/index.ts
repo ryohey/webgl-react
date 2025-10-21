@@ -1,8 +1,4 @@
 export * from "./GLNode/BorderedCircles/BorderedCircleShader"
 export * from "./GLNode/BorderedRectangles/BorderedRectangleShader"
 export * from "./GLNode/Rectangles/SolidRectangleShader"
-export * from "./Shader/Attrib"
-export * from "./Shader/createAttributes"
 export * from "./Shader/createShader"
-export * from "./Shader/Shader"
-export type { LegacyBufferData, LegacyBufferInitFunction } from "./Shader/createBuffer"

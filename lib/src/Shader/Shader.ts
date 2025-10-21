@@ -1,42 +1,34 @@
-import { Buffer } from "./Buffer"
-import { VertexArray } from "./VertexArray"
-import { AttributeInputs } from "./createAttributes"
-import { ProgramInfo } from "./ProgramInfo"
-import { BufferInfo } from "./BufferInfo"
+import * as twgl from 'twgl.js'
 
-export class Shader<Uniforms, InputNames extends string> {
-  public readonly programInfo: ProgramInfo<Uniforms>
-
+export class Shader<Uniforms extends Record<string, any>, TData = any> {
   constructor(
     private readonly gl: WebGL2RenderingContext,
-    private readonly program: WebGLProgram,
-    private readonly inputs: AttributeInputs<InputNames>,
-    programInfo: ProgramInfo<Uniforms>,
-    private readonly bufferFactory: (
-      vertexArray: VertexArray<InputNames>,
-    ) => Buffer<any, InputNames>,
-  ) {
-    this.programInfo = programInfo
+    public readonly programInfo: twgl.ProgramInfo,
+    private readonly createBufferArrays: (data?: TData) => twgl.Arrays,
+  ) {}
+
+  setUniforms(uniforms: Uniforms) {
+    twgl.setUniforms(this.programInfo, uniforms as { [key: string]: any })
   }
 
-  setUniforms(props: Uniforms) {
-    this.programInfo.setUniforms(props)
+  createBuffer(): twgl.BufferInfo {
+    const arrays = this.createBufferArrays()
+    return twgl.createBufferInfoFromArrays(this.gl, arrays)
   }
 
-  createBuffer(): BufferInfo<InputNames> {
-    return new BufferInfo(this.gl, this.program, this.inputs, this.bufferFactory)
+  updateBuffer(data: TData): twgl.BufferInfo {
+    const arrays = this.createBufferArrays(data)
+    return twgl.createBufferInfoFromArrays(this.gl, arrays)
   }
 
-  draw(bufferInfo: BufferInfo<InputNames>) {
-    if (bufferInfo.buffer.vertexCount === 0) {
+  draw(bufferInfo: twgl.BufferInfo) {
+    if (bufferInfo.numElements === 0) {
       return
     }
 
-    this.programInfo.use()
-    bufferInfo.setBuffersAndAttributes()
-    this.programInfo.uploadUniforms()
-    bufferInfo.drawArrays()
-    bufferInfo.unbind()
+    this.gl.useProgram(this.programInfo.program)
+    twgl.setBuffersAndAttributes(this.gl, this.programInfo, bufferInfo)
+    twgl.drawBufferInfo(this.gl, bufferInfo)
   }
 }
 

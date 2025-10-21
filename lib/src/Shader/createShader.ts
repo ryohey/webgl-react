@@ -1,108 +1,67 @@
-import { Shader } from "./Shader"
-import { VertexArray } from "./VertexArray"
-import { Buffer, BufferUpdateFunction, BufferInitFunction } from "./Buffer"
-import { createAttributes } from "./createAttributes"
-import { createUniforms } from "./createUniforms"
-import { initShaderProgram } from "./initShaderProgram"
-import { ProgramInfo } from "./ProgramInfo"
+import { RenderNode } from "../GLNode/RenderNode"
+import * as twgl from 'twgl.js'
 
-// Main createShader function with strict type safety
+// Type for simplified update data where attributes can be just arrays or data
+type SimpleArrays = Record<string, number[] | ArrayBuffer | ArrayBufferView>
+
+// Helper function to merge init configuration with update data
+function mergeArrays(
+  init: twgl.Arrays, 
+  update: SimpleArrays
+): twgl.Arrays {
+  const result: any = {}
+  
+  for (const key in init) {
+    const initValue = init[key]
+    const updateValue = update[key]
+    
+    if (!updateValue) {
+      // If no update data for this attribute, keep the init value
+      result[key] = initValue
+      continue
+    }
+    
+    if (typeof initValue === 'object' && !Array.isArray(initValue) && 'data' in initValue) {
+      // This is an attribute with configuration (numComponents, divisor, etc.)
+      result[key] = {
+        ...initValue,
+        data: updateValue
+      }
+    } else {
+      // This is a simple array attribute
+      result[key] = updateValue
+    }
+  }
+  
+  return result
+}
+
+export interface CreateShaderOptions<TData> {
+  vertexShader: string
+  fragmentShader: string
+  init: twgl.Arrays
+  update: (data: TData) => SimpleArrays
+}
+
 export function createShader<
   TUniforms extends Record<string, any> = {},
-  TAttributes extends string = string,
   TData = any
->(options: {
-  vertexShader: string
-  fragmentShader: string
-  init?: BufferInitFunction<TAttributes>
-  update: BufferUpdateFunction<TData, TAttributes>
-  instanceAttributes?: TAttributes[]
-}): (gl: WebGL2RenderingContext) => Shader<TUniforms, TAttributes> {
-  return (gl: WebGL2RenderingContext) => {
-    const {
-      vertexShader,
-      fragmentShader,
-      init,
-      update,
-      instanceAttributes,
-    } = options
+>(options: CreateShaderOptions<TData>): (gl: WebGLRenderingContext | WebGL2RenderingContext) => RenderNode<TData, TUniforms> {
+  return (gl: WebGLRenderingContext | WebGL2RenderingContext) => {
+    const { vertexShader, fragmentShader, init, update } = options
 
-    const program = initShaderProgram(gl, vertexShader, fragmentShader)
+    // Create program using twgl
+    const programInfo = twgl.createProgramInfo(gl, [vertexShader, fragmentShader])
 
-    // Auto-detect and create uniforms and attributes
-    const uniforms = createUniforms<TUniforms>(gl, program)
-    const inputs = createAttributes<TAttributes>(
-      gl,
-      program,
-      instanceAttributes,
-    )
+    // Create initial buffer
+    const bufferInfo = twgl.createBufferInfoFromArrays(gl, init)
 
-    // Create ProgramInfo
-    const programInfo = new ProgramInfo(gl, program, uniforms)
+    // Create update function that merges configuration from init with data from update
+    const updateWithConfig = (data: TData) => {
+      const updateData = update(data)
+      return mergeArrays(init, updateData)
+    }
 
-    // Create buffer factory that uses new Buffer
-    const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-      new Buffer(vertexArray, update, init)
-
-    return new Shader<TUniforms, TAttributes>(
-      gl,
-      program,
-      inputs,
-      programInfo,
-      bufferFactory,
-    )
-  }
-}
-
-// Legacy interface for backward compatibility
-export interface CreateShaderOptionsLegacy<TData, TAttributes extends string> {
-  vertexShader: string
-  fragmentShader: string
-  init?: BufferInitFunction<TAttributes>
-  update: BufferUpdateFunction<TData, TAttributes>
-  instanceAttributes?: TAttributes[]
-}
-
-// Legacy overload for explicit attribute specification
-export function createShaderLegacy<
-  TUniforms extends Record<string, any>,
-  TAttributes extends string,
-  TData,
->(
-  options: CreateShaderOptionsLegacy<TData, TAttributes>
-): (gl: WebGL2RenderingContext) => Shader<TUniforms, TAttributes> {
-  return (gl: WebGL2RenderingContext) => {
-    const {
-      vertexShader,
-      fragmentShader,
-      init,
-      update,
-      instanceAttributes,
-    } = options
-
-    const program = initShaderProgram(gl, vertexShader, fragmentShader)
-
-    // Auto-detect and create uniforms and attributes
-    const uniforms = createUniforms<TUniforms>(gl, program)
-    const inputs = createAttributes<TAttributes>(
-      gl,
-      program,
-      instanceAttributes,
-    )
-
-    // Create ProgramInfo
-    const programInfo = new ProgramInfo(gl, program, uniforms)
-
-    // Create buffer factory that uses new Buffer
-    const bufferFactory = (vertexArray: VertexArray<TAttributes>) =>
-      new Buffer(vertexArray, update, init)
-
-    return new Shader<TUniforms, TAttributes>(
-      gl,
-      program,
-      inputs,
-      programInfo,
-      bufferFactory,
-    )
+    return new RenderNode<TData, TUniforms>(gl, programInfo, bufferInfo, updateWithConfig)
   }
 }
