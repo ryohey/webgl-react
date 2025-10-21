@@ -2,9 +2,9 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useTransform } from "../../hooks/useTransform"
-import { BorderedRectangleShader as LegacyBorderedRectangleShader } from "../../legacy/GLNode/BorderedRectangles/BorderedRectangleShader"
 import { GLNode } from "../GLNode"
 import { BorderedRectangleShader } from "./BorderedRectangleShader"
+import { LegacyBorderedRectangleShader } from "./LegacyBorderedRectangleShader"
 
 export interface BorderedRectanglesProps {
   rects: IRect[]

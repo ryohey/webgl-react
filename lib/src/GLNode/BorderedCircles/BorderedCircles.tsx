@@ -2,9 +2,9 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useTransform } from "../../hooks/useTransform"
-import { BorderedCircleShader as LegacyBorderedCircleShader } from "../../legacy/GLNode/BorderedCircles/BorderedCircleShader"
 import { GLNode } from "../GLNode"
 import { BorderedCircleShader } from "./BorderedCircleShader"
+import { LegacyBorderedCircleShader } from "./LegacyBorderedCircleShader"
 
 export interface BorderedCirclesProps {
   rects: IRect[]

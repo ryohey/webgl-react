@@ -1,3 +1,3 @@
-export * from "./GLNode/BorderedCircles/BorderedCircleShader"
-export * from "./GLNode/BorderedRectangles/BorderedRectangleShader"
-export * from "./GLNode/Rectangles/SolidRectangleShader"
+export * from "../GLNode/BorderedCircles/LegacyBorderedCircleShader"
+export * from "../GLNode/BorderedRectangles/LegacyBorderedRectangleShader"
+export * from "../GLNode/Rectangles/LegacyRectangleShader"

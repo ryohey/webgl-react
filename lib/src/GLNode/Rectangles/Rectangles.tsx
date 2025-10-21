@@ -2,8 +2,8 @@ import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
 import { useTransform } from "../../hooks/useTransform"
-import { SolidRectangleShader } from "../../legacy/GLNode/Rectangles/SolidRectangleShader"
 import { GLNode } from "../GLNode"
+import { LegacyRectangleShader } from "./LegacyRectangleShader"
 import { RectangleShader } from "./RectangleShader"
 
 export interface RectanglesProps {
@@ -14,15 +14,12 @@ export interface RectanglesProps {
 
 export const Rectangles: FC<RectanglesProps> = ({ rects, color, zIndex }) => {
   const transform = useTransform()
-  const uniforms = useMemo(
-    () => ({ transform, color }),
-    [transform, color],
-  )
+  const uniforms = useMemo(() => ({ transform, color }), [transform, color])
 
   return (
     <GLNode
       shader={RectangleShader}
-      shaderFallback={SolidRectangleShader}
+      shaderFallback={LegacyRectangleShader}
       uniforms={uniforms}
       buffer={rects}
       zIndex={zIndex}
