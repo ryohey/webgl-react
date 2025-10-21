@@ -4,6 +4,11 @@ import { RenderNode } from "../GLNode/RenderNode"
 import { Renderer } from "../Renderer/Renderer"
 import { GLPrimitiveProps } from "./types"
 
+type GLHostContext = {
+  gl: WebGLRenderingContext | WebGL2RenderingContext
+  renderer: Renderer
+}
+
 const GLReconciler = Reconciler({
   supportsMutation: true,
   supportsPersistence: false,
@@ -95,8 +100,16 @@ const GLReconciler = Reconciler({
 
   commitMount: () => {},
   getPublicInstance: (instance) => instance,
-  getRootHostContext: () => null,
-  getChildHostContext: () => null,
+  getRootHostContext: (rootContainerInstance): GLHostContext => ({
+    gl: rootContainerInstance.gl,
+    renderer: rootContainerInstance,
+  }),
+
+  getChildHostContext: (
+    parentHostContext: GLHostContext,
+    _type: string,
+  ): GLHostContext => parentHostContext,
+
   shouldSetTextContent: () => false,
   finalizeInitialChildren: () => false,
 

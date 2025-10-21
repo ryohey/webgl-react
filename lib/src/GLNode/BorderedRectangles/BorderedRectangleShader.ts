@@ -55,7 +55,10 @@ export const BorderedRectangleShader = createShader<
     `,
   init: {
     // Set up base rectangle geometry (initial data)
-    position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
+    position: {
+      data: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
+      numComponents: 2,
+    },
     bounds: {
       data: [],
       numComponents: 4, // x, y, width, height per instance
@@ -64,7 +67,6 @@ export const BorderedRectangleShader = createShader<
   },
   update: (rects: IRect[]) => ({
     bufferData: {
-      position: rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }),
       bounds: rects.flatMap((r) => [r.x, r.y, r.width, r.height]),
     },
     vertexCount: 6,

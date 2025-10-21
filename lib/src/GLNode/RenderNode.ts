@@ -1,4 +1,5 @@
 import * as twgl from "twgl.js"
+import { BufferPool } from "../Shader/BufferPool"
 
 export class ContainerNode {
   type: string = "NODE"
@@ -19,10 +20,11 @@ export type RenderNodeProps<T> = {
 }
 
 export class RenderNode<
-  Props extends any,
+  Props extends any = any,
   Uniforms extends Record<string, any> = any,
 > extends ContainerNode {
   private instanceCount: number | undefined
+  private readonly bufferPool = new BufferPool()
 
   constructor(
     private readonly gl: WebGLRenderingContext | WebGL2RenderingContext,
@@ -40,8 +42,8 @@ export class RenderNode<
       const attrib = this.bufferInfo.attribs?.[attributeName]
       if (attrib) {
         const bufferData = arrays.bufferData[attributeName]
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, attrib.buffer)
-        twgl.setAttribInfoBufferFromArray(this.gl, attrib, bufferData)
+        const buffer = this.bufferPool.setBufferData(attributeName, bufferData)
+        twgl.setAttribInfoBufferFromArray(this.gl, attrib, buffer)
       }
     }
 
@@ -50,6 +52,7 @@ export class RenderNode<
   }
 
   setUniforms(uniforms: Uniforms) {
+    this.gl.useProgram(this.programInfo.program)
     twgl.setUniforms(this.programInfo, uniforms)
   }
 
