@@ -1,7 +1,7 @@
 import { GLPrimitiveProps } from "../reconciler/types"
 import { RenderNode } from "./RenderNode"
 
-// reconciler用のJSX型定義
+// JSX type definitions for reconciler
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {

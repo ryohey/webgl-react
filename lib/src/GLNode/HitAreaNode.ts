@@ -53,21 +53,21 @@ export class HitAreaNode<T = unknown>
     this.onPointerCancel = props.onPointerCancel
   }
 
-  // 点がこのノードの境界内にあるかチェック
+  // Check if point is within this node's bounds
   containsPoint(point: vec2): boolean {
-    // transformの逆行列を計算してポイントをローカル座標に変換
+    // Calculate inverse transform to convert point to local coordinates
     const inverseTransform = mat4.create()
 
     if (!mat4.invert(inverseTransform, this.transform)) {
-      // 逆行列が計算できない場合はfalseを返す
+      // Return false if inverse matrix cannot be calculated
       return false
     }
 
-    // ポイントをローカル座標に変換
+    // Transform point to local coordinates
     const localPoint = vec2.create()
     vec2.transformMat4(localPoint, point, inverseTransform)
 
-    // ローカル座標でのboundsチェック
+    // Check bounds in local coordinates
     return (
       localPoint[0] >= this.bounds.x &&
       localPoint[0] <= this.bounds.x + this.bounds.width &&

@@ -4,7 +4,7 @@ import { HitAreaEventHandler } from "../EventSystem/HitArea"
 import { IRect } from "../helpers/geometry"
 import { useTransform } from "../hooks/useTransform"
 
-// reconciler用のJSX型定義
+// JSX type definitions for reconciler
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
