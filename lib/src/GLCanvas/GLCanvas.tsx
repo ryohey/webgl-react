@@ -2,7 +2,6 @@ import useComponentSize from "@rehooks/component-size"
 import { mat4 } from "gl-matrix"
 import {
   forwardRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -14,6 +13,7 @@ import { ContainerNode } from "../GLNode/RenderNode"
 import GLReconciler from "../reconciler/GLReconciler"
 import { Renderer } from "../Renderer/Renderer"
 import { Providers } from "./Providers"
+import { useEventHandlers } from "./useEventHandlers"
 
 export type GLSurfaceProps = Omit<
   React.DetailedHTMLProps<
@@ -134,116 +134,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       }
     }, [fiberRoot, content])
 
-    const handleMouseDown = useCallback(
-      (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (
-            eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
-          ) {
-            return
-          }
-        }
-        props.onMouseDown?.(event)
-      },
-      [eventSystem, props.onMouseDown],
-    )
-
-    const handleMouseUp = useCallback(
-      (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)) {
-            return
-          }
-        }
-        props.onMouseUp?.(event)
-      },
-      [eventSystem, props.onMouseUp],
-    )
-
-    const handleMouseMove = useCallback(
-      (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (
-            eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
-          ) {
-            return
-          }
-        }
-        props.onMouseMove?.(event)
-      },
-      [eventSystem, props.onMouseMove],
-    )
-
-    const handleClick = useCallback(
-      (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (eventSystem.handleClick(event.nativeEvent, canvasRef.current)) {
-            return
-          }
-        }
-        props.onClick?.(event)
-      },
-      [eventSystem, props.onClick],
-    )
-
-    const handlePointerDown = useCallback(
-      (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (
-            eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
-          ) {
-            return
-          }
-        }
-        props.onPointerDown?.(event)
-      },
-      [eventSystem, props.onPointerDown],
-    )
-
-    const handlePointerUp = useCallback(
-      (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (
-            eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
-          ) {
-            return
-          }
-        }
-        props.onPointerUp?.(event)
-      },
-      [eventSystem, props.onPointerUp],
-    )
-
-    const handlePointerMove = useCallback(
-      (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (
-            eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
-          ) {
-            return
-          }
-        }
-        props.onPointerMove?.(event)
-      },
-      [eventSystem, props.onPointerMove],
-    )
-
-    const handlePointerCancel = useCallback(
-      (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (canvasRef.current) {
-          if (
-            eventSystem.handlePointerCancel(
-              event.nativeEvent,
-              canvasRef.current,
-            )
-          ) {
-            return
-          }
-        }
-        props.onPointerCancel?.(event)
-      },
-      [eventSystem, props.onPointerCancel],
-    )
+    const eventHandlers = useEventHandlers(eventSystem, canvasRef, props)
 
     const canvasScale = window.devicePixelRatio
 
@@ -271,18 +162,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     return (
       <canvas
         {...props}
+        {...eventHandlers}
         ref={canvasRef}
         width={width * canvasScale}
         height={height * canvasScale}
         style={canvasStyle}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onClick={handleClick}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerMove={handlePointerMove}
-        onPointerCancel={handlePointerCancel}
       />
     )
   },

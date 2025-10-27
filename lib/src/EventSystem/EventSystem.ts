@@ -6,30 +6,10 @@ import { HitAreaEvent } from "./HitAreaEvent"
 // Union type for mouse and pointer events
 export type InputEvent = MouseEvent | PointerEvent
 
-export interface GLCanvasEventHandler {
-  (event: InputEvent): void
-}
-
-export interface GLCanvasEventHandlers {
-  onMouseDown?: GLCanvasEventHandler
-  onMouseUp?: GLCanvasEventHandler
-  onMouseMove?: GLCanvasEventHandler
-  onClick?: GLCanvasEventHandler
-  onPointerDown?: GLCanvasEventHandler
-  onPointerUp?: GLCanvasEventHandler
-  onPointerMove?: GLCanvasEventHandler
-  onPointerCancel?: GLCanvasEventHandler
-}
-
 export class EventSystem {
   private hoveredHitArea: any | null = null
-  private canvasEventHandlers: GLCanvasEventHandlers = {}
 
   constructor(private readonly rootNode: any) {}
-
-  setCanvasEventHandlers(handlers: GLCanvasEventHandlers) {
-    this.canvasEventHandlers = handlers
-  }
 
   private getAllHitAreas(): HitAreaNode<any>[] {
     const hitAreas: HitAreaNode<any>[] = []
@@ -62,7 +42,7 @@ export class EventSystem {
     return null
   }
 
-  private handleGenericEvent(
+  handleEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
     hitAreaEventType: keyof Pick<
@@ -76,7 +56,6 @@ export class EventSystem {
       | "onPointerMove"
       | "onPointerCancel"
     >,
-    canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const point = getLocalPoint(event, canvas)
     const target = this.findTarget(point)
@@ -90,22 +69,16 @@ export class EventSystem {
       }
     }
 
-    const canvasHandler = this.canvasEventHandlers[canvasEventType]
-    if (canvasHandler) {
-      canvasHandler(event)
-      return true
-    }
     return false
   }
 
   // Move event with enter/leave logic
-  private handleGenericMoveEvent(
+  handleMoveEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
     moveEventType: keyof Pick<HitArea<any>, "onMouseMove" | "onPointerMove">,
     enterEventType: keyof Pick<HitArea<any>, "onMouseEnter" | "onPointerEnter">,
     leaveEventType: keyof Pick<HitArea<any>, "onMouseLeave" | "onPointerLeave">,
-    canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const point = getLocalPoint(event, canvas)
     const target = this.findTarget(point)
@@ -132,70 +105,7 @@ export class EventSystem {
     }
 
     // Handle move with standard phases
-    return this.handleGenericEvent(
-      event,
-      canvas,
-      moveEventType,
-      canvasEventType,
-    )
-  }
-
-  // Mouse event handlers
-  handleMouseDown(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onMouseDown", "onMouseDown")
-  }
-
-  handleMouseUp(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onMouseUp", "onMouseUp")
-  }
-
-  handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericMoveEvent(
-      event,
-      canvas,
-      "onMouseMove",
-      "onMouseEnter",
-      "onMouseLeave",
-      "onMouseMove",
-    )
-  }
-
-  handleClick(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onClick", "onClick")
-  }
-
-  // Pointer event handlers
-  handlePointerDown(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(
-      event,
-      canvas,
-      "onPointerDown",
-      "onPointerDown",
-    )
-  }
-
-  handlePointerUp(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onPointerUp", "onPointerUp")
-  }
-
-  handlePointerMove(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericMoveEvent(
-      event,
-      canvas,
-      "onPointerMove",
-      "onPointerEnter",
-      "onPointerLeave",
-      "onPointerMove",
-    )
-  }
-
-  handlePointerCancel(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(
-      event,
-      canvas,
-      "onPointerCancel",
-      "onPointerCancel",
-    )
+    return this.handleEvent(event, canvas, moveEventType)
   }
 }
 
