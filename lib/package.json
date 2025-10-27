@@ -10,11 +10,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./legacy": {
-      "import": "./dist/legacy/index.js",
-      "require": "./dist/legacy/index.js",
-      "types": "./dist/legacy/index.d.ts"
     }
   },
   "scripts": {

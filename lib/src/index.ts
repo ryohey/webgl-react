@@ -1,14 +1,12 @@
 // Main exports using reconciler-based implementation with existing names
 export { GLCanvas } from "./GLCanvas/GLCanvas"
+
+// Shape components
 export { BorderedCircles } from "./GLNode/BorderedCircles/BorderedCircles"
 export { BorderedRectangles } from "./GLNode/BorderedRectangles/BorderedRectangles"
 export { Rectangles } from "./GLNode/Rectangles/Rectangles"
 
-// Base primitive for custom shapes (same as GLNode but exposed for clarity)
-export { GLNode as GLPrimitive } from "./GLNode/GLNode"
-export type { GLNodeProps as GLPrimitiveProps } from "./GLNode/GLNode"
-
-// Transform component still uses context
+// Transform component
 export * from "./GLNode/Transform"
 
 // Hooks and utilities
