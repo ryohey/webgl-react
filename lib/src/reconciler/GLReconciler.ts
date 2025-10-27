@@ -1,10 +1,14 @@
 import Reconciler from "react-reconciler"
 import { DefaultEventPriority } from "react-reconciler/constants"
+import { GLContainer } from "../GLContainer/GLContainer"
+import { HitAreaNode } from "../GLNode/HitAreaNode"
 import { RenderNode } from "../GLNode/RenderNode"
-import { Renderer } from "../Renderer/Renderer"
-import { GLPrimitiveProps } from "./types"
+import { NODE_TYPES } from "../GLNode/types"
+import { GLPrimitiveProps, HitAreaPrimitiveProps } from "./types"
 
 interface GLHostContext {}
+
+type GLInstance = RenderNode | HitAreaNode
 
 const GLReconciler = Reconciler({
   supportsMutation: true,
@@ -12,14 +16,37 @@ const GLReconciler = Reconciler({
   supportsHydration: false,
   createInstance: (
     type: string,
-    props: GLPrimitiveProps,
-    rootContainer: Renderer,
+    props: GLPrimitiveProps | HitAreaPrimitiveProps,
+    rootContainer: GLContainer,
   ) => {
-    const instance = props.createNode(rootContainer.gl)
+    let instance: GLInstance
 
-    instance.type = type
-    instance.update(props.buffer)
-    instance.setUniforms(props.uniforms)
+    if (type === "hit-area") {
+      const hitAreaProps = props as HitAreaPrimitiveProps
+      instance = new HitAreaNode({
+        bounds: hitAreaProps.bounds,
+        zIndex: hitAreaProps.zIndex,
+        transform: hitAreaProps.transform,
+        data: hitAreaProps.data,
+        onMouseDown: hitAreaProps.onMouseDown,
+        onMouseUp: hitAreaProps.onMouseUp,
+        onMouseMove: hitAreaProps.onMouseMove,
+        onMouseEnter: hitAreaProps.onMouseEnter,
+        onMouseLeave: hitAreaProps.onMouseLeave,
+        onClick: hitAreaProps.onClick,
+        onPointerDown: hitAreaProps.onPointerDown,
+        onPointerUp: hitAreaProps.onPointerUp,
+        onPointerMove: hitAreaProps.onPointerMove,
+        onPointerEnter: hitAreaProps.onPointerEnter,
+        onPointerLeave: hitAreaProps.onPointerLeave,
+        onPointerCancel: hitAreaProps.onPointerCancel,
+      })
+    } else {
+      const glProps = props as GLPrimitiveProps
+      instance = glProps.createNode(rootContainer.renderer.gl)
+      instance.update(glProps.buffer)
+      instance.setUniforms(glProps.uniforms)
+    }
 
     return instance
   },
@@ -28,70 +55,94 @@ const GLReconciler = Reconciler({
     throw new Error("Text instances are not supported in WebGL renderer")
   },
 
-  appendInitialChild: (parentInstance: RenderNode, child: RenderNode) => {
-    parentInstance.children.push(child)
+  appendInitialChild: (parentInstance: GLInstance, child: GLInstance) => {
+    parentInstance.addChild(child)
   },
 
-  appendChild: (parentInstance: RenderNode, child: RenderNode) => {
-    parentInstance.children.push(child)
+  appendChild: (parentInstance: GLInstance, child: GLInstance) => {
+    parentInstance.addChild(child)
   },
 
-  appendChildToContainer: (container: Renderer, child: RenderNode) => {
-    container.rootNode.children.push(child)
+  appendChildToContainer: (container: GLContainer, child: GLInstance) => {
+    container.renderer.rootNode.addChild(child)
   },
 
   insertBefore: (
-    parentInstance: RenderNode,
-    child: RenderNode,
-    beforeChild: RenderNode,
+    parentInstance: GLInstance,
+    child: GLInstance,
+    beforeChild: GLInstance,
   ) => {
     const index = parentInstance.children.indexOf(beforeChild)
     if (index !== -1) {
       parentInstance.children.splice(index, 0, child)
+      child.parent = parentInstance
     } else {
-      parentInstance.children.push(child)
+      parentInstance.addChild(child)
     }
   },
 
   insertInContainerBefore: (
-    container: Renderer,
-    child: RenderNode,
-    beforeChild: RenderNode,
+    container: GLContainer,
+    child: GLInstance,
+    beforeChild: GLInstance,
   ) => {
-    const index = container.rootNode.children.indexOf(beforeChild)
+    const index = container.renderer.rootNode.children.indexOf(beforeChild)
     if (index !== -1) {
-      container.rootNode.children.splice(index, 0, child)
+      container.renderer.rootNode.children.splice(index, 0, child)
+      child.parent = container.renderer.rootNode
     } else {
-      container.rootNode.children.push(child)
+      container.renderer.rootNode.addChild(child)
     }
   },
 
-  removeChild: (parentInstance: RenderNode, child: RenderNode) => {
-    const index = parentInstance.children.indexOf(child)
-    if (index !== -1) {
-      parentInstance.children.splice(index, 1)
-    }
+  removeChild: (parentInstance: GLInstance, child: GLInstance) => {
+    parentInstance.removeChild(child)
   },
 
-  removeChildFromContainer: (container: Renderer, child: RenderNode) => {
-    const index = container.rootNode.children.indexOf(child)
-    if (index !== -1) {
-      container.rootNode.children.splice(index, 1)
-    }
+  removeChildFromContainer: (container: GLContainer, child: GLInstance) => {
+    container.renderer.rootNode.removeChild(child)
   },
 
   commitUpdate: (
-    instance: RenderNode,
+    instance: GLInstance,
     _type: string,
-    prevProps: GLPrimitiveProps,
-    nextProps: GLPrimitiveProps,
+    prevProps: GLPrimitiveProps | HitAreaPrimitiveProps,
+    nextProps: GLPrimitiveProps | HitAreaPrimitiveProps,
     _internalHandle: any,
   ) => {
-    if (prevProps.buffer !== nextProps.buffer) {
-      instance.update(nextProps.buffer)
-    }
-    if (prevProps.uniforms !== nextProps.uniforms) {
-      instance.setUniforms(nextProps.uniforms)
+    if (instance.type === NODE_TYPES.HIT_AREA) {
+      const nextHitAreaProps = nextProps as HitAreaPrimitiveProps
+      const hitAreaInstance = instance as HitAreaNode
+      
+      // Update HitAreaNode properties directly
+      hitAreaInstance.bounds = nextHitAreaProps.bounds
+      hitAreaInstance.zIndex = nextHitAreaProps.zIndex || 0
+      hitAreaInstance.transform = nextHitAreaProps.transform || hitAreaInstance.transform
+      hitAreaInstance.data = nextHitAreaProps.data
+      hitAreaInstance.onMouseDown = nextHitAreaProps.onMouseDown
+      hitAreaInstance.onMouseUp = nextHitAreaProps.onMouseUp
+      hitAreaInstance.onMouseMove = nextHitAreaProps.onMouseMove
+      hitAreaInstance.onMouseEnter = nextHitAreaProps.onMouseEnter
+      hitAreaInstance.onMouseLeave = nextHitAreaProps.onMouseLeave
+      hitAreaInstance.onClick = nextHitAreaProps.onClick
+      hitAreaInstance.onPointerDown = nextHitAreaProps.onPointerDown
+      hitAreaInstance.onPointerUp = nextHitAreaProps.onPointerUp
+      hitAreaInstance.onPointerMove = nextHitAreaProps.onPointerMove
+      hitAreaInstance.onPointerEnter = nextHitAreaProps.onPointerEnter
+      hitAreaInstance.onPointerLeave = nextHitAreaProps.onPointerLeave
+      hitAreaInstance.onPointerCancel = nextHitAreaProps.onPointerCancel
+    } else {
+      // This is a RenderNode
+      const prevGLProps = prevProps as GLPrimitiveProps
+      const nextGLProps = nextProps as GLPrimitiveProps
+      const renderInstance = instance as RenderNode
+      
+      if (prevGLProps.buffer !== nextGLProps.buffer) {
+        renderInstance.update(nextGLProps.buffer)
+      }
+      if (prevGLProps.uniforms !== nextGLProps.uniforms) {
+        renderInstance.setUniforms(nextGLProps.uniforms)
+      }
     }
   },
 
@@ -102,8 +153,8 @@ const GLReconciler = Reconciler({
   shouldSetTextContent: () => false,
   finalizeInitialChildren: () => false,
 
-  clearContainer: (container: Renderer) => {
-    container.rootNode.children = []
+  clearContainer: (container: GLContainer) => {
+    container.renderer.rootNode.children = []
   },
 
   commitTextUpdate: () => {
@@ -112,7 +163,7 @@ const GLReconciler = Reconciler({
 
   prepareForCommit: () => null,
   resetAfterCommit: (container) => {
-    container.setNeedsDisplay()
+    container.renderer.setNeedsDisplay()
   },
   preparePortalMount: () => {},
 

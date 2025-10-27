@@ -1,5 +1,5 @@
 import { vec2 } from "gl-matrix"
-import { IRect } from "../helpers/geometry"
+import { HitAreaNode } from "../GLNode/HitAreaNode"
 import { HitArea } from "./HitArea"
 import { HitAreaEvent } from "./HitAreaEvent"
 
@@ -22,52 +22,21 @@ export interface GLCanvasEventHandlers {
 }
 
 export class EventSystem {
-  private hitAreas: HitArea<any>[] = []
-  private hoveredHitArea: HitArea<any> | null = null
+  private hoveredHitArea: any | null = null
   private canvasEventHandlers: GLCanvasEventHandlers = {}
+
+  constructor(private readonly rootNode: any) {}
 
   setCanvasEventHandlers(handlers: GLCanvasEventHandlers) {
     this.canvasEventHandlers = handlers
   }
 
-  addHitArea<T>(hitArea: HitArea<T>) {
-    this.hitAreas.push(hitArea as HitArea<any>)
-  }
 
-  removeHitArea(id: string) {
-    this.hitAreas = this.hitAreas.filter((area) => area.id !== id)
-  }
 
-  private handleHitAreaEvent<T>(
-    hitArea: HitArea<T>,
-    eventType: keyof Pick<
-      HitArea<T>,
-      | "onMouseDown"
-      | "onMouseUp"
-      | "onMouseMove"
-      | "onMouseEnter"
-      | "onMouseLeave"
-      | "onClick"
-      | "onPointerDown"
-      | "onPointerUp"
-      | "onPointerMove"
-      | "onPointerEnter"
-      | "onPointerLeave"
-      | "onPointerCancel"
-    >,
-    nativeEvent: InputEvent,
-    point: vec2,
-  ): boolean {
-    const handler = hitArea[eventType]
-    if (handler) {
-      const event = new HitAreaEvent(nativeEvent, point)
-      handler(event)
-      return true
-    }
-    return false
-  }
 
-  // Generic event handler that reduces duplication
+
+
+  // Web標準イベントフェーズでイベント処理
   private handleGenericEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
@@ -85,24 +54,37 @@ export class EventSystem {
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const point = getLocalPoint(event, canvas)
-    const hitArea = findTopHitArea(this.hitAreas, point)
-
-    if (hitArea) {
-      if (this.handleHitAreaEvent(hitArea, hitAreaEventType, event, point)) {
+    const target = HitAreaNode.findTarget(this.rootNode, point)
+    
+    if (!target) {
+      const canvasHandler = this.canvasEventHandlers[canvasEventType]
+      if (canvasHandler) {
+        canvasHandler(event)
         return true
       }
+      return false
     }
 
-    const canvasHandler = this.canvasEventHandlers[canvasEventType]
-    if (canvasHandler) {
-      canvasHandler(event)
-      return true
+    const capturePath = target.getCapturePath(point)
+
+    // Capture phase
+    for (const node of capturePath) {
+      if (node.dispatchEvent(event, point, hitAreaEventType)) return true
     }
 
-    return false
+    // Target phase
+    if (target.dispatchEvent(event, point, hitAreaEventType)) return true
+
+    // Bubbling phase
+    for (let i = capturePath.length - 1; i >= 0; i--) {
+      const node = capturePath[i]
+      if (node.dispatchEvent(event, point, hitAreaEventType)) return true
+    }
+
+    return true
   }
 
-  // Generic move event handler for mouse/pointer enter/leave logic
+  // Move event with enter/leave logic
   private handleGenericMoveEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
@@ -112,38 +94,25 @@ export class EventSystem {
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const point = getLocalPoint(event, canvas)
-    const hitArea = findTopHitArea(this.hitAreas, point)
+    const target = HitAreaNode.findTarget(this.rootNode, point)
 
-    if (hitArea !== this.hoveredHitArea) {
+    // Handle enter/leave
+    if (target !== this.hoveredHitArea) {
       if (this.hoveredHitArea?.[leaveEventType]) {
-        this.handleHitAreaEvent(
-          this.hoveredHitArea,
-          leaveEventType,
-          event,
-          point,
-        )
+        const leaveEvent = new HitAreaEvent(event, point, this.hoveredHitArea.data)
+        this.hoveredHitArea[leaveEventType](leaveEvent)
       }
 
-      if (hitArea?.[enterEventType]) {
-        this.handleHitAreaEvent(hitArea, enterEventType, event, point)
+      if (target?.[enterEventType]) {
+        const enterEvent = new HitAreaEvent(event, point, target.data)
+        target[enterEventType](enterEvent)
       }
 
-      this.hoveredHitArea = hitArea
+      this.hoveredHitArea = target
     }
 
-    if (hitArea) {
-      if (this.handleHitAreaEvent(hitArea, moveEventType, event, point)) {
-        return true
-      }
-    }
-
-    const canvasHandler = this.canvasEventHandlers[canvasEventType]
-    if (canvasHandler) {
-      canvasHandler(event)
-      return true
-    }
-
-    return false
+    // Handle move with standard phases
+    return this.handleGenericEvent(event, canvas, moveEventType, canvasEventType)
   }
 
   // Mouse event handlers
@@ -212,28 +181,4 @@ function getLocalPoint(event: InputEvent, element: HTMLElement): vec2 {
   return vec2.fromValues(x, y)
 }
 
-function isPointInBounds(point: vec2, bounds: IRect): boolean {
-  return (
-    point[0] >= bounds.x &&
-    point[0] <= bounds.x + bounds.width &&
-    point[1] >= bounds.y &&
-    point[1] <= bounds.y + bounds.height
-  )
-}
 
-function findTopHitArea(
-  hitAreas: HitArea<any>[],
-  point: vec2,
-): HitArea<any> | null {
-  const sortedHitAreas = [...hitAreas].sort(
-    (a, b) => (b.zIndex || 0) - (a.zIndex || 0),
-  )
-
-  for (const hitArea of sortedHitAreas) {
-    if (isPointInBounds(point, hitArea.bounds)) {
-      return hitArea
-    }
-  }
-
-  return null
-}

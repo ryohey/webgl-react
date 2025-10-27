@@ -1,7 +1,8 @@
 import { mat4, vec2 } from "gl-matrix"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { EventSystem } from "./EventSystem"
-import { HitArea } from "./HitArea"
+import { HitAreaNode } from "../GLNode/HitAreaNode"
+import { ContainerNode } from "../GLNode/RenderNode"
 
 // Mock MouseEvent and PointerEvent for Node.js environment
 global.MouseEvent = vi.fn().mockImplementation((type: string, init?: any) => ({
@@ -27,9 +28,11 @@ global.PointerEvent = vi
 describe("EventSystem", () => {
   let eventSystem: EventSystem
   let mockCanvas: HTMLCanvasElement
+  let rootNode: ContainerNode
 
   beforeEach(() => {
-    eventSystem = new EventSystem()
+    rootNode = new ContainerNode()
+    eventSystem = new EventSystem(rootNode)
     mockCanvas = {
       getBoundingClientRect: () => ({
         left: 0,
@@ -40,28 +43,27 @@ describe("EventSystem", () => {
     } as HTMLCanvasElement
   })
 
-  describe("addHitArea and removeHitArea", () => {
-    it("should add and remove hit areas", () => {
-      const hitArea: HitArea = {
-        id: "test-1",
+  describe("tree-based hit detection", () => {
+    it("should detect hits in tree structure", () => {
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
-      // Hit area should be added
+      // Hit area should be detected
       const mouseEvent = new MouseEvent("mousedown", {
         clientX: 35,
         clientY: 25,
       })
 
-      expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas)).toBe(false) // No handler, but hit detected
+      expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas)).toBe(true) // Hit detected but no handler
 
-      eventSystem.removeHitArea("test-1")
+      // Remove hit area
+      rootNode.removeChild(hitAreaNode)
 
-      // Hit area should be removed
+      // Hit area should no longer be detected
       expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas)).toBe(false)
     })
   })
@@ -69,15 +71,13 @@ describe("EventSystem", () => {
   describe("hit detection", () => {
     it("should detect hits within bounds", () => {
       const onMouseDown = vi.fn()
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseDown,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       // Hit inside bounds
       const hitEvent = new MouseEvent("mousedown", {
@@ -101,15 +101,13 @@ describe("EventSystem", () => {
 
     it("should not detect hits outside bounds", () => {
       const onMouseDown = vi.fn()
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseDown,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       // Hit outside bounds
       const missEvent = new MouseEvent("mousedown", {
@@ -126,24 +124,20 @@ describe("EventSystem", () => {
       const onMouseDownLow = vi.fn()
       const onMouseDownHigh = vi.fn()
 
-      const lowZIndexArea: HitArea = {
-        id: "low",
+      const lowZIndexNode = new HitAreaNode({
         bounds: { x: 0, y: 0, width: 100, height: 100 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseDown: onMouseDownLow,
-      }
+      })
 
-      const highZIndexArea: HitArea = {
-        id: "high",
+      const highZIndexNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 50 },
-        transform: mat4.create(),
         zIndex: 10,
         onMouseDown: onMouseDownHigh,
-      }
+      })
 
-      eventSystem.addHitArea(lowZIndexArea)
-      eventSystem.addHitArea(highZIndexArea)
+      rootNode.addChild(lowZIndexNode)
+      rootNode.addChild(highZIndexNode)
 
       // Click in overlapping area
       const clickEvent = new MouseEvent("mousedown", {
@@ -168,15 +162,13 @@ describe("EventSystem", () => {
         onClick: vi.fn(),
       }
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         ...handlers,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       const createEvent = (type: string) =>
         new MouseEvent(type, {
@@ -211,16 +203,14 @@ describe("EventSystem", () => {
       const onMouseEnter = vi.fn()
       const onMouseLeave = vi.fn()
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseEnter,
         onMouseLeave,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       // Move outside first
       const outsideEvent = new MouseEvent("mousemove", {
@@ -267,15 +257,13 @@ describe("EventSystem", () => {
         onMouseDown: onCanvasMouseDown,
       })
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseDown: onHitAreaMouseDown,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       const clickEvent = new MouseEvent("mousedown", {
         clientX: 35,
@@ -293,16 +281,14 @@ describe("EventSystem", () => {
       const customData = { id: 123, name: "test rect" }
       const onMouseDown = vi.fn()
 
-      const hitArea: HitArea<typeof customData> = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseDown,
         data: customData,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       const clickEvent = new MouseEvent("mousedown", {
         clientX: 35,
@@ -334,15 +320,13 @@ describe("EventSystem", () => {
         clientY: 25,
       } as unknown as MouseEvent
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onMouseDown,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
       eventSystem.handleMouseDown(mockEvent, mockCanvas)
 
       expect(onMouseDown).toHaveBeenCalled()
@@ -356,17 +340,15 @@ describe("EventSystem", () => {
       const onPointerUp = vi.fn()
       const onPointerMove = vi.fn()
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onPointerDown,
         onPointerUp,
         onPointerMove,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       const createPointerEvent = (type: string) =>
         new PointerEvent(type, {
@@ -405,16 +387,14 @@ describe("EventSystem", () => {
       const onPointerEnter = vi.fn()
       const onPointerLeave = vi.fn()
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onPointerEnter,
         onPointerLeave,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       // Move outside first
       const outsideEvent = new PointerEvent("pointermove", {
@@ -441,15 +421,13 @@ describe("EventSystem", () => {
     it("should handle pointer cancel event", () => {
       const onPointerCancel = vi.fn()
 
-      const hitArea: HitArea = {
-        id: "test-1",
+      const hitAreaNode = new HitAreaNode({
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
         zIndex: 1,
         onPointerCancel,
-      }
+      })
 
-      eventSystem.addHitArea(hitArea)
+      rootNode.addChild(hitAreaNode)
 
       const cancelEvent = new PointerEvent("pointercancel", {
         clientX: 35,
@@ -461,6 +439,90 @@ describe("EventSystem", () => {
         true,
       )
       expect(onPointerCancel).toHaveBeenCalled()
+    })
+  })
+
+  describe("transform support", () => {
+    it("should handle hit detection with transforms", () => {
+      const onMouseDown = vi.fn()
+      
+      // Create a transform that translates by (50, 50)
+      const transform = mat4.create()
+      mat4.translate(transform, transform, [50, 50, 0])
+      
+      const hitAreaNode = new HitAreaNode({
+        bounds: { x: 0, y: 0, width: 50, height: 50 },
+        zIndex: 1,
+        transform: transform,
+        onMouseDown,
+      })
+
+      rootNode.addChild(hitAreaNode)
+
+      // Hit at transformed position (75, 75) should hit local bounds (25, 25)
+      const hitEvent = new MouseEvent("mousedown", {
+        clientX: 75,
+        clientY: 75,
+      })
+      expect(eventSystem.handleMouseDown(hitEvent, mockCanvas)).toBe(true)
+      expect(onMouseDown).toHaveBeenCalled()
+
+      // Hit at original position (25, 25) should miss due to transform
+      const missEvent = new MouseEvent("mousedown", {
+        clientX: 25,
+        clientY: 25,
+      })
+      onMouseDown.mockClear()
+      expect(eventSystem.handleMouseDown(missEvent, mockCanvas)).toBe(false)
+      expect(onMouseDown).not.toHaveBeenCalled()
+    })
+
+    it("should handle cumulative transforms from parent nodes", () => {
+      const onMouseDown = vi.fn()
+      
+      // Parent transform: translate by (30, 30)
+      const parentTransform = mat4.create()
+      mat4.translate(parentTransform, parentTransform, [30, 30, 0])
+      
+      const parentNode = new HitAreaNode({
+        bounds: { x: 0, y: 0, width: 50, height: 50 },
+        zIndex: 0,
+        transform: parentTransform,
+        // 親ノードにもハンドラーを設定して、当たり判定を明確にする
+        onMouseDown: () => {}, // 何もしないハンドラー
+      })
+
+      // Child transform: translate by (20, 20)
+      const childTransform = mat4.create()
+      mat4.translate(childTransform, childTransform, [20, 20, 0])
+      
+      const childNode = new HitAreaNode({
+        bounds: { x: 0, y: 0, width: 30, height: 30 },
+        zIndex: 1,
+        transform: childTransform,
+        onMouseDown,
+      })
+
+      rootNode.addChild(parentNode)
+      parentNode.addChild(childNode)
+
+      // Cumulative transform: (30, 30) + (20, 20) = (50, 50)
+      // Hit at world position (65, 65) should hit local bounds (15, 15)
+      const hitEvent = new MouseEvent("mousedown", {
+        clientX: 65,
+        clientY: 65,
+      })
+      expect(eventSystem.handleMouseDown(hitEvent, mockCanvas)).toBe(true)
+      expect(onMouseDown).toHaveBeenCalled()
+
+      // Hit at position (20, 20) should miss due to cumulative transform
+      const missEvent = new MouseEvent("mousedown", {
+        clientX: 20,
+        clientY: 20,
+      })
+      onMouseDown.mockClear()
+      expect(eventSystem.handleMouseDown(missEvent, mockCanvas)).toBe(false)
+      expect(onMouseDown).not.toHaveBeenCalled()
     })
   })
 })

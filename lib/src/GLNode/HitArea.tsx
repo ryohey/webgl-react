@@ -1,13 +1,23 @@
 import { mat4 } from "gl-matrix"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 import { HitAreaEventHandler } from "../EventSystem/HitArea"
 import { IRect } from "../helpers/geometry"
-import { useEventSystem } from "../hooks/useEventSystem"
 import { useTransform } from "../hooks/useTransform"
+import { HitAreaNode } from "./HitAreaNode"
+
+// reconciler用のJSX型定義
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "hit-area": any
+    }
+  }
+}
 
 export interface HitAreaProps<T = unknown> {
   bounds: IRect
   zIndex?: number
+  data?: T
   onMouseDown?: HitAreaEventHandler<T>
   onMouseUp?: HitAreaEventHandler<T>
   onMouseMove?: HitAreaEventHandler<T>
@@ -25,6 +35,7 @@ export interface HitAreaProps<T = unknown> {
 export const HitArea = <T,>({
   bounds,
   zIndex = 0,
+  data,
   onMouseDown,
   onMouseUp,
   onMouseMove,
@@ -38,59 +49,30 @@ export const HitArea = <T,>({
   onPointerLeave,
   onPointerCancel,
 }: HitAreaProps<T>) => {
-  const eventSystem = useEventSystem()
   const transform = useTransform()
 
   const finalTransform = useMemo(() => {
     return mat4.clone(transform)
   }, [transform])
 
-  const hitAreaId = useMemo(() => `hit-area-${Math.random()}`, [])
-
-  useEffect(() => {
-    const hitArea = {
-      id: hitAreaId,
-      bounds,
-      transform: finalTransform,
-      zIndex,
-      onMouseDown,
-      onMouseUp,
-      onMouseMove,
-      onMouseEnter,
-      onMouseLeave,
-      onClick,
-      onPointerDown,
-      onPointerUp,
-      onPointerMove,
-      onPointerEnter,
-      onPointerLeave,
-      onPointerCancel,
-    }
-
-    eventSystem.addHitArea(hitArea)
-
-    return () => {
-      eventSystem.removeHitArea(hitAreaId)
-    }
-  }, [
-    eventSystem,
-    hitAreaId,
-    bounds,
-    finalTransform,
-    zIndex,
-    onMouseDown,
-    onMouseUp,
-    onMouseMove,
-    onMouseEnter,
-    onMouseLeave,
-    onClick,
-    onPointerDown,
-    onPointerUp,
-    onPointerMove,
-    onPointerEnter,
-    onPointerLeave,
-    onPointerCancel,
-  ])
-
-  return null
+  return (
+    <hit-area
+      bounds={bounds}
+      zIndex={zIndex}
+      transform={finalTransform}
+      data={data}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerMove={onPointerMove}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onPointerCancel={onPointerCancel}
+    />
+  )
 }

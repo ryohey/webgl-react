@@ -1,15 +1,54 @@
 import * as twgl from "twgl.js"
 import { BufferPool } from "../Shader/BufferPool"
+import { NODE_TYPES, NodeType } from "./types"
 
 export class ContainerNode {
-  type: string = "NODE"
+  public readonly type: NodeType = NODE_TYPES.CONTAINER
   zIndex = 0
-  children: ContainerNode[] = []
+  children: any[] = []
+  parent: ContainerNode | null = null
+
+  addChild(child: ContainerNode) {
+    if (child.parent) {
+      child.parent.removeChild(child)
+    }
+    this.children.push(child)
+    child.parent = this
+  }
+
+  removeChild(child: ContainerNode) {
+    const index = this.children.indexOf(child)
+    if (index !== -1) {
+      this.children.splice(index, 1)
+      child.parent = null
+    }
+  }
 
   draw() {
     this.children
-      .sort((a, b) => a.zIndex - b.zIndex)
-      .forEach((child) => child.draw())
+      .filter((child) => 'draw' in child && typeof child.draw === 'function')
+      .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
+      .forEach((child) => {
+        child.draw()
+      })
+  }
+
+  // Traverse the tree and collect all HitAreaNodes
+  getHitAreaNodes(): any[] {
+    const hitAreas: any[] = []
+    
+    const traverse = (node: any) => {
+      // Check if this is a HitAreaNode by checking for specific properties
+      if (node.bounds && node.id && typeof node.id === 'string') {
+        hitAreas.push(node)
+      }
+      if (node.children && Array.isArray(node.children)) {
+        node.children.forEach(traverse)
+      }
+    }
+    
+    traverse(this)
+    return hitAreas
   }
 }
 
@@ -23,6 +62,7 @@ export class RenderNode<
   Props extends any = any,
   Uniforms extends Record<string, any> = any,
 > extends ContainerNode {
+  public override readonly type: NodeType = NODE_TYPES.RENDER
   private instanceCount: number | undefined
   private readonly bufferPool = new BufferPool()
 

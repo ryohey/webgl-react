@@ -21,8 +21,10 @@ export * from "./helpers/geometry"
 export * from "./helpers/polygon"
 
 // Low-level exports for advanced usage
+export * from "./GLContainer/GLContainer"
 export * from "./GLNode/GLFallback"
 export * from "./GLNode/GLNode"
 export * from "./GLNode/HitArea"
+export * from "./GLNode/HitAreaNode"
 export * from "./Renderer/Renderer"
 export * from "./Shader/createShader"

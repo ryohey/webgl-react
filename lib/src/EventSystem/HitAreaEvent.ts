@@ -1,16 +1,18 @@
 import { vec2 } from "gl-matrix"
 import { InputEvent } from "./EventSystem"
 
-export class HitAreaEvent<_T = unknown> {
+export class HitAreaEvent<T = unknown> {
   public readonly nativeEvent: InputEvent
   public readonly point: vec2
+  public readonly data: T | undefined
 
   private propagationStopped = false
   private defaultPrevented = false
 
-  constructor(nativeEvent: InputEvent, point: vec2) {
+  constructor(nativeEvent: InputEvent, point: vec2, data?: T) {
     this.nativeEvent = nativeEvent
     this.point = point
+    this.data = data
   }
 
   stopPropagation(): void {
