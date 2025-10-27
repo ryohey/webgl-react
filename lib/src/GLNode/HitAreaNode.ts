@@ -54,34 +54,12 @@ export class HitAreaNode<T = unknown> extends ContainerNode implements HitAreaEv
     this.onPointerCancel = props.onPointerCancel
   }
 
-  // 親から子への累積transformを計算
-  private getWorldTransform(): mat4 {
-    const worldTransform = mat4.create()
-    
-    // 親チェーンを辿って累積transformを計算
-    const transforms: mat4[] = []
-    let current: ContainerNode | null = this
-    
-    while (current && current instanceof HitAreaNode) {
-      transforms.unshift(current.transform)
-      current = current.parent
-    }
-    
-    // 親から子への順序でtransformを適用
-    for (const transform of transforms) {
-      mat4.multiply(worldTransform, worldTransform, transform)
-    }
-    
-    return worldTransform
-  }
-
-  // 点がこのノードの境界内にあるかチェック（累積transform考慮）
+  // 点がこのノードの境界内にあるかチェック（自分自身のtransformのみ考慮）
   containsPoint(point: vec2): boolean {
-    // 累積transformの逆行列を計算してポイントをローカル座標に変換
-    const worldTransform = this.getWorldTransform()
+    // 自分自身のtransformの逆行列を計算してポイントをローカル座標に変換
     const inverseTransform = mat4.create()
     
-    if (!mat4.invert(inverseTransform, worldTransform)) {
+    if (!mat4.invert(inverseTransform, this.transform)) {
       // 逆行列が計算できない場合はtransformなしでチェック
       return (
         point[0] >= this.bounds.x &&

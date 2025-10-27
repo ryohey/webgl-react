@@ -477,52 +477,5 @@ describe("EventSystem", () => {
       expect(onMouseDown).not.toHaveBeenCalled()
     })
 
-    it("should handle cumulative transforms from parent nodes", () => {
-      const onMouseDown = vi.fn()
-      
-      // Parent transform: translate by (30, 30)
-      const parentTransform = mat4.create()
-      mat4.translate(parentTransform, parentTransform, [30, 30, 0])
-      
-      const parentNode = new HitAreaNode({
-        bounds: { x: 0, y: 0, width: 50, height: 50 },
-        zIndex: 0,
-        transform: parentTransform,
-        // 親ノードにもハンドラーを設定して、当たり判定を明確にする
-        onMouseDown: () => {}, // 何もしないハンドラー
-      })
-
-      // Child transform: translate by (20, 20)
-      const childTransform = mat4.create()
-      mat4.translate(childTransform, childTransform, [20, 20, 0])
-      
-      const childNode = new HitAreaNode({
-        bounds: { x: 0, y: 0, width: 30, height: 30 },
-        zIndex: 1,
-        transform: childTransform,
-        onMouseDown,
-      })
-
-      rootNode.addChild(parentNode)
-      parentNode.addChild(childNode)
-
-      // Cumulative transform: (30, 30) + (20, 20) = (50, 50)
-      // Hit at world position (65, 65) should hit local bounds (15, 15)
-      const hitEvent = new MouseEvent("mousedown", {
-        clientX: 65,
-        clientY: 65,
-      })
-      expect(eventSystem.handleMouseDown(hitEvent, mockCanvas)).toBe(true)
-      expect(onMouseDown).toHaveBeenCalled()
-
-      // Hit at position (20, 20) should miss due to cumulative transform
-      const missEvent = new MouseEvent("mousedown", {
-        clientX: 20,
-        clientY: 20,
-      })
-      onMouseDown.mockClear()
-      expect(eventSystem.handleMouseDown(missEvent, mockCanvas)).toBe(false)
-      expect(onMouseDown).not.toHaveBeenCalled()
-    })
   })
 })

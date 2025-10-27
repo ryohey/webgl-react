@@ -10,7 +10,6 @@ export { Rectangles } from "./GLNode/Rectangles/Rectangles"
 export * from "./GLNode/Transform"
 
 // Hooks and utilities
-export * from "./hooks/useEventSystem"
 export * from "./hooks/useRenderer"
 export * from "./hooks/useTransform"
 

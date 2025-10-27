@@ -78,7 +78,7 @@ export class EventSystem {
     // Bubbling phase
     for (let i = capturePath.length - 1; i >= 0; i--) {
       const node = capturePath[i]
-      if (node.dispatchEvent(event, point, hitAreaEventType)) return true
+      if (node && node.dispatchEvent(event, point, hitAreaEventType)) return true
     }
 
     return true

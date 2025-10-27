@@ -10,6 +10,7 @@ import {
   useState,
 } from "react"
 import { EventSystem } from "../EventSystem/EventSystem"
+import { ContainerNode } from "../GLNode/RenderNode"
 import GLReconciler from "../reconciler/GLReconciler"
 import { Renderer } from "../Renderer/Renderer"
 import { Providers } from "./Providers"
@@ -24,6 +25,7 @@ export type GLSurfaceProps = Omit<
   width: number
   height: number
   onInitError?: () => void
+  eventSystem?: EventSystem
 }
 
 function createGLContext(
@@ -36,11 +38,26 @@ function createGLContext(
 }
 
 export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
-  ({ width, height, style, children, onInitError, ...props }, ref) => {
+  (
+    {
+      width,
+      height,
+      style,
+      children,
+      onInitError,
+      eventSystem: eventSystemExternal,
+      ...props
+    },
+    ref,
+  ) => {
+    const rootNode = useMemo(() => new ContainerNode(), [])
+    const eventSystem = useMemo(
+      () => eventSystemExternal ?? new EventSystem(rootNode),
+      [eventSystemExternal, rootNode],
+    )
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)
-    const [renderer, setRenderer] = useState<Renderer | null>(null)
-    const [eventSystem, setEventSystem] = useState<EventSystem | null>(null)
+    const [container, setContainer] = useState<any>(null)
     const [fiberRoot, setFiberRoot] = useState<any>(null)
     const size = useComponentSize(canvasRef)
 
@@ -70,11 +87,15 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         return
       }
 
-      const rendererInstance = new Renderer(gl)
-      const eventSystemInstance = new EventSystem()
+      const renderer = new Renderer(gl, rootNode)
+
+      const containerInstance = {
+        renderer,
+        eventSystem,
+      }
 
       const root = GLReconciler.createContainer(
-        rendererInstance,
+        containerInstance,
         0,
         null,
         false,
@@ -84,8 +105,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         null,
       )
 
-      setRenderer(rendererInstance)
-      setEventSystem(eventSystemInstance)
+      setContainer(containerInstance)
       setFiberRoot(root)
 
       return () => {
@@ -93,19 +113,15 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
           GLReconciler.updateContainer(null, root, null, () => {})
         }
       }
-    }, [onInitError])
+    }, [onInitError, eventSystem])
 
     const transform = useMemo(
-      () => renderer?.createProjectionMatrix() ?? mat4.create(),
-      [renderer, size.width, size.height],
+      () => container?.renderer?.createProjectionMatrix() ?? mat4.create(),
+      [container, size.width, size.height],
     )
 
     const content = (
-      <Providers
-        renderer={renderer}
-        transform={transform}
-        eventSystem={eventSystem}
-      >
+      <Providers renderer={container?.renderer} transform={transform}>
         {children}
       </Providers>
     )
@@ -119,7 +135,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handleMouseDown = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
         }
         props.onMouseDown?.(event)
@@ -129,7 +145,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handleMouseUp = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
         }
         props.onMouseUp?.(event)
@@ -139,7 +155,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handleMouseMove = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
         }
         props.onMouseMove?.(event)
@@ -149,7 +165,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handleClick(event.nativeEvent, canvasRef.current)
         }
         props.onClick?.(event)
@@ -159,7 +175,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handlePointerDown = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
         }
         props.onPointerDown?.(event)
@@ -169,7 +185,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handlePointerUp = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
         }
         props.onPointerUp?.(event)
@@ -179,7 +195,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handlePointerMove = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
         }
         props.onPointerMove?.(event)
@@ -189,7 +205,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handlePointerCancel = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
-        if (eventSystem && canvasRef.current) {
+        if (canvasRef.current) {
           eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
         }
         props.onPointerCancel?.(event)
@@ -208,7 +224,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       [style, width, height],
     )
 
-    if (!renderer || !eventSystem) {
+    if (!container) {
       return (
         <canvas
           {...props}

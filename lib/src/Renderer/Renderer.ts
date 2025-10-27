@@ -4,19 +4,17 @@ import { ISize } from "../helpers/geometry"
 import { RenderProperty } from "./RenderProperty"
 
 export class Renderer {
-  readonly gl: WebGLRenderingContext | WebGL2RenderingContext
-
   private viewSize: RenderProperty<ISize> = new RenderProperty(
     { width: 0, height: 0 },
     (a, b) => a.width === b.width && a.height === b.height,
   )
 
   private isQueued = false
-  readonly rootNode = new ContainerNode()
 
-  constructor(gl: WebGLRenderingContext | WebGL2RenderingContext) {
-    this.gl = gl
-  }
+  constructor(
+    private readonly gl: WebGLRenderingContext | WebGL2RenderingContext,
+    private readonly rootNode: ContainerNode,
+  ) {}
 
   setNeedsDisplay() {
     if (this.isQueued) {

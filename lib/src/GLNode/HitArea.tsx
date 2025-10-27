@@ -3,7 +3,6 @@ import { useMemo } from "react"
 import { HitAreaEventHandler } from "../EventSystem/HitArea"
 import { IRect } from "../helpers/geometry"
 import { useTransform } from "../hooks/useTransform"
-import { HitAreaNode } from "./HitAreaNode"
 
 // reconciler用のJSX型定義
 declare module "react" {
