@@ -64,7 +64,7 @@ const GLReconciler = Reconciler({
   },
 
   appendChildToContainer: (container: GLContainer, child: GLInstance) => {
-    container.renderer.rootNode.addChild(child)
+    container.rootNode.addChild(child)
   },
 
   insertBefore: (
@@ -86,12 +86,12 @@ const GLReconciler = Reconciler({
     child: GLInstance,
     beforeChild: GLInstance,
   ) => {
-    const index = container.renderer.rootNode.children.indexOf(beforeChild)
+    const index = container.rootNode.children.indexOf(beforeChild)
     if (index !== -1) {
-      container.renderer.rootNode.children.splice(index, 0, child)
-      child.parent = container.renderer.rootNode
+      container.rootNode.children.splice(index, 0, child)
+      child.parent = container.rootNode
     } else {
-      container.renderer.rootNode.addChild(child)
+      container.rootNode.addChild(child)
     }
   },
 
@@ -100,7 +100,7 @@ const GLReconciler = Reconciler({
   },
 
   removeChildFromContainer: (container: GLContainer, child: GLInstance) => {
-    container.renderer.rootNode.removeChild(child)
+    container.rootNode.removeChild(child)
   },
 
   commitUpdate: (
@@ -113,11 +113,12 @@ const GLReconciler = Reconciler({
     if (instance.type === NODE_TYPES.HIT_AREA) {
       const nextHitAreaProps = nextProps as HitAreaPrimitiveProps
       const hitAreaInstance = instance as HitAreaNode
-      
+
       // Update HitAreaNode properties directly
       hitAreaInstance.bounds = nextHitAreaProps.bounds
       hitAreaInstance.zIndex = nextHitAreaProps.zIndex || 0
-      hitAreaInstance.transform = nextHitAreaProps.transform || hitAreaInstance.transform
+      hitAreaInstance.transform =
+        nextHitAreaProps.transform || hitAreaInstance.transform
       hitAreaInstance.data = nextHitAreaProps.data
       hitAreaInstance.onMouseDown = nextHitAreaProps.onMouseDown
       hitAreaInstance.onMouseUp = nextHitAreaProps.onMouseUp
@@ -136,7 +137,7 @@ const GLReconciler = Reconciler({
       const prevGLProps = prevProps as GLPrimitiveProps
       const nextGLProps = nextProps as GLPrimitiveProps
       const renderInstance = instance as RenderNode
-      
+
       if (prevGLProps.buffer !== nextGLProps.buffer) {
         renderInstance.update(nextGLProps.buffer)
       }
@@ -154,7 +155,7 @@ const GLReconciler = Reconciler({
   finalizeInitialChildren: () => false,
 
   clearContainer: (container: GLContainer) => {
-    container.renderer.rootNode.children = []
+    container.rootNode.children = []
   },
 
   commitTextUpdate: () => {

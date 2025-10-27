@@ -31,12 +31,37 @@ export class EventSystem {
     this.canvasEventHandlers = handlers
   }
 
+  private getAllHitAreas(): HitAreaNode<any>[] {
+    const hitAreas: HitAreaNode<any>[] = []
 
+    function traverse(node: any) {
+      if (node.type === "hit-area") {
+        hitAreas.push(node as HitAreaNode<any>)
+      }
+      if (node.children) {
+        for (const child of node.children) {
+          traverse(child)
+        }
+      }
+    }
 
+    traverse(this.rootNode)
+    return hitAreas
+  }
 
+  private findTarget(point: vec2): HitAreaNode<any> | null {
+    const hitAreas = this.getAllHitAreas()
+    hitAreas.sort((a, b) => b.zIndex - a.zIndex)
 
+    for (const hitArea of hitAreas) {
+      if (hitArea.containsPoint(point)) {
+        return hitArea
+      }
+    }
 
-  // Web標準イベントフェーズでイベント処理
+    return null
+  }
+
   private handleGenericEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
@@ -54,34 +79,23 @@ export class EventSystem {
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const point = getLocalPoint(event, canvas)
-    const target = HitAreaNode.findTarget(this.rootNode, point)
-    
-    if (!target) {
-      const canvasHandler = this.canvasEventHandlers[canvasEventType]
-      if (canvasHandler) {
-        canvasHandler(event)
+    const target = this.findTarget(point)
+    const handler = target?.[hitAreaEventType]
+
+    if (handler) {
+      const glEvent = new HitAreaEvent(event, point, target.data)
+      handler(glEvent)
+      if (glEvent.isPropagationStopped) {
         return true
       }
-      return false
     }
 
-    const capturePath = target.getCapturePath(point)
-
-    // Capture phase
-    for (const node of capturePath) {
-      if (node.dispatchEvent(event, point, hitAreaEventType)) return true
+    const canvasHandler = this.canvasEventHandlers[canvasEventType]
+    if (canvasHandler) {
+      canvasHandler(event)
+      return true
     }
-
-    // Target phase
-    if (target.dispatchEvent(event, point, hitAreaEventType)) return true
-
-    // Bubbling phase
-    for (let i = capturePath.length - 1; i >= 0; i--) {
-      const node = capturePath[i]
-      if (node && node.dispatchEvent(event, point, hitAreaEventType)) return true
-    }
-
-    return true
+    return false
   }
 
   // Move event with enter/leave logic
@@ -94,25 +108,36 @@ export class EventSystem {
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const point = getLocalPoint(event, canvas)
-    const target = HitAreaNode.findTarget(this.rootNode, point)
+    const target = this.findTarget(point)
 
     // Handle enter/leave
     if (target !== this.hoveredHitArea) {
-      if (this.hoveredHitArea?.[leaveEventType]) {
-        const leaveEvent = new HitAreaEvent(event, point, this.hoveredHitArea.data)
-        this.hoveredHitArea[leaveEventType](leaveEvent)
+      const hoverHandler = this.hoveredHitArea?.[leaveEventType]
+      if (hoverHandler) {
+        const leaveEvent = new HitAreaEvent(
+          event,
+          point,
+          this.hoveredHitArea.data,
+        )
+        hoverHandler(leaveEvent)
       }
 
-      if (target?.[enterEventType]) {
+      const enterHandler = target?.[enterEventType]
+      if (enterHandler) {
         const enterEvent = new HitAreaEvent(event, point, target.data)
-        target[enterEventType](enterEvent)
+        enterHandler(enterEvent)
       }
 
       this.hoveredHitArea = target
     }
 
     // Handle move with standard phases
-    return this.handleGenericEvent(event, canvas, moveEventType, canvasEventType)
+    return this.handleGenericEvent(
+      event,
+      canvas,
+      moveEventType,
+      canvasEventType,
+    )
   }
 
   // Mouse event handlers
@@ -180,5 +205,3 @@ function getLocalPoint(event: InputEvent, element: HTMLElement): vec2 {
   const y = event.clientY - rect.top
   return vec2.fromValues(x, y)
 }
-
-

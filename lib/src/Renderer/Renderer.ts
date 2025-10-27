@@ -12,7 +12,7 @@ export class Renderer {
   private isQueued = false
 
   constructor(
-    private readonly gl: WebGLRenderingContext | WebGL2RenderingContext,
+    readonly gl: WebGLRenderingContext | WebGL2RenderingContext,
     private readonly rootNode: ContainerNode,
   ) {}
 

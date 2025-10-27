@@ -92,6 +92,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       const containerInstance = {
         renderer,
         eventSystem,
+        rootNode,
       }
 
       const root = GLReconciler.createContainer(
@@ -136,7 +137,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handleMouseDown = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
+          if (
+            eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
+          ) {
+            return
+          }
         }
         props.onMouseDown?.(event)
       },
@@ -146,7 +151,9 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handleMouseUp = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
+          if (eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)) {
+            return
+          }
         }
         props.onMouseUp?.(event)
       },
@@ -156,7 +163,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handleMouseMove = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
+          if (
+            eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
+          ) {
+            return
+          }
         }
         props.onMouseMove?.(event)
       },
@@ -166,7 +177,9 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handleClick(event.nativeEvent, canvasRef.current)
+          if (eventSystem.handleClick(event.nativeEvent, canvasRef.current)) {
+            return
+          }
         }
         props.onClick?.(event)
       },
@@ -176,7 +189,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handlePointerDown = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
+          if (
+            eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
+          ) {
+            return
+          }
         }
         props.onPointerDown?.(event)
       },
@@ -186,7 +203,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handlePointerUp = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
+          if (
+            eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
+          ) {
+            return
+          }
         }
         props.onPointerUp?.(event)
       },
@@ -196,7 +217,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handlePointerMove = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
+          if (
+            eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
+          ) {
+            return
+          }
         }
         props.onPointerMove?.(event)
       },
@@ -206,7 +231,14 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const handlePointerCancel = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         if (canvasRef.current) {
-          eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
+          if (
+            eventSystem.handlePointerCancel(
+              event.nativeEvent,
+              canvasRef.current,
+            )
+          ) {
+            return
+          }
         }
         props.onPointerCancel?.(event)
       },
