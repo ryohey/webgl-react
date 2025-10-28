@@ -1,6 +1,6 @@
 import { mat4 } from "gl-matrix"
 import { useMemo } from "react"
-import { HitAreaEventHandler } from "../EventSystem/HitArea"
+import { HitAreaEvents } from "../EventSystem/HitArea"
 import { IRect } from "../helpers/geometry"
 import { useTransform } from "../hooks/useTransform"
 
@@ -13,65 +13,18 @@ declare module "react" {
   }
 }
 
-export interface HitAreaProps<T = unknown> {
+export interface HitAreaProps<T = unknown> extends HitAreaEvents {
   bounds: IRect
   zIndex?: number
   data?: T
-  onMouseDown?: HitAreaEventHandler<T>
-  onMouseUp?: HitAreaEventHandler<T>
-  onMouseMove?: HitAreaEventHandler<T>
-  onMouseEnter?: HitAreaEventHandler<T>
-  onMouseLeave?: HitAreaEventHandler<T>
-  onClick?: HitAreaEventHandler<T>
-  onPointerDown?: HitAreaEventHandler<T>
-  onPointerUp?: HitAreaEventHandler<T>
-  onPointerMove?: HitAreaEventHandler<T>
-  onPointerEnter?: HitAreaEventHandler<T>
-  onPointerLeave?: HitAreaEventHandler<T>
-  onPointerCancel?: HitAreaEventHandler<T>
 }
 
-export const HitArea = <T,>({
-  bounds,
-  zIndex = 0,
-  data,
-  onMouseDown,
-  onMouseUp,
-  onMouseMove,
-  onMouseEnter,
-  onMouseLeave,
-  onClick,
-  onPointerDown,
-  onPointerUp,
-  onPointerMove,
-  onPointerEnter,
-  onPointerLeave,
-  onPointerCancel,
-}: HitAreaProps<T>) => {
+export const HitArea = <T,>(props: HitAreaProps<T>) => {
   const transform = useTransform()
 
   const finalTransform = useMemo(() => {
     return mat4.clone(transform)
   }, [transform])
 
-  return (
-    <hit-area
-      bounds={bounds}
-      zIndex={zIndex}
-      transform={finalTransform}
-      data={data}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onMouseMove={onMouseMove}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onClick={onClick}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerMove={onPointerMove}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
-      onPointerCancel={onPointerCancel}
-    />
-  )
+  return <hit-area {...props} transform={finalTransform} />
 }

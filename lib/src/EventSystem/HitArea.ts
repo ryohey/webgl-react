@@ -1,29 +1,30 @@
 import { mat4 } from "gl-matrix"
 import { IRect } from "../helpers/geometry"
-import { HitAreaEvent } from "./HitAreaEvent"
+import { InputEvent } from "./EventSystem"
 
-export interface HitAreaEventHandler<T = unknown> {
-  (event: HitAreaEvent<T>): void
+export interface InputEventHandler {
+  (event: InputEvent): void
 }
 
-export interface HitAreaEvents<T = unknown> {
-  onMouseDown?: HitAreaEventHandler<T>
-  onMouseUp?: HitAreaEventHandler<T>
-  onMouseMove?: HitAreaEventHandler<T>
-  onMouseEnter?: HitAreaEventHandler<T>
-  onMouseLeave?: HitAreaEventHandler<T>
-  onClick?: HitAreaEventHandler<T>
-  onPointerDown?: HitAreaEventHandler<T>
-  onPointerUp?: HitAreaEventHandler<T>
-  onPointerMove?: HitAreaEventHandler<T>
-  onPointerEnter?: HitAreaEventHandler<T>
-  onPointerLeave?: HitAreaEventHandler<T>
-  onPointerCancel?: HitAreaEventHandler<T>
+interface InteractionEvents<Handler> {
+  onMouseDown?: Handler
+  onMouseUp?: Handler
+  onMouseMove?: Handler
+  onMouseEnter?: Handler
+  onMouseLeave?: Handler
+  onClick?: Handler
+  onPointerDown?: Handler
+  onPointerUp?: Handler
+  onPointerMove?: Handler
+  onPointerEnter?: Handler
+  onPointerLeave?: Handler
+  onPointerCancel?: Handler
 }
 
-export interface HitArea<T = unknown> extends HitAreaEvents<T> {
+export type HitAreaEvents = InteractionEvents<InputEventHandler>
+
+export interface HitArea extends HitAreaEvents {
   bounds: IRect
   transform: mat4
   zIndex: number
-  data?: T
 }

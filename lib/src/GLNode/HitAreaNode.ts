@@ -1,10 +1,10 @@
 import { mat4, vec2 } from "gl-matrix"
-import { HitAreaEventHandler, HitAreaEvents } from "../EventSystem/HitArea"
+import { HitAreaEvents, InputEventHandler } from "../EventSystem/HitArea"
 import { IRect } from "../helpers/geometry"
 import { ContainerNode } from "./RenderNode"
 import { NODE_TYPES, NodeType } from "./types"
 
-export interface HitAreaNodeProps<T = unknown> extends HitAreaEvents<T> {
+export interface HitAreaNodeProps<T = unknown> extends HitAreaEvents {
   bounds: IRect
   zIndex?: number
   transform?: mat4
@@ -13,25 +13,25 @@ export interface HitAreaNodeProps<T = unknown> extends HitAreaEvents<T> {
 
 export class HitAreaNode<T = unknown>
   extends ContainerNode
-  implements HitAreaEvents<T>
+  implements HitAreaEvents
 {
   public override readonly type: NodeType = NODE_TYPES.HIT_AREA
   public bounds: IRect
   public transform: mat4
   public data?: T
   public override parent: ContainerNode | null = null
-  public onMouseDown?: HitAreaEventHandler<T>
-  public onMouseUp?: HitAreaEventHandler<T>
-  public onMouseMove?: HitAreaEventHandler<T>
-  public onMouseEnter?: HitAreaEventHandler<T>
-  public onMouseLeave?: HitAreaEventHandler<T>
-  public onClick?: HitAreaEventHandler<T>
-  public onPointerDown?: HitAreaEventHandler<T>
-  public onPointerUp?: HitAreaEventHandler<T>
-  public onPointerMove?: HitAreaEventHandler<T>
-  public onPointerEnter?: HitAreaEventHandler<T>
-  public onPointerLeave?: HitAreaEventHandler<T>
-  public onPointerCancel?: HitAreaEventHandler<T>
+  public onMouseDown?: InputEventHandler
+  public onMouseUp?: InputEventHandler
+  public onMouseMove?: InputEventHandler
+  public onMouseEnter?: InputEventHandler
+  public onMouseLeave?: InputEventHandler
+  public onClick?: InputEventHandler
+  public onPointerDown?: InputEventHandler
+  public onPointerUp?: InputEventHandler
+  public onPointerMove?: InputEventHandler
+  public onPointerEnter?: InputEventHandler
+  public onPointerLeave?: InputEventHandler
+  public onPointerCancel?: InputEventHandler
 
   constructor(props: HitAreaNodeProps<T>) {
     super()

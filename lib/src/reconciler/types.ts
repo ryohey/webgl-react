@@ -10,7 +10,7 @@ export interface GLPrimitiveProps {
   zIndex?: number
 }
 
-export interface HitAreaPrimitiveProps extends HitAreaEvents<any> {
+export interface HitAreaPrimitiveProps extends HitAreaEvents {
   bounds: IRect
   zIndex?: number
   transform?: mat4

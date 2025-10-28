@@ -2,7 +2,6 @@ import { mat4, vec2 } from "gl-matrix"
 import { HitAreaNode } from "../GLNode/HitAreaNode"
 import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 import { HitArea } from "./HitArea"
-import { HitAreaEvent } from "./HitAreaEvent"
 
 // Union type for mouse and pointer events
 export type InputEvent = MouseEvent | PointerEvent
@@ -53,7 +52,7 @@ export class EventSystem {
     event: InputEvent,
     canvas: HTMLCanvasElement,
     hitAreaEventType: keyof Pick<
-      HitArea<any>,
+      HitArea,
       | "onMouseDown"
       | "onMouseUp"
       | "onMouseMove"
@@ -68,9 +67,7 @@ export class EventSystem {
     const handler = target?.[hitAreaEventType]
 
     if (handler) {
-      const point = getLocalPoint(event, canvas)
-      const glEvent = new HitAreaEvent(event, point, target.data)
-      handler(glEvent)
+      handler(event)
       return true
     }
 
@@ -81,9 +78,9 @@ export class EventSystem {
   handleMoveEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
-    moveEventType: keyof Pick<HitArea<any>, "onMouseMove" | "onPointerMove">,
-    enterEventType: keyof Pick<HitArea<any>, "onMouseEnter" | "onPointerEnter">,
-    leaveEventType: keyof Pick<HitArea<any>, "onMouseLeave" | "onPointerLeave">,
+    moveEventType: keyof Pick<HitArea, "onMouseMove" | "onPointerMove">,
+    enterEventType: keyof Pick<HitArea, "onMouseEnter" | "onPointerEnter">,
+    leaveEventType: keyof Pick<HitArea, "onMouseLeave" | "onPointerLeave">,
   ): boolean {
     const target = this.findTarget(event, canvas)
 
@@ -91,21 +88,11 @@ export class EventSystem {
     if (target !== this.hoveredHitArea) {
       const hoverHandler = this.hoveredHitArea?.[leaveEventType]
       if (hoverHandler) {
-        const point = getLocalPoint(event, canvas)
-        const leaveEvent = new HitAreaEvent(
-          event,
-          point,
-          this.hoveredHitArea.data,
-        )
-        hoverHandler(leaveEvent)
+        hoverHandler(event)
       }
 
       const enterHandler = target?.[enterEventType]
-      if (enterHandler) {
-        const point = getLocalPoint(event, canvas)
-        const enterEvent = new HitAreaEvent(event, point, target.data)
-        enterHandler(enterEvent)
-      }
+      enterHandler?.(event)
 
       this.hoveredHitArea = target
     }

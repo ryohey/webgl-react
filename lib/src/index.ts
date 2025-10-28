@@ -15,7 +15,6 @@ export * from "./hooks/useTransform"
 
 // Types and helpers
 export * from "./EventSystem/EventSystem"
-export * from "./EventSystem/HitAreaEvent"
 export * from "./helpers/geometry"
 export * from "./helpers/polygon"
 
