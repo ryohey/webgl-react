@@ -55,7 +55,7 @@ const Border: FC<ISize> = React.memo(({ width, height }) => {
 })
 
 export const App = () => {
-  const [rects, setRects] = useState(createRandomRects(5))
+  const [rects, setRects] = useState(createRandomRects(1))
   const [circles, setCircles] = useState(createRandomRects(20))
   const [rectColors, setRectColors] = useState<
     Record<number, [number, number, number, number]>

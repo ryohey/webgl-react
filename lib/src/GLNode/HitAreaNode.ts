@@ -54,25 +54,31 @@ export class HitAreaNode<T = unknown>
   }
 
   // Check if point is within this node's bounds
-  containsPoint(point: vec2): boolean {
-    // Calculate inverse transform to convert point to local coordinates
-    const inverseTransform = mat4.create()
+  containsPoint(ndcPoint: vec2): boolean {
+    const transformedLT = vec2.create()
+    const transformedRB = vec2.create()
 
-    if (!mat4.invert(inverseTransform, this.transform)) {
-      // Return false if inverse matrix cannot be calculated
-      return false
-    }
+    vec2.transformMat4(
+      transformedLT,
+      vec2.fromValues(this.bounds.x, this.bounds.y),
+      this.transform,
+    )
 
-    // Transform point to local coordinates
-    const localPoint = vec2.create()
-    vec2.transformMat4(localPoint, point, inverseTransform)
+    vec2.transformMat4(
+      transformedRB,
+      vec2.fromValues(
+        this.bounds.x + this.bounds.width,
+        this.bounds.y + this.bounds.height,
+      ),
+      this.transform,
+    )
 
     // Check bounds in local coordinates
     return (
-      localPoint[0] >= this.bounds.x &&
-      localPoint[0] <= this.bounds.x + this.bounds.width &&
-      localPoint[1] >= this.bounds.y &&
-      localPoint[1] <= this.bounds.y + this.bounds.height
+      ndcPoint[0] >= transformedLT[0] &&
+      ndcPoint[0] < transformedRB[0] &&
+      ndcPoint[1] <= transformedLT[1] &&
+      ndcPoint[1] > transformedRB[1]
     )
   }
 }

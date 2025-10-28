@@ -1,5 +1,6 @@
-import { vec2 } from "gl-matrix"
+import { mat4, vec2 } from "gl-matrix"
 import { HitAreaNode } from "../GLNode/HitAreaNode"
+import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 import { HitArea } from "./HitArea"
 import { HitAreaEvent } from "./HitAreaEvent"
 
@@ -29,12 +30,18 @@ export class EventSystem {
     return hitAreas
   }
 
-  private findTarget(point: vec2): HitAreaNode<any> | null {
+  private findTarget(
+    event: InputEvent,
+    canvas: HTMLCanvasElement,
+  ): HitAreaNode<any> | null {
+    const projectionMatrix = createProjectionMatrix(canvas)
+    const point = getLocalPoint(event, canvas)
+    const ndcPoint = toNDC(point, projectionMatrix)
     const hitAreas = this.getAllHitAreas()
     hitAreas.sort((a, b) => b.zIndex - a.zIndex)
 
     for (const hitArea of hitAreas) {
-      if (hitArea.containsPoint(point)) {
+      if (hitArea.containsPoint(ndcPoint)) {
         return hitArea
       }
     }
@@ -57,16 +64,14 @@ export class EventSystem {
       | "onPointerCancel"
     >,
   ): boolean {
-    const point = getLocalPoint(event, canvas)
-    const target = this.findTarget(point)
+    const target = this.findTarget(event, canvas)
     const handler = target?.[hitAreaEventType]
 
     if (handler) {
+      const point = getLocalPoint(event, canvas)
       const glEvent = new HitAreaEvent(event, point, target.data)
       handler(glEvent)
-      if (glEvent.isPropagationStopped) {
-        return true
-      }
+      return true
     }
 
     return false
@@ -80,13 +85,13 @@ export class EventSystem {
     enterEventType: keyof Pick<HitArea<any>, "onMouseEnter" | "onPointerEnter">,
     leaveEventType: keyof Pick<HitArea<any>, "onMouseLeave" | "onPointerLeave">,
   ): boolean {
-    const point = getLocalPoint(event, canvas)
-    const target = this.findTarget(point)
+    const target = this.findTarget(event, canvas)
 
     // Handle enter/leave
     if (target !== this.hoveredHitArea) {
       const hoverHandler = this.hoveredHitArea?.[leaveEventType]
       if (hoverHandler) {
+        const point = getLocalPoint(event, canvas)
         const leaveEvent = new HitAreaEvent(
           event,
           point,
@@ -97,6 +102,7 @@ export class EventSystem {
 
       const enterHandler = target?.[enterEventType]
       if (enterHandler) {
+        const point = getLocalPoint(event, canvas)
         const enterEvent = new HitAreaEvent(event, point, target.data)
         enterHandler(enterEvent)
       }
@@ -107,6 +113,12 @@ export class EventSystem {
     // Handle move with standard phases
     return this.handleEvent(event, canvas, moveEventType)
   }
+}
+
+function toNDC(point: vec2, projectionMatrix: mat4): vec2 {
+  const ndcPoint = vec2.create()
+  vec2.transformMat4(ndcPoint, point, projectionMatrix)
+  return ndcPoint
 }
 
 function getLocalPoint(event: InputEvent, element: HTMLElement): vec2 {

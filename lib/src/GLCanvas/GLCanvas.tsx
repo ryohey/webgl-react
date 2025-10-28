@@ -1,4 +1,3 @@
-import useComponentSize from "@rehooks/component-size"
 import { mat4 } from "gl-matrix"
 import {
   forwardRef,
@@ -8,8 +7,11 @@ import {
   useRef,
   useState,
 } from "react"
+import ReactReconciler from "react-reconciler"
 import { EventSystem } from "../EventSystem/EventSystem"
+import { GLContainer } from "../GLContainer/GLContainer"
 import { ContainerNode } from "../GLNode/RenderNode"
+import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 import GLReconciler from "../reconciler/GLReconciler"
 import { Renderer } from "../Renderer/Renderer"
 import { Providers } from "./Providers"
@@ -57,9 +59,9 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     )
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)
-    const [container, setContainer] = useState<any>(null)
-    const [fiberRoot, setFiberRoot] = useState<any>(null)
-    const size = useComponentSize(canvasRef)
+    const [container, setContainer] = useState<GLContainer | null>(null)
+    const [fiberRoot, setFiberRoot] =
+      useState<ReactReconciler.OpaqueRoot | null>(null)
 
     useEffect(() => {
       const canvas = canvasRef.current
@@ -116,13 +118,19 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       }
     }, [onInitError, eventSystem])
 
-    const transform = useMemo(
-      () => container?.renderer?.createProjectionMatrix() ?? mat4.create(),
-      [container, size.width, size.height],
+    const projectionMatrix = useMemo(
+      () =>
+        canvasRef.current
+          ? createProjectionMatrix(canvasRef.current)
+          : mat4.create(),
+      [canvasRef.current?.width, canvasRef.current?.height],
     )
 
     const content = (
-      <Providers renderer={container?.renderer} transform={transform}>
+      <Providers
+        renderer={container?.renderer ?? null}
+        transform={projectionMatrix}
+      >
         {children}
       </Providers>
     )
