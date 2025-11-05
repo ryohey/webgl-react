@@ -1,5 +1,5 @@
-import { useRenderer } from "@ryohey/webgl-react"
 import { useMemo } from "react"
+import { useRenderer } from "../hooks/useRenderer"
 
 export type GLFallbackProps<T extends React.PropsWithChildren<object>> = {
   component: React.FC<T>
