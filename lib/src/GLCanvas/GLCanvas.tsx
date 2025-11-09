@@ -21,11 +21,12 @@ export type GLSurfaceProps = Omit<
 > & {
   width: number
   height: number
+  contextAttributes?: WebGLContextAttributes
 }
 
 function createGLContext(
   canvas: HTMLCanvasElement,
-  options: WebGLContextAttributes
+  options: WebGLContextAttributes,
 ) {
   return (
     canvas.getContext("webgl2", options) ?? canvas.getContext("webgl", options)
@@ -33,7 +34,7 @@ function createGLContext(
 }
 
 export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
-  ({ width, height, style, children, ...props }, ref) => {
+  ({ width, height, style, children, contextAttributes, ...props }, ref) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
@@ -46,15 +47,17 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       }
       // GL コンテキストを初期化する
       // Initialize GL context
-      const gl = createGLContext(canvas, {
-        alpha: true,
-        antialias: false,
-        depth: false,
-        desynchronized: true,
-        powerPreference: "high-performance",
-        premultipliedAlpha: true,
-        preserveDrawingBuffer: false,
-      })
+      const gl = createGLContext(
+        canvas,
+        contextAttributes ?? {
+          alpha: true,
+          antialias: false,
+          depth: false,
+          powerPreference: "high-performance",
+          premultipliedAlpha: true,
+          preserveDrawingBuffer: false,
+        },
+      )
 
       // WebGL が使用可能で動作している場合にのみ続行します
       // Continue only if WebGL is enabled
@@ -69,7 +72,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const projectionMatrix = useMemo(
       () => renderer?.createProjectionMatrix() ?? mat4.create(),
-      [renderer, size.width, size.height]
+      [renderer, size.width, size.height],
     )
 
     const canvasScale = window.devicePixelRatio
@@ -96,5 +99,5 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         )}
       </>
     )
-  }
+  },
 )
