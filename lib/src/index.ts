@@ -1,5 +1,4 @@
 export * from "./EventSystem/EventSystem"
-export * from "./EventSystem/HitAreaEvent"
 export * from "./GLCanvas/GLCanvas"
 export * from "./GLNode/BorderedCircles/BorderedCircles"
 export * from "./GLNode/BorderedRectangles/BorderedRectangles"

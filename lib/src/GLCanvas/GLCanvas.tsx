@@ -44,7 +44,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       height,
       style,
       children,
-      onInitError = (error) => alert(error),
+      onInitError,
       contextAttributes,
       ...props
     },
@@ -55,6 +55,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     const [renderer, setRenderer] = useState<Renderer | null>(null)
     const [eventSystem, setEventSystem] = useState<EventSystem | null>(null)
     const size = useComponentSize(canvasRef)
+    const errorAlert = useCallback((error: string) => alert(error), [])
 
     useEffect(() => {
       const canvas = canvasRef.current
@@ -76,7 +77,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       // Continue only if WebGL is enabled
       if (gl === null) {
-        onInitError(
+        ;(onInitError ?? errorAlert)(
           "WebGL can't be initialized. May be browser doesn't support",
         )
         return

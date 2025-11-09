@@ -1,7 +1,6 @@
-import { vec2 } from "gl-matrix"
-import { IRect } from "../helpers/geometry"
+import { mat4, vec2 } from "gl-matrix"
+import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 import { HitArea } from "./HitArea"
-import { HitAreaEvent } from "./HitAreaEvent"
 
 // Union type for mouse and pointer events
 export type InputEvent = MouseEvent | PointerEvent
@@ -22,26 +21,49 @@ export interface GLCanvasEventHandlers {
 }
 
 export class EventSystem {
-  private hitAreas: HitArea<any>[] = []
-  private hoveredHitArea: HitArea<any> | null = null
+  private hitAreas: { [id: string]: HitArea } = {}
+  private hoveredHitArea: HitArea | null = null
   private canvasEventHandlers: GLCanvasEventHandlers = {}
 
   setCanvasEventHandlers(handlers: GLCanvasEventHandlers) {
     this.canvasEventHandlers = handlers
   }
 
-  addHitArea<T>(hitArea: HitArea<T>) {
-    this.hitAreas.push(hitArea as HitArea<any>)
+  addHitArea(hitArea: HitArea) {
+    this.hitAreas[hitArea.id] = hitArea
   }
 
   removeHitArea(id: string) {
-    this.hitAreas = this.hitAreas.filter((area) => area.id !== id)
+    delete this.hitAreas[id]
   }
 
-  private handleHitAreaEvent<T>(
-    hitArea: HitArea<T>,
+  private getAllHitAreas(): HitArea[] {
+    return Object.values(this.hitAreas)
+  }
+
+  private findTarget(
+    event: InputEvent,
+    canvas: HTMLCanvasElement,
+  ): HitArea | null {
+    const projectionMatrix = createProjectionMatrix(canvas)
+    const point = getLocalPoint(event, canvas)
+    const ndcPoint = toNDC(point, projectionMatrix)
+    const hitAreas = this.getAllHitAreas()
+    hitAreas.sort((a, b) => b.zIndex - a.zIndex)
+
+    for (const hitArea of hitAreas) {
+      if (hitTest(hitArea, ndcPoint)) {
+        return hitArea
+      }
+    }
+
+    return null
+  }
+
+  private handleHitAreaEvent(
+    hitArea: HitArea,
     eventType: keyof Pick<
-      HitArea<T>,
+      HitArea,
       | "onMouseDown"
       | "onMouseUp"
       | "onMouseMove"
@@ -56,12 +78,10 @@ export class EventSystem {
       | "onPointerCancel"
     >,
     nativeEvent: InputEvent,
-    point: vec2,
   ): boolean {
-    const handler = hitArea[eventType]
+    const handler = hitArea[eventType] as (e: MouseEvent | PointerEvent) => void
     if (handler) {
-      const event = new HitAreaEvent(nativeEvent, point)
-      handler(event)
+      handler(nativeEvent)
       return true
     }
     return false
@@ -72,7 +92,7 @@ export class EventSystem {
     event: InputEvent,
     canvas: HTMLCanvasElement,
     hitAreaEventType: keyof Pick<
-      HitArea<any>,
+      HitArea,
       | "onMouseDown"
       | "onMouseUp"
       | "onMouseMove"
@@ -84,11 +104,10 @@ export class EventSystem {
     >,
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
-    const point = getLocalPoint(event, canvas)
-    const hitArea = findTopHitArea(this.hitAreas, point)
+    const hitArea = this.findTarget(event, canvas)
 
     if (hitArea) {
-      if (this.handleHitAreaEvent(hitArea, hitAreaEventType, event, point)) {
+      if (this.handleHitAreaEvent(hitArea, hitAreaEventType, event)) {
         return true
       }
     }
@@ -106,33 +125,27 @@ export class EventSystem {
   private handleGenericMoveEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
-    moveEventType: keyof Pick<HitArea<any>, "onMouseMove" | "onPointerMove">,
-    enterEventType: keyof Pick<HitArea<any>, "onMouseEnter" | "onPointerEnter">,
-    leaveEventType: keyof Pick<HitArea<any>, "onMouseLeave" | "onPointerLeave">,
+    moveEventType: keyof Pick<HitArea, "onMouseMove" | "onPointerMove">,
+    enterEventType: keyof Pick<HitArea, "onMouseEnter" | "onPointerEnter">,
+    leaveEventType: keyof Pick<HitArea, "onMouseLeave" | "onPointerLeave">,
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
-    const point = getLocalPoint(event, canvas)
-    const hitArea = findTopHitArea(this.hitAreas, point)
+    const hitArea = this.findTarget(event, canvas)
 
     if (hitArea !== this.hoveredHitArea) {
       if (this.hoveredHitArea?.[leaveEventType]) {
-        this.handleHitAreaEvent(
-          this.hoveredHitArea,
-          leaveEventType,
-          event,
-          point,
-        )
+        this.handleHitAreaEvent(this.hoveredHitArea, leaveEventType, event)
       }
 
       if (hitArea?.[enterEventType]) {
-        this.handleHitAreaEvent(hitArea, enterEventType, event, point)
+        this.handleHitAreaEvent(hitArea, enterEventType, event)
       }
 
       this.hoveredHitArea = hitArea
     }
 
     if (hitArea) {
-      if (this.handleHitAreaEvent(hitArea, moveEventType, event, point)) {
+      if (this.handleHitAreaEvent(hitArea, moveEventType, event)) {
         return true
       }
     }
@@ -205,6 +218,12 @@ export class EventSystem {
   }
 }
 
+function toNDC(point: vec2, projectionMatrix: mat4): vec2 {
+  const ndcPoint = vec2.create()
+  vec2.transformMat4(ndcPoint, point, projectionMatrix)
+  return ndcPoint
+}
+
 function getLocalPoint(event: InputEvent, element: HTMLElement): vec2 {
   const rect = element.getBoundingClientRect()
   const x = event.clientX - rect.left
@@ -212,28 +231,27 @@ function getLocalPoint(event: InputEvent, element: HTMLElement): vec2 {
   return vec2.fromValues(x, y)
 }
 
-function isPointInBounds(point: vec2, bounds: IRect): boolean {
+function hitTest({ bounds, transform }: HitArea, ndcPoint: vec2): boolean {
+  const transformedLT = vec2.create()
+  const transformedRB = vec2.create()
+
+  vec2.transformMat4(
+    transformedLT,
+    vec2.fromValues(bounds.x, bounds.y),
+    transform,
+  )
+
+  vec2.transformMat4(
+    transformedRB,
+    vec2.fromValues(bounds.x + bounds.width, bounds.y + bounds.height),
+    transform,
+  )
+
+  // Check bounds in local coordinates
   return (
-    point[0] >= bounds.x &&
-    point[0] <= bounds.x + bounds.width &&
-    point[1] >= bounds.y &&
-    point[1] <= bounds.y + bounds.height
+    ndcPoint[0] >= transformedLT[0] &&
+    ndcPoint[0] < transformedRB[0] &&
+    ndcPoint[1] <= transformedLT[1] &&
+    ndcPoint[1] > transformedRB[1]
   )
-}
-
-function findTopHitArea(
-  hitAreas: HitArea<any>[],
-  point: vec2,
-): HitArea<any> | null {
-  const sortedHitAreas = [...hitAreas].sort(
-    (a, b) => (b.zIndex || 0) - (a.zIndex || 0),
-  )
-
-  for (const hitArea of sortedHitAreas) {
-    if (isPointInBounds(point, hitArea.bounds)) {
-      return hitArea
-    }
-  }
-
-  return null
 }
