@@ -92,7 +92,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
       setRenderer(renderer)
       setEventSystem(eventSystem)
-    }, [onInitError, cursor])
+    }, [onInitError])
 
     const transform = useMemo(
       () =>
