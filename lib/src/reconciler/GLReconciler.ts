@@ -1,10 +1,12 @@
 import Reconciler from "react-reconciler"
-import { DefaultEventPriority } from "react-reconciler/constants"
 import { GLContainer } from "../GLContainer/GLContainer"
 import { HitAreaNode } from "../GLNode/HitAreaNode"
 import { RenderNode } from "../GLNode/RenderNode"
 import { NODE_TYPES } from "../GLNode/types"
 import { GLPrimitiveProps, HitAreaPrimitiveProps } from "./types"
+
+// import { DefaultEventPriority } from "react-reconciler/constants"
+export const DefaultEventPriority = 0b0000000000000000000000000010000
 
 interface GLHostContext {}
 

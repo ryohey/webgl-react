@@ -1,13 +1,9 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "ESNext",
     "module": "ESNext",
-    "rootDir": "./src",
     "declaration": true,
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "outDir": "./dist",
+    "declarationDir": "dist",
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
