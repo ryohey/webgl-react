@@ -25,6 +25,7 @@ export type GLSurfaceProps = Omit<
   width: number
   height: number
   onInitError?: (error: string) => void
+  contextAttributes?: WebGLContextAttributes
 }
 
 function createGLContext(
@@ -37,7 +38,18 @@ function createGLContext(
 }
 
 export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
-  ({ width, height, style, children, onInitError = (error) => alert(error), ...props }, ref) => {
+  (
+    {
+      width,
+      height,
+      style,
+      children,
+      onInitError = (error) => alert(error),
+      contextAttributes,
+      ...props
+    },
+    ref,
+  ) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
@@ -50,19 +62,23 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         throw new Error("canvas is not mounted")
       }
       // Initialize GL context
-      const gl = createGLContext(canvas, {
-        alpha: true,
-        antialias: false,
-        depth: false,
-        desynchronized: true,
-        powerPreference: "high-performance",
-        premultipliedAlpha: true,
-        preserveDrawingBuffer: false,
-      })
+      const gl = createGLContext(
+        canvas,
+        contextAttributes ?? {
+          alpha: true,
+          antialias: false,
+          depth: false,
+          powerPreference: "high-performance",
+          premultipliedAlpha: true,
+          preserveDrawingBuffer: false,
+        },
+      )
 
       // Continue only if WebGL is enabled
       if (gl === null) {
-        onInitError("WebGL can't be initialized. May be browser doesn't support")
+        onInitError(
+          "WebGL can't be initialized. May be browser doesn't support",
+        )
         return
       }
 
