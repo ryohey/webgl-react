@@ -24,6 +24,7 @@ export type GLSurfaceProps = Omit<
 > & {
   width: number
   height: number
+  cursor?: string
   onInitError?: (error: string) => void
   contextAttributes?: WebGLContextAttributes
 }
@@ -46,6 +47,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       children,
       onInitError,
       contextAttributes,
+      cursor,
       ...props
     },
     ref,
@@ -54,6 +56,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
     const [eventSystem, setEventSystem] = useState<EventSystem | null>(null)
+    const [currentCursor, setCurrentCursor] = useState<string | null>(null)
     const errorAlert = useCallback((error: string) => alert(error), [])
 
     useEffect(() => {
@@ -85,9 +88,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       const renderer = new Renderer(gl)
       const eventSystem = new EventSystem()
 
+      eventSystem.setOnCursorChange(setCurrentCursor)
+
       setRenderer(renderer)
       setEventSystem(eventSystem)
-    }, [onInitError])
+    }, [onInitError, cursor])
 
     const transform = useMemo(
       () =>
@@ -101,7 +106,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleMouseDown(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -115,7 +123,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleMouseUp(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -129,7 +140,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleMouseMove(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -143,7 +157,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handleClick(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleClick(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -157,7 +174,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerDown(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -171,7 +191,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerUp(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -185,7 +208,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerMove(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -199,7 +225,10 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
         let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          const result = eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerCancel(
+            event.nativeEvent,
+            canvasRef.current,
+          )
           propagationStopped = result.propagationStopped
         }
         if (!propagationStopped) {
@@ -216,8 +245,9 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
         ...style,
         width,
         height,
+        cursor: currentCursor ?? cursor ?? "default",
       }),
-      [style, width, height],
+      [style, width, height, cursor, currentCursor],
     )
 
     return (

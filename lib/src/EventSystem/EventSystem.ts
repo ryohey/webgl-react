@@ -13,13 +13,17 @@ export interface EventResult {
 export class EventSystem {
   private hitAreas: { [id: string]: HitArea } = {}
   private hoveredHitArea: HitArea | null = null
+  private onCursorChange?: (cursor: string | null) => void
 
-  private updateCursor(canvas: HTMLCanvasElement) {
-    if (this.hoveredHitArea?.cursor) {
-      canvas.style.cursor = this.hoveredHitArea.cursor
-    } else {
-      canvas.style.cursor = "default"
-    }
+  setOnCursorChange(callback: (cursor: string | null) => void) {
+    this.onCursorChange = callback
+  }
+
+  private updateCursor() {
+    if (!this.onCursorChange) return
+    
+    const cursor = this.hoveredHitArea?.cursor ?? null
+    this.onCursorChange(cursor)
   }
 
   addHitArea(hitArea: HitArea) {
@@ -125,7 +129,7 @@ export class EventSystem {
 
     if (hitArea !== this.hoveredHitArea) {
       this.hoveredHitArea = hitArea
-      this.updateCursor(canvas)
+      this.updateCursor()
     }
 
     if (hitArea) {
