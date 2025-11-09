@@ -5,29 +5,14 @@ import { HitArea } from "./HitArea"
 // Union type for mouse and pointer events
 export type InputEvent = MouseEvent | PointerEvent
 
-export interface GLCanvasEventHandler {
-  (event: InputEvent): void
-}
-
-export interface GLCanvasEventHandlers {
-  onMouseDown?: GLCanvasEventHandler
-  onMouseUp?: GLCanvasEventHandler
-  onMouseMove?: GLCanvasEventHandler
-  onClick?: GLCanvasEventHandler
-  onPointerDown?: GLCanvasEventHandler
-  onPointerUp?: GLCanvasEventHandler
-  onPointerMove?: GLCanvasEventHandler
-  onPointerCancel?: GLCanvasEventHandler
+export interface EventResult {
+  handled: boolean
+  propagationStopped: boolean
 }
 
 export class EventSystem {
   private hitAreas: { [id: string]: HitArea } = {}
   private hoveredHitArea: HitArea | null = null
-  private canvasEventHandlers: GLCanvasEventHandlers = {}
-
-  setCanvasEventHandlers(handlers: GLCanvasEventHandlers) {
-    this.canvasEventHandlers = handlers
-  }
 
   private updateCursor(canvas: HTMLCanvasElement) {
     if (this.hoveredHitArea?.cursor) {
@@ -82,13 +67,26 @@ export class EventSystem {
       | "onPointerCancel"
     >,
     nativeEvent: InputEvent,
-  ): boolean {
+  ): EventResult {
     const handler = hitArea[eventType] as (e: MouseEvent | PointerEvent) => void
     if (handler) {
+      let propagationStopped = false
+      
+      // Monkey patch stopPropagation to track if it was called
+      const originalStopPropagation = nativeEvent.stopPropagation
+      nativeEvent.stopPropagation = function() {
+        propagationStopped = true
+        originalStopPropagation.call(this)
+      }
+      
       handler(nativeEvent)
-      return true
+      
+      // Restore original stopPropagation
+      nativeEvent.stopPropagation = originalStopPropagation
+      
+      return { handled: true, propagationStopped }
     }
-    return false
+    return { handled: false, propagationStopped: false }
   }
 
   // Generic event handler that reduces duplication
@@ -106,23 +104,15 @@ export class EventSystem {
       | "onPointerMove"
       | "onPointerCancel"
     >,
-    canvasEventType: keyof GLCanvasEventHandlers,
-  ): boolean {
+  ): EventResult {
     const hitArea = this.findTarget(event, canvas)
 
     if (hitArea) {
-      if (this.handleHitAreaEvent(hitArea, hitAreaEventType, event)) {
-        return true
-      }
+      const result = this.handleHitAreaEvent(hitArea, hitAreaEventType, event)
+      return result
     }
 
-    const canvasHandler = this.canvasEventHandlers[canvasEventType]
-    if (canvasHandler) {
-      canvasHandler(event)
-      return true
-    }
-
-    return false
+    return { handled: false, propagationStopped: false }
   }
 
   // Generic move event handler
@@ -130,8 +120,7 @@ export class EventSystem {
     event: InputEvent,
     canvas: HTMLCanvasElement,
     moveEventType: keyof Pick<HitArea, "onMouseMove" | "onPointerMove">,
-    canvasEventType: keyof GLCanvasEventHandlers,
-  ): boolean {
+  ): EventResult {
     const hitArea = this.findTarget(event, canvas)
 
     if (hitArea !== this.hoveredHitArea) {
@@ -140,72 +129,45 @@ export class EventSystem {
     }
 
     if (hitArea) {
-      if (this.handleHitAreaEvent(hitArea, moveEventType, event)) {
-        return true
-      }
+      const result = this.handleHitAreaEvent(hitArea, moveEventType, event)
+      return result
     }
 
-    const canvasHandler = this.canvasEventHandlers[canvasEventType]
-    if (canvasHandler) {
-      canvasHandler(event)
-      return true
-    }
-
-    return false
+    return { handled: false, propagationStopped: false }
   }
 
   // Mouse event handlers
-  handleMouseDown(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onMouseDown", "onMouseDown")
+  handleMouseDown(event: MouseEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onMouseDown")
   }
 
-  handleMouseUp(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onMouseUp", "onMouseUp")
+  handleMouseUp(event: MouseEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onMouseUp")
   }
 
-  handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericMoveEvent(
-      event,
-      canvas,
-      "onMouseMove",
-      "onMouseMove",
-    )
+  handleMouseMove(event: MouseEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericMoveEvent(event, canvas, "onMouseMove")
   }
 
-  handleClick(event: MouseEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onClick", "onClick")
+  handleClick(event: MouseEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onClick")
   }
 
   // Pointer event handlers
-  handlePointerDown(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(
-      event,
-      canvas,
-      "onPointerDown",
-      "onPointerDown",
-    )
+  handlePointerDown(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onPointerDown")
   }
 
-  handlePointerUp(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(event, canvas, "onPointerUp", "onPointerUp")
+  handlePointerUp(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onPointerUp")
   }
 
-  handlePointerMove(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericMoveEvent(
-      event,
-      canvas,
-      "onPointerMove",
-      "onPointerMove",
-    )
+  handlePointerMove(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericMoveEvent(event, canvas, "onPointerMove")
   }
 
-  handlePointerCancel(event: PointerEvent, canvas: HTMLCanvasElement): boolean {
-    return this.handleGenericEvent(
-      event,
-      canvas,
-      "onPointerCancel",
-      "onPointerCancel",
-    )
+  handlePointerCancel(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onPointerCancel")
   }
 }
 

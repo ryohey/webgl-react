@@ -99,80 +99,112 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
 
     const handleMouseDown = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleMouseDown(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onMouseDown?.(event)
+        if (!propagationStopped) {
+          props.onMouseDown?.(event)
+        }
       },
       [eventSystem, props.onMouseDown],
     )
 
     const handleMouseUp = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleMouseUp(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onMouseUp?.(event)
+        if (!propagationStopped) {
+          props.onMouseUp?.(event)
+        }
       },
       [eventSystem, props.onMouseUp],
     )
 
     const handleMouseMove = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleMouseMove(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onMouseMove?.(event)
+        if (!propagationStopped) {
+          props.onMouseMove?.(event)
+        }
       },
       [eventSystem, props.onMouseMove],
     )
 
     const handleClick = useCallback(
       (event: React.MouseEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handleClick(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handleClick(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onClick?.(event)
+        if (!propagationStopped) {
+          props.onClick?.(event)
+        }
       },
       [eventSystem, props.onClick],
     )
 
     const handlePointerDown = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerDown(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onPointerDown?.(event)
+        if (!propagationStopped) {
+          props.onPointerDown?.(event)
+        }
       },
       [eventSystem, props.onPointerDown],
     )
 
     const handlePointerUp = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerUp(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onPointerUp?.(event)
+        if (!propagationStopped) {
+          props.onPointerUp?.(event)
+        }
       },
       [eventSystem, props.onPointerUp],
     )
 
     const handlePointerMove = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerMove(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onPointerMove?.(event)
+        if (!propagationStopped) {
+          props.onPointerMove?.(event)
+        }
       },
       [eventSystem, props.onPointerMove],
     )
 
     const handlePointerCancel = useCallback(
       (event: React.PointerEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
         if (eventSystem && canvasRef.current) {
-          eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
+          const result = eventSystem.handlePointerCancel(event.nativeEvent, canvasRef.current)
+          propagationStopped = result.propagationStopped
         }
-        props.onPointerCancel?.(event)
+        if (!propagationStopped) {
+          props.onPointerCancel?.(event)
+        }
       },
       [eventSystem, props.onPointerCancel],
     )
