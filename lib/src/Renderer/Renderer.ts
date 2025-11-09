@@ -1,4 +1,3 @@
-import { mat4, vec3 } from "gl-matrix"
 import { ISize } from "../helpers/geometry"
 import { RenderProperty } from "./RenderProperty"
 
@@ -81,32 +80,5 @@ export class Renderer {
     this.objects
       .sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0))
       .forEach((o) => o.draw())
-  }
-
-  createProjectionMatrix() {
-    const zNear = 0
-    const zFar = 100.0
-    const transform = mat4.create()
-
-    const canvas = this.gl.canvas as HTMLCanvasElement
-
-    const scale = canvas.clientWidth / canvas.width
-    mat4.scale(
-      transform,
-      transform,
-      vec3.fromValues(scale, scale, scale),
-    )
-
-    mat4.ortho(
-      transform,
-      0,
-      canvas.clientWidth,
-      canvas.clientHeight,
-      0,
-      zNear,
-      zFar,
-    )
-
-    return transform
   }
 }

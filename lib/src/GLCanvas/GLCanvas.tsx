@@ -1,4 +1,3 @@
-import useComponentSize from "@rehooks/component-size"
 import { mat4 } from "gl-matrix"
 import {
   forwardRef,
@@ -10,6 +9,7 @@ import {
   useState,
 } from "react"
 import { EventSystem } from "../EventSystem/EventSystem"
+import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 import { EventSystemContext } from "../hooks/useEventSystem"
 import { RendererContext } from "../hooks/useRenderer"
 import { TransformContext } from "../hooks/useTransform"
@@ -54,7 +54,6 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     useImperativeHandle(ref, () => canvasRef.current!)
     const [renderer, setRenderer] = useState<Renderer | null>(null)
     const [eventSystem, setEventSystem] = useState<EventSystem | null>(null)
-    const size = useComponentSize(canvasRef)
     const errorAlert = useCallback((error: string) => alert(error), [])
 
     useEffect(() => {
@@ -91,8 +90,11 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
     }, [onInitError])
 
     const transform = useMemo(
-      () => renderer?.createProjectionMatrix() ?? mat4.create(),
-      [renderer, size.width, size.height],
+      () =>
+        canvasRef.current
+          ? createProjectionMatrix(canvasRef.current)
+          : mat4.create(),
+      [canvasRef.current, canvasRef.current?.width, canvasRef.current?.height],
     )
 
     const handleMouseDown = useCallback(

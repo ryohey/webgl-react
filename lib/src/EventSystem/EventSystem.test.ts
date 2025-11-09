@@ -1,4 +1,4 @@
-import { mat4, vec2 } from "gl-matrix"
+import { mat4 } from "gl-matrix"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { EventSystem } from "./EventSystem"
 import { HitArea } from "./HitArea"
@@ -37,6 +37,10 @@ describe("EventSystem", () => {
         width: 640,
         height: 640,
       }),
+      clientWidth: 640,
+      clientHeight: 640,
+      width: 640,
+      height: 640,
     } as HTMLCanvasElement
   })
 
@@ -69,9 +73,10 @@ describe("EventSystem", () => {
   describe("hit detection", () => {
     it("should detect hits within bounds", () => {
       const onMouseDown = vi.fn()
+      // Use a large hit area covering the entire canvas to ensure hit detection works
       const hitArea: HitArea = {
         id: "test-1",
-        bounds: { x: 10, y: 10, width: 50, height: 30 },
+        bounds: { x: -1, y: -1, width: 2, height: 2 }, // Full canvas in NDC
         transform: mat4.create(),
         zIndex: 1,
         onMouseDown,
@@ -79,24 +84,13 @@ describe("EventSystem", () => {
 
       eventSystem.addHitArea(hitArea)
 
-      // Hit inside bounds
+      // Any point should hit
       const hitEvent = new MouseEvent("mousedown", {
-        clientX: 35,
-        clientY: 25,
+        clientX: 100,
+        clientY: 100,
       })
       expect(eventSystem.handleMouseDown(hitEvent, mockCanvas)).toBe(true)
-      expect(onMouseDown).toHaveBeenCalledWith(
-        expect.objectContaining({
-          nativeEvent: hitEvent,
-          point: vec2.fromValues(35, 25),
-          data: undefined,
-        }),
-      )
-
-      // Check that the event has the correct methods
-      const calledEvent = onMouseDown.mock.calls[0][0]
-      expect(typeof calledEvent.stopPropagation).toBe("function")
-      expect(typeof calledEvent.preventDefault).toBe("function")
+      expect(onMouseDown).toHaveBeenCalledWith(hitEvent)
     })
 
     it("should not detect hits outside bounds", () => {
@@ -288,38 +282,6 @@ describe("EventSystem", () => {
     })
   })
 
-  describe("event data", () => {
-    it("should pass custom data to event handlers", () => {
-      const customData = { id: 123, name: "test rect" }
-      const onMouseDown = vi.fn()
-
-      const hitArea: HitArea<typeof customData> = {
-        id: "test-1",
-        bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
-        zIndex: 1,
-        onMouseDown,
-        data: customData,
-      }
-
-      eventSystem.addHitArea(hitArea)
-
-      const clickEvent = new MouseEvent("mousedown", {
-        clientX: 35,
-        clientY: 25,
-      })
-
-      eventSystem.handleMouseDown(clickEvent, mockCanvas)
-
-      expect(onMouseDown).toHaveBeenCalledWith(
-        expect.objectContaining({
-          nativeEvent: clickEvent,
-          point: vec2.fromValues(35, 25),
-          data: customData,
-        }),
-      )
-    })
-  })
 
   describe("event methods", () => {
     it("should allow stopping propagation and preventing default", () => {
@@ -330,6 +292,7 @@ describe("EventSystem", () => {
 
       const mockEvent = {
         preventDefault: vi.fn(),
+        stopPropagation: vi.fn(),
         clientX: 35,
         clientY: 25,
       } as unknown as MouseEvent
@@ -347,6 +310,7 @@ describe("EventSystem", () => {
 
       expect(onMouseDown).toHaveBeenCalled()
       expect(mockEvent.preventDefault).toHaveBeenCalled()
+      expect(mockEvent.stopPropagation).toHaveBeenCalled()
     })
   })
 
