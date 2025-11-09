@@ -1,7 +1,7 @@
-import { mat4 } from "gl-matrix"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { EventSystem } from "./EventSystem"
 import { HitArea } from "./HitArea"
+import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 
 // Mock MouseEvent and PointerEvent for Node.js environment
 global.MouseEvent = vi.fn().mockImplementation((type: string, init?: any) => ({
@@ -49,7 +49,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
       }
 
@@ -73,21 +73,24 @@ describe("EventSystem", () => {
   describe("hit detection", () => {
     it("should detect hits within bounds", () => {
       const onMouseDown = vi.fn()
-      // Use a large hit area covering the entire canvas to ensure hit detection works
+      
+      // Use the same projection matrix that EventSystem uses
+      const transform = createProjectionMatrix(mockCanvas)
+      
       const hitArea: HitArea = {
         id: "test-1",
-        bounds: { x: -1, y: -1, width: 2, height: 2 }, // Full canvas in NDC
-        transform: mat4.create(),
+        bounds: { x: 10, y: 10, width: 50, height: 30 }, // Pixel coordinates
+        transform,
         zIndex: 1,
         onMouseDown,
       }
 
       eventSystem.addHitArea(hitArea)
 
-      // Any point should hit
+      // Hit inside bounds
       const hitEvent = new MouseEvent("mousedown", {
-        clientX: 100,
-        clientY: 100,
+        clientX: 35,
+        clientY: 25,
       })
       expect(eventSystem.handleMouseDown(hitEvent, mockCanvas)).toBe(true)
       expect(onMouseDown).toHaveBeenCalledWith(hitEvent)
@@ -97,8 +100,8 @@ describe("EventSystem", () => {
       const onMouseDown = vi.fn()
       const hitArea: HitArea = {
         id: "test-1",
-        bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        bounds: { x: 10, y: 10, width: 50, height: 30 }, // Pixel coordinates
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onMouseDown,
       }
@@ -122,16 +125,16 @@ describe("EventSystem", () => {
 
       const lowZIndexArea: HitArea = {
         id: "low",
-        bounds: { x: 0, y: 0, width: 100, height: 100 },
-        transform: mat4.create(),
+        bounds: { x: 0, y: 0, width: 100, height: 100 }, // Pixel coordinates
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onMouseDown: onMouseDownLow,
       }
 
       const highZIndexArea: HitArea = {
         id: "high",
-        bounds: { x: 10, y: 10, width: 50, height: 50 },
-        transform: mat4.create(),
+        bounds: { x: 10, y: 10, width: 50, height: 50 }, // Pixel coordinates
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 10,
         onMouseDown: onMouseDownHigh,
       }
@@ -165,7 +168,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         ...handlers,
       }
@@ -208,7 +211,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onMouseEnter,
         onMouseLeave,
@@ -264,7 +267,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onMouseDown: onHitAreaMouseDown,
       }
@@ -300,7 +303,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onMouseDown,
       }
@@ -323,7 +326,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onPointerDown,
         onPointerUp,
@@ -372,7 +375,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onPointerEnter,
         onPointerLeave,
@@ -408,7 +411,7 @@ describe("EventSystem", () => {
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: mat4.create(),
+        transform: createProjectionMatrix(mockCanvas),
         zIndex: 1,
         onPointerCancel,
       }
