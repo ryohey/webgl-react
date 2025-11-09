@@ -11,6 +11,7 @@ export interface HitArea {
   onMouseUp?: (event: MouseEvent) => void
   onMouseMove?: (event: MouseEvent) => void
   onClick?: (event: MouseEvent) => void
+  onWheel?: (event: WheelEvent) => void
   onPointerDown?: (event: PointerEvent) => void
   onPointerUp?: (event: PointerEvent) => void
   onPointerMove?: (event: PointerEvent) => void

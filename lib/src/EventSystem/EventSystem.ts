@@ -3,7 +3,7 @@ import { createProjectionMatrix } from "../helpers/createProjectionMatrix"
 import { HitArea } from "./HitArea"
 
 // Union type for mouse and pointer events
-export type InputEvent = MouseEvent | PointerEvent
+export type InputEvent = MouseEvent | PointerEvent | WheelEvent
 
 export interface EventResult {
   handled: boolean
@@ -65,6 +65,7 @@ export class EventSystem {
       | "onMouseUp"
       | "onMouseMove"
       | "onClick"
+      | "onWheel"
       | "onPointerDown"
       | "onPointerUp"
       | "onPointerMove"
@@ -72,7 +73,7 @@ export class EventSystem {
     >,
     nativeEvent: InputEvent,
   ): EventResult {
-    const handler = hitArea[eventType] as (e: MouseEvent | PointerEvent) => void
+    const handler = hitArea[eventType] as (e: MouseEvent | PointerEvent | WheelEvent) => void
     if (handler) {
       let propagationStopped = false
 
@@ -103,6 +104,7 @@ export class EventSystem {
       | "onMouseUp"
       | "onMouseMove"
       | "onClick"
+      | "onWheel"
       | "onPointerDown"
       | "onPointerUp"
       | "onPointerMove"
@@ -155,6 +157,10 @@ export class EventSystem {
 
   handleClick(event: MouseEvent, canvas: HTMLCanvasElement): EventResult {
     return this.handleGenericEvent(event, canvas, "onClick")
+  }
+
+  handleWheel(event: WheelEvent, canvas: HTMLCanvasElement): EventResult {
+    return this.handleGenericEvent(event, canvas, "onWheel")
   }
 
   // Pointer event handlers

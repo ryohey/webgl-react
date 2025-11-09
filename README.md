@@ -188,7 +188,7 @@ All shape components support:
 
 ### HitArea
 
-HitArea is a component that enables mouse and pointer event handling for WebGL rendered shapes. It defines an invisible interactive area that can respond to user input.
+HitArea is a component that enables mouse, pointer, and wheel event handling for WebGL rendered shapes. It defines an invisible interactive area that can respond to user input.
 
 ```tsx
 import { HitArea } from "@ryohey/webgl-react"
@@ -196,9 +196,9 @@ import { HitArea } from "@ryohey/webgl-react"
 <HitArea
   bounds={{ x: 100, y: 200, width: 30, height: 50 }}
   zIndex={1}
-  onClick={(event) => console.log('Clicked!', event.point)}
-  onMouseEnter={(event) => console.log('Mouse entered')}
-  onMouseLeave={(event) => console.log('Mouse left')}
+  cursor="pointer"
+  onClick={(event) => console.log('Clicked!')}
+  onWheel={(event) => console.log('Wheel:', event.deltaY)}
 />
 ```
 
@@ -206,11 +206,15 @@ import { HitArea } from "@ryohey/webgl-react"
 
 - `bounds`: Rectangle defining the hit area (`{ x, y, width, height }`)
 - `zIndex`: Optional z-index for layering (higher values are on top)
+- `cursor`: Optional CSS cursor to display when hovering over the hit area
 - Event handlers:
   - `onClick`, `onMouseDown`, `onMouseUp`, `onMouseMove`
-  - `onMouseEnter`, `onMouseLeave`
-  - `onPointerDown`, `onPointerUp`, `onPointerMove`
-  - `onPointerEnter`, `onPointerLeave`, `onPointerCancel`
+  - `onWheel`
+  - `onPointerDown`, `onPointerUp`, `onPointerMove`, `onPointerCancel`
+
+#### Event Propagation
+
+Event handlers can call `event.stopPropagation()` to prevent the event from bubbling up to the canvas-level event handlers. This allows for fine-grained control over event handling.
 
 ### EventSystem
 
@@ -218,8 +222,9 @@ The EventSystem manages hit testing and event routing for all HitArea components
 
 Features:
 - Z-index based hit testing (higher z-index elements receive events first)
-- Mouse enter/leave tracking
-- Support for both mouse and pointer events
+- Cursor management with automatic cursor changes on hover
+- Support for mouse, pointer, and wheel events
+- Event propagation control with `stopPropagation()` support
 - Coordinate transformation from canvas to local space
 - Canvas-level event fallback when no hit areas are targeted
 

@@ -11,6 +11,7 @@ export interface HitAreaProps {
   onMouseUp?: (event: MouseEvent) => void
   onMouseMove?: (event: MouseEvent) => void
   onClick?: (event: MouseEvent) => void
+  onWheel?: (event: WheelEvent) => void
   onPointerDown?: (event: PointerEvent) => void
   onPointerUp?: (event: PointerEvent) => void
   onPointerMove?: (event: PointerEvent) => void
@@ -25,6 +26,7 @@ export const HitArea = ({
   onMouseUp,
   onMouseMove,
   onClick,
+  onWheel,
   onPointerDown,
   onPointerUp,
   onPointerMove,
@@ -44,6 +46,7 @@ export const HitArea = ({
       onMouseUp,
       onMouseMove,
       onClick,
+      onWheel,
       onPointerDown,
       onPointerUp,
       onPointerMove,
@@ -59,6 +62,7 @@ export const HitArea = ({
       onMouseUp,
       onMouseMove,
       onClick,
+      onWheel,
       onPointerDown,
       onPointerUp,
       onPointerMove,

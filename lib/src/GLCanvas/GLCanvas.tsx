@@ -238,6 +238,23 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
       [eventSystem, props.onPointerCancel],
     )
 
+    const handleWheel = useCallback(
+      (event: React.WheelEvent<HTMLCanvasElement>) => {
+        let propagationStopped = false
+        if (eventSystem && canvasRef.current) {
+          const result = eventSystem.handleWheel(
+            event.nativeEvent,
+            canvasRef.current,
+          )
+          propagationStopped = result.propagationStopped
+        }
+        if (!propagationStopped) {
+          props.onWheel?.(event)
+        }
+      },
+      [eventSystem, props.onWheel],
+    )
+
     const canvasScale = window.devicePixelRatio
 
     const canvasStyle = useMemo(
@@ -266,6 +283,7 @@ export const GLCanvas = forwardRef<HTMLCanvasElement, GLSurfaceProps>(
           onPointerUp={handlePointerUp}
           onPointerMove={handlePointerMove}
           onPointerCancel={handlePointerCancel}
+          onWheel={handleWheel}
         />
         {renderer && eventSystem && (
           <RendererContext.Provider value={renderer}>
