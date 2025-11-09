@@ -14,10 +14,7 @@ export interface RectanglesProps {
 
 export const Rectangles: FC<RectanglesProps> = ({ rects, color, zIndex }) => {
   const transform = useTransform()
-  const uniforms = useMemo(
-    () => ({ transform, color }),
-    [transform, color],
-  )
+  const uniforms = useMemo(() => ({ transform, color }), [transform, color])
 
   return (
     <GLNode

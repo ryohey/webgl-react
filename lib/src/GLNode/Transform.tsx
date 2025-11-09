@@ -1,9 +1,6 @@
 import { mat4 } from "gl-matrix"
 import { FC, ReactNode } from "react"
-import {
-  TransformContext,
-  useTransform,
-} from "../hooks/useTransform"
+import { TransformContext, useTransform } from "../hooks/useTransform"
 
 export const Transform: FC<{ matrix: mat4; children: ReactNode }> = ({
   matrix,
@@ -13,8 +10,6 @@ export const Transform: FC<{ matrix: mat4; children: ReactNode }> = ({
   const t = mat4.create()
   mat4.multiply(t, transform, matrix)
   return (
-    <TransformContext.Provider value={t}>
-      {children}
-    </TransformContext.Provider>
+    <TransformContext.Provider value={t}>{children}</TransformContext.Provider>
   )
 }

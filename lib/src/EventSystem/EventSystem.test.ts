@@ -73,10 +73,10 @@ describe("EventSystem", () => {
   describe("hit detection", () => {
     it("should detect hits within bounds", () => {
       const onMouseDown = vi.fn()
-      
+
       // Use the same projection matrix that EventSystem uses
       const transform = createProjectionMatrix(mockCanvas)
-      
+
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 }, // Pixel coordinates
@@ -284,7 +284,6 @@ describe("EventSystem", () => {
       expect(onCanvasMouseDown).not.toHaveBeenCalled()
     })
   })
-
 
   describe("event methods", () => {
     it("should allow stopping propagation and preventing default", () => {
