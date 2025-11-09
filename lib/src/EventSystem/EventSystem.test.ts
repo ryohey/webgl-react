@@ -64,12 +64,16 @@ describe("EventSystem", () => {
         clientY: 25,
       })
 
-      expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas).handled).toBe(false) // No handler, but hit detected
+      expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas).handled).toBe(
+        false,
+      ) // No handler, but hit detected
 
       eventSystem.removeHitArea("test-1")
 
       // Hit area should be removed
-      expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas).handled).toBe(false)
+      expect(eventSystem.handleMouseDown(mouseEvent, mockCanvas).handled).toBe(
+        false,
+      )
     })
   })
 
@@ -95,7 +99,9 @@ describe("EventSystem", () => {
         clientX: 35,
         clientY: 25,
       })
-      expect(eventSystem.handleMouseDown(hitEvent, mockCanvas).handled).toBe(true)
+      expect(eventSystem.handleMouseDown(hitEvent, mockCanvas).handled).toBe(
+        true,
+      )
       expect(onMouseDown).toHaveBeenCalledWith(hitEvent)
     })
 
@@ -116,7 +122,9 @@ describe("EventSystem", () => {
         clientX: 100,
         clientY: 100,
       })
-      expect(eventSystem.handleMouseDown(missEvent, mockCanvas).handled).toBe(false)
+      expect(eventSystem.handleMouseDown(missEvent, mockCanvas).handled).toBe(
+        false,
+      )
       expect(onMouseDown).not.toHaveBeenCalled()
     })
   })
@@ -151,7 +159,9 @@ describe("EventSystem", () => {
         clientY: 35,
       })
 
-      expect(eventSystem.handleMouseDown(clickEvent, mockCanvas).handled).toBe(true)
+      expect(eventSystem.handleMouseDown(clickEvent, mockCanvas).handled).toBe(
+        true,
+      )
       expect(onMouseDownHigh).toHaveBeenCalled()
       expect(onMouseDownLow).not.toHaveBeenCalled()
     })
@@ -183,7 +193,8 @@ describe("EventSystem", () => {
         })
 
       expect(
-        eventSystem.handleMouseDown(createEvent("mousedown"), mockCanvas).handled,
+        eventSystem.handleMouseDown(createEvent("mousedown"), mockCanvas)
+          .handled,
       ).toBe(true)
       expect(handlers.onMouseDown).toHaveBeenCalled()
 
@@ -193,13 +204,14 @@ describe("EventSystem", () => {
       expect(handlers.onMouseUp).toHaveBeenCalled()
 
       expect(
-        eventSystem.handleMouseMove(createEvent("mousemove"), mockCanvas).handled,
+        eventSystem.handleMouseMove(createEvent("mousemove"), mockCanvas)
+          .handled,
       ).toBe(true)
       expect(handlers.onMouseMove).toHaveBeenCalled()
 
-      expect(eventSystem.handleClick(createEvent("click"), mockCanvas).handled).toBe(
-        true,
-      )
+      expect(
+        eventSystem.handleClick(createEvent("click"), mockCanvas).handled,
+      ).toBe(true)
       expect(handlers.onClick).toHaveBeenCalled()
     })
   })
@@ -270,10 +282,8 @@ describe("EventSystem", () => {
       expect(onPointerDown).toHaveBeenCalled()
 
       expect(
-        eventSystem.handlePointerUp(
-          createPointerEvent("pointerup"),
-          mockCanvas,
-        ).handled,
+        eventSystem.handlePointerUp(createPointerEvent("pointerup"), mockCanvas)
+          .handled,
       ).toBe(true)
       expect(onPointerUp).toHaveBeenCalled()
 
@@ -305,9 +315,9 @@ describe("EventSystem", () => {
         pointerId: 1,
       })
 
-      expect(eventSystem.handlePointerCancel(cancelEvent, mockCanvas).handled).toBe(
-        true,
-      )
+      expect(
+        eventSystem.handlePointerCancel(cancelEvent, mockCanvas).handled,
+      ).toBe(true)
       expect(onPointerCancel).toHaveBeenCalled()
     })
   })
@@ -316,7 +326,7 @@ describe("EventSystem", () => {
     it("should call cursor change callback with null when no cursor is set", () => {
       const onCursorChange = vi.fn()
       eventSystem.setOnCursorChange(onCursorChange)
-      
+
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
@@ -346,7 +356,7 @@ describe("EventSystem", () => {
     it("should call cursor change callback when hovering over hit area with cursor property", () => {
       const onCursorChange = vi.fn()
       eventSystem.setOnCursorChange(onCursorChange)
-      
+
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
@@ -377,7 +387,7 @@ describe("EventSystem", () => {
     it("should call cursor change callback with default cursor when hit area has no cursor property", () => {
       const onCursorChange = vi.fn()
       eventSystem.setOnCursorChange(onCursorChange)
-      
+
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },
@@ -399,7 +409,7 @@ describe("EventSystem", () => {
     it("should handle cursor priority with overlapping hit areas", () => {
       const onCursorChange = vi.fn()
       eventSystem.setOnCursorChange(onCursorChange)
-      
+
       const lowZIndexArea: HitArea = {
         id: "low",
         bounds: { x: 0, y: 0, width: 100, height: 100 },
@@ -425,7 +435,7 @@ describe("EventSystem", () => {
         clientY: 35,
       })
       eventSystem.handleMouseMove(overlapEvent, mockCanvas)
-      
+
       // Should use cursor from higher z-index hit area
       expect(onCursorChange).toHaveBeenLastCalledWith("pointer")
 
@@ -441,7 +451,7 @@ describe("EventSystem", () => {
     it("should work with pointer events", () => {
       const onCursorChange = vi.fn()
       eventSystem.setOnCursorChange(onCursorChange)
-      
+
       const hitArea: HitArea = {
         id: "test-1",
         bounds: { x: 10, y: 10, width: 50, height: 30 },

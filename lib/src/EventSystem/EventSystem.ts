@@ -21,7 +21,7 @@ export class EventSystem {
 
   private updateCursor() {
     if (!this.onCursorChange) return
-    
+
     const cursor = this.hoveredHitArea?.cursor ?? null
     this.onCursorChange(cursor)
   }
@@ -75,19 +75,19 @@ export class EventSystem {
     const handler = hitArea[eventType] as (e: MouseEvent | PointerEvent) => void
     if (handler) {
       let propagationStopped = false
-      
+
       // Monkey patch stopPropagation to track if it was called
       const originalStopPropagation = nativeEvent.stopPropagation
-      nativeEvent.stopPropagation = function() {
+      nativeEvent.stopPropagation = function () {
         propagationStopped = true
         originalStopPropagation.call(this)
       }
-      
+
       handler(nativeEvent)
-      
+
       // Restore original stopPropagation
       nativeEvent.stopPropagation = originalStopPropagation
-      
+
       return { handled: true, propagationStopped }
     }
     return { handled: false, propagationStopped: false }
@@ -158,7 +158,10 @@ export class EventSystem {
   }
 
   // Pointer event handlers
-  handlePointerDown(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+  handlePointerDown(
+    event: PointerEvent,
+    canvas: HTMLCanvasElement,
+  ): EventResult {
     return this.handleGenericEvent(event, canvas, "onPointerDown")
   }
 
@@ -166,11 +169,17 @@ export class EventSystem {
     return this.handleGenericEvent(event, canvas, "onPointerUp")
   }
 
-  handlePointerMove(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+  handlePointerMove(
+    event: PointerEvent,
+    canvas: HTMLCanvasElement,
+  ): EventResult {
     return this.handleGenericMoveEvent(event, canvas, "onPointerMove")
   }
 
-  handlePointerCancel(event: PointerEvent, canvas: HTMLCanvasElement): EventResult {
+  handlePointerCancel(
+    event: PointerEvent,
+    canvas: HTMLCanvasElement,
+  ): EventResult {
     return this.handleGenericEvent(event, canvas, "onPointerCancel")
   }
 }
