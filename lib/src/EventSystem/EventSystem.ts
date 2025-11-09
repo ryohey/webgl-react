@@ -29,6 +29,14 @@ export class EventSystem {
     this.canvasEventHandlers = handlers
   }
 
+  private updateCursor(canvas: HTMLCanvasElement) {
+    if (this.hoveredHitArea?.cursor) {
+      canvas.style.cursor = this.hoveredHitArea.cursor
+    } else {
+      canvas.style.cursor = "default"
+    }
+  }
+
   addHitArea(hitArea: HitArea) {
     this.hitAreas[hitArea.id] = hitArea
   }
@@ -142,6 +150,7 @@ export class EventSystem {
       }
 
       this.hoveredHitArea = hitArea
+      this.updateCursor(canvas)
     }
 
     if (hitArea) {

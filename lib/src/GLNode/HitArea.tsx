@@ -6,6 +6,7 @@ import { useTransform } from "../hooks/useTransform"
 export interface HitAreaProps {
   bounds: IRect
   zIndex?: number
+  cursor?: string
   onMouseDown?: (event: MouseEvent) => void
   onMouseUp?: (event: MouseEvent) => void
   onMouseMove?: (event: MouseEvent) => void
@@ -23,6 +24,7 @@ export interface HitAreaProps {
 export const HitArea = ({
   bounds,
   zIndex = 0,
+  cursor,
   onMouseDown,
   onMouseUp,
   onMouseMove,
@@ -45,6 +47,7 @@ export const HitArea = ({
       bounds,
       transform,
       zIndex,
+      cursor,
       onMouseDown,
       onMouseUp,
       onMouseMove,
@@ -63,6 +66,7 @@ export const HitArea = ({
       bounds,
       transform,
       zIndex,
+      cursor,
       onMouseDown,
       onMouseUp,
       onMouseMove,

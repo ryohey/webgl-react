@@ -6,6 +6,7 @@ export interface HitArea {
   bounds: IRect
   transform: mat4
   zIndex: number
+  cursor?: string
   onMouseDown?: (event: MouseEvent) => void
   onMouseUp?: (event: MouseEvent) => void
   onMouseMove?: (event: MouseEvent) => void

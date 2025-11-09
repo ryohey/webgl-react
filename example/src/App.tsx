@@ -102,6 +102,7 @@ export const App = () => {
               bounds={rect}
               onClick={handleRectClick(index)}
               zIndex={1}
+              cursor="pointer"
             />
           </React.Fragment>
         ))}
