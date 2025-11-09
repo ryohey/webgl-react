@@ -41,6 +41,9 @@ describe("EventSystem", () => {
       clientHeight: 640,
       width: 640,
       height: 640,
+      style: {
+        cursor: "",
+      },
     } as HTMLCanvasElement
   })
 
@@ -160,8 +163,6 @@ describe("EventSystem", () => {
         onMouseDown: vi.fn(),
         onMouseUp: vi.fn(),
         onMouseMove: vi.fn(),
-        onMouseEnter: vi.fn(),
-        onMouseLeave: vi.fn(),
         onClick: vi.fn(),
       }
 
@@ -203,42 +204,6 @@ describe("EventSystem", () => {
     })
   })
 
-  describe("mouse enter/leave events", () => {
-    it("should trigger enter and leave events", () => {
-      const onMouseEnter = vi.fn()
-      const onMouseLeave = vi.fn()
-
-      const hitArea: HitArea = {
-        id: "test-1",
-        bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: createProjectionMatrix(mockCanvas),
-        zIndex: 1,
-        onMouseEnter,
-        onMouseLeave,
-      }
-
-      eventSystem.addHitArea(hitArea)
-
-      // Move outside first
-      const outsideEvent = new MouseEvent("mousemove", {
-        clientX: 5,
-        clientY: 5,
-      })
-      eventSystem.handleMouseMove(outsideEvent, mockCanvas)
-
-      // Move inside - should trigger enter
-      const insideEvent = new MouseEvent("mousemove", {
-        clientX: 35,
-        clientY: 25,
-      })
-      eventSystem.handleMouseMove(insideEvent, mockCanvas)
-      expect(onMouseEnter).toHaveBeenCalled()
-
-      // Move outside - should trigger leave
-      eventSystem.handleMouseMove(outsideEvent, mockCanvas)
-      expect(onMouseLeave).toHaveBeenCalled()
-    })
-  })
 
   describe("canvas event fallback", () => {
     it("should call canvas handlers when no hit area handles the event", () => {
@@ -367,42 +332,6 @@ describe("EventSystem", () => {
       expect(onPointerMove).toHaveBeenCalled()
     })
 
-    it("should handle pointer enter/leave events", () => {
-      const onPointerEnter = vi.fn()
-      const onPointerLeave = vi.fn()
-
-      const hitArea: HitArea = {
-        id: "test-1",
-        bounds: { x: 10, y: 10, width: 50, height: 30 },
-        transform: createProjectionMatrix(mockCanvas),
-        zIndex: 1,
-        onPointerEnter,
-        onPointerLeave,
-      }
-
-      eventSystem.addHitArea(hitArea)
-
-      // Move outside first
-      const outsideEvent = new PointerEvent("pointermove", {
-        clientX: 5,
-        clientY: 5,
-        pointerId: 1,
-      })
-      eventSystem.handlePointerMove(outsideEvent, mockCanvas)
-
-      // Move inside - should trigger enter
-      const insideEvent = new PointerEvent("pointermove", {
-        clientX: 35,
-        clientY: 25,
-        pointerId: 1,
-      })
-      eventSystem.handlePointerMove(insideEvent, mockCanvas)
-      expect(onPointerEnter).toHaveBeenCalled()
-
-      // Move outside - should trigger leave
-      eventSystem.handlePointerMove(outsideEvent, mockCanvas)
-      expect(onPointerLeave).toHaveBeenCalled()
-    })
 
     it("should handle pointer cancel event", () => {
       const onPointerCancel = vi.fn()
@@ -427,6 +356,118 @@ describe("EventSystem", () => {
         true,
       )
       expect(onPointerCancel).toHaveBeenCalled()
+    })
+  })
+
+  describe("cursor handling", () => {
+    it("should change cursor when hovering over hit area with cursor property", () => {
+      const hitArea: HitArea = {
+        id: "test-1",
+        bounds: { x: 10, y: 10, width: 50, height: 30 },
+        transform: createProjectionMatrix(mockCanvas),
+        zIndex: 1,
+        cursor: "pointer",
+      }
+
+      eventSystem.addHitArea(hitArea)
+
+      // Initially default cursor
+      expect(mockCanvas.style.cursor).toBe("")
+
+      // Move mouse over hit area
+      const insideEvent = new MouseEvent("mousemove", {
+        clientX: 35,
+        clientY: 25,
+      })
+      eventSystem.handleMouseMove(insideEvent, mockCanvas)
+      expect(mockCanvas.style.cursor).toBe("pointer")
+
+      // Move mouse outside hit area
+      const outsideEvent = new MouseEvent("mousemove", {
+        clientX: 5,
+        clientY: 5,
+      })
+      eventSystem.handleMouseMove(outsideEvent, mockCanvas)
+      expect(mockCanvas.style.cursor).toBe("default")
+    })
+
+    it("should use default cursor when hit area has no cursor property", () => {
+      const hitArea: HitArea = {
+        id: "test-1",
+        bounds: { x: 10, y: 10, width: 50, height: 30 },
+        transform: createProjectionMatrix(mockCanvas),
+        zIndex: 1,
+      }
+
+      eventSystem.addHitArea(hitArea)
+
+      // Move mouse over hit area without cursor property
+      const insideEvent = new MouseEvent("mousemove", {
+        clientX: 35,
+        clientY: 25,
+      })
+      eventSystem.handleMouseMove(insideEvent, mockCanvas)
+      expect(mockCanvas.style.cursor).toBe("default")
+    })
+
+    it("should handle cursor priority with overlapping hit areas", () => {
+      const lowZIndexArea: HitArea = {
+        id: "low",
+        bounds: { x: 0, y: 0, width: 100, height: 100 },
+        transform: createProjectionMatrix(mockCanvas),
+        zIndex: 1,
+        cursor: "move",
+      }
+
+      const highZIndexArea: HitArea = {
+        id: "high",
+        bounds: { x: 10, y: 10, width: 50, height: 50 },
+        transform: createProjectionMatrix(mockCanvas),
+        zIndex: 10,
+        cursor: "pointer",
+      }
+
+      eventSystem.addHitArea(lowZIndexArea)
+      eventSystem.addHitArea(highZIndexArea)
+
+      // Move mouse over overlapping area
+      const overlapEvent = new MouseEvent("mousemove", {
+        clientX: 35,
+        clientY: 35,
+      })
+      eventSystem.handleMouseMove(overlapEvent, mockCanvas)
+      
+      // Should use cursor from higher z-index hit area
+      expect(mockCanvas.style.cursor).toBe("pointer")
+
+      // Move to area only covered by low z-index
+      const lowOnlyEvent = new MouseEvent("mousemove", {
+        clientX: 80,
+        clientY: 80,
+      })
+      eventSystem.handleMouseMove(lowOnlyEvent, mockCanvas)
+      expect(mockCanvas.style.cursor).toBe("move")
+    })
+
+    it("should work with pointer events", () => {
+      const hitArea: HitArea = {
+        id: "test-1",
+        bounds: { x: 10, y: 10, width: 50, height: 30 },
+        transform: createProjectionMatrix(mockCanvas),
+        zIndex: 1,
+        cursor: "crosshair",
+      }
+
+      eventSystem.addHitArea(hitArea)
+
+      // Move pointer over hit area
+      const pointerEvent = new PointerEvent("pointermove", {
+        clientX: 35,
+        clientY: 25,
+        pointerId: 1,
+      })
+      eventSystem.handlePointerMove(pointerEvent, mockCanvas)
+      expect(mockCanvas.style.cursor).toBe("crosshair")
     })
   })
 })

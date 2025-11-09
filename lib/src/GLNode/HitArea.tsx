@@ -10,14 +10,10 @@ export interface HitAreaProps {
   onMouseDown?: (event: MouseEvent) => void
   onMouseUp?: (event: MouseEvent) => void
   onMouseMove?: (event: MouseEvent) => void
-  onMouseEnter?: (event: MouseEvent) => void
-  onMouseLeave?: (event: MouseEvent) => void
   onClick?: (event: MouseEvent) => void
   onPointerDown?: (event: PointerEvent) => void
   onPointerUp?: (event: PointerEvent) => void
   onPointerMove?: (event: PointerEvent) => void
-  onPointerEnter?: (event: PointerEvent) => void
-  onPointerLeave?: (event: PointerEvent) => void
   onPointerCancel?: (event: PointerEvent) => void
 }
 
@@ -28,14 +24,10 @@ export const HitArea = ({
   onMouseDown,
   onMouseUp,
   onMouseMove,
-  onMouseEnter,
-  onMouseLeave,
   onClick,
   onPointerDown,
   onPointerUp,
   onPointerMove,
-  onPointerEnter,
-  onPointerLeave,
   onPointerCancel,
 }: HitAreaProps) => {
   const eventSystem = useEventSystem()
@@ -51,14 +43,10 @@ export const HitArea = ({
       onMouseDown,
       onMouseUp,
       onMouseMove,
-      onMouseEnter,
-      onMouseLeave,
       onClick,
       onPointerDown,
       onPointerUp,
       onPointerMove,
-      onPointerEnter,
-      onPointerLeave,
       onPointerCancel,
     }),
     [
@@ -70,14 +58,10 @@ export const HitArea = ({
       onMouseDown,
       onMouseUp,
       onMouseMove,
-      onMouseEnter,
-      onMouseLeave,
       onClick,
       onPointerDown,
       onPointerUp,
       onPointerMove,
-      onPointerEnter,
-      onPointerLeave,
       onPointerCancel,
     ],
   )

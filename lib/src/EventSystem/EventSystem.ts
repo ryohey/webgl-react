@@ -75,14 +75,10 @@ export class EventSystem {
       | "onMouseDown"
       | "onMouseUp"
       | "onMouseMove"
-      | "onMouseEnter"
-      | "onMouseLeave"
       | "onClick"
       | "onPointerDown"
       | "onPointerUp"
       | "onPointerMove"
-      | "onPointerEnter"
-      | "onPointerLeave"
       | "onPointerCancel"
     >,
     nativeEvent: InputEvent,
@@ -129,26 +125,16 @@ export class EventSystem {
     return false
   }
 
-  // Generic move event handler for mouse/pointer enter/leave logic
+  // Generic move event handler
   private handleGenericMoveEvent(
     event: InputEvent,
     canvas: HTMLCanvasElement,
     moveEventType: keyof Pick<HitArea, "onMouseMove" | "onPointerMove">,
-    enterEventType: keyof Pick<HitArea, "onMouseEnter" | "onPointerEnter">,
-    leaveEventType: keyof Pick<HitArea, "onMouseLeave" | "onPointerLeave">,
     canvasEventType: keyof GLCanvasEventHandlers,
   ): boolean {
     const hitArea = this.findTarget(event, canvas)
 
     if (hitArea !== this.hoveredHitArea) {
-      if (this.hoveredHitArea?.[leaveEventType]) {
-        this.handleHitAreaEvent(this.hoveredHitArea, leaveEventType, event)
-      }
-
-      if (hitArea?.[enterEventType]) {
-        this.handleHitAreaEvent(hitArea, enterEventType, event)
-      }
-
       this.hoveredHitArea = hitArea
       this.updateCursor(canvas)
     }
@@ -182,8 +168,6 @@ export class EventSystem {
       event,
       canvas,
       "onMouseMove",
-      "onMouseEnter",
-      "onMouseLeave",
       "onMouseMove",
     )
   }
@@ -211,8 +195,6 @@ export class EventSystem {
       event,
       canvas,
       "onPointerMove",
-      "onPointerEnter",
-      "onPointerLeave",
       "onPointerMove",
     )
   }
