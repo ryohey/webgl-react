@@ -12,7 +12,7 @@ export class BorderedCircleBuffer
   constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
     this.vertexArray.updateBuffer(
       "position",
-      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
+      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
     )
   }
 
@@ -20,8 +20,8 @@ export class BorderedCircleBuffer
     this.vertexArray.updateBuffer(
       "bounds",
       new Float32Array(
-        rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height])
-      )
+        rects.flatMap((rect) => [rect.x, rect.y, rect.width, rect.height]),
+      ),
     )
     this._instanceCount = rects.length
   }
@@ -43,13 +43,13 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       in vec4 position;
       in vec4 bounds;  // x, y, width, height
 
-      uniform mat4 projectionMatrix;
+      uniform mat4 transform;
       out vec4 vBounds;
       out vec2 vPosition;
 
       void main() {
         vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
-        gl_Position = projectionMatrix * transformedPosition;
+        gl_Position = transform * transformedPosition;
         vBounds = bounds;
         vPosition = transformedPosition.xy;
       }
@@ -84,9 +84,9 @@ export const BorderedCircleShader = (gl: WebGL2RenderingContext) =>
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: uniformMat4(),
+      transform: uniformMat4(),
       fillColor: uniformVec4(),
       strokeColor: uniformVec4(),
     },
-    (vertexArray) => new BorderedCircleBuffer(vertexArray)
+    (vertexArray) => new BorderedCircleBuffer(vertexArray),
   )

@@ -9,7 +9,7 @@ export class Attrib {
     program: WebGLProgram,
     name: string,
     size: number,
-    type: number = gl.FLOAT
+    type: number = gl.FLOAT,
   ) {
     this.gl = gl
     this.position = gl.getAttribLocation(program, name)

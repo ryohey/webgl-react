@@ -1,7 +1,7 @@
 import { vec4 } from "gl-matrix"
 import { FC, useMemo } from "react"
 import { IRect } from "../../helpers/geometry"
-import { useProjectionMatrix } from "../../hooks/useProjectionMatrix"
+import { useTransform } from "../../hooks/useTransform"
 import { BorderedCircleShader as LegacyBorderedCircleShader } from "../../legacy/GLNode/BorderedCircles/BorderedCircleShader"
 import { GLNode } from "../GLNode"
 import { BorderedCircleShader } from "./BorderedCircleShader"
@@ -19,10 +19,10 @@ export const BorderedCircles: FC<BorderedCirclesProps> = ({
   strokeColor,
   zIndex,
 }) => {
-  const projectionMatrix = useProjectionMatrix()
+  const transform = useTransform()
   const uniforms = useMemo(
-    () => ({ projectionMatrix, fillColor, strokeColor }),
-    [projectionMatrix, fillColor, strokeColor]
+    () => ({ transform, fillColor, strokeColor }),
+    [transform, fillColor, strokeColor],
   )
 
   return (

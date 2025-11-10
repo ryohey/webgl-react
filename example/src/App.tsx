@@ -2,6 +2,7 @@ import {
   BorderedCircles,
   BorderedRectangles,
   GLCanvas,
+  HitArea,
   IRect,
   ISize,
   Rectangles,
@@ -10,7 +11,7 @@ import React, { FC, useEffect, useMemo, useState } from "react"
 
 const SIZE = 640
 
-const physics = (r: IRect & { dx: number; dy: number }) => {
+const physics = (r: IRect & { id: number; dx: number; dy: number }) => {
   if (r.x < 0 || r.x + r.width > SIZE) {
     r.dx *= -1
   }
@@ -26,6 +27,7 @@ const physics = (r: IRect & { dx: number; dy: number }) => {
 
 const createRandomRects = (num: number) =>
   [...Array(num).keys()].map((i) => ({
+    id: i,
     x: Math.random() * (SIZE - 30),
     y: Math.random() * (SIZE - 30),
     width: 20,
@@ -33,6 +35,13 @@ const createRandomRects = (num: number) =>
     dx: (Math.random() - 0.5) * 5,
     dy: (Math.random() - 0.5) * 5,
   }))
+
+const getRandomColor = (): [number, number, number, number] => [
+  Math.random(),
+  Math.random(),
+  Math.random(),
+  1.0,
+]
 
 const Border: FC<ISize> = React.memo(({ width, height }) => {
   const rects = useMemo(() => [{ x: 0, y: 0, width, height }], [width, height])
@@ -48,6 +57,9 @@ const Border: FC<ISize> = React.memo(({ width, height }) => {
 export const App = () => {
   const [rects, setRects] = useState(createRandomRects(5))
   const [circles, setCircles] = useState(createRandomRects(20))
+  const [rectColors, setRectColors] = useState<
+    Record<number, [number, number, number, number]>
+  >({})
 
   useEffect(() => {
     let handle: number
@@ -60,12 +72,40 @@ export const App = () => {
     return () => cancelAnimationFrame(handle)
   }, [])
 
+  const handleRectClick = (index: number) => (event: any) => {
+    console.log(`Clicked rect ${index}:`, event.point)
+    setRectColors((prev) => ({
+      ...prev,
+      [index]: getRandomColor(),
+    }))
+  }
+
+  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    console.log("Canvas clicked:", event.nativeEvent)
+  }
+
+  const defaultColor: [number, number, number, number] = [1, 0, 0, 1.0]
+
   return (
     <>
       <h1>WebGL React</h1>
-      <GLCanvas height={SIZE} width={SIZE}>
+      <p>Click on the red rectangles to change their colors!</p>
+      <GLCanvas height={SIZE} width={SIZE} onClick={handleCanvasClick}>
         <Border width={SIZE} height={SIZE} />
-        <Rectangles rects={rects} color={[1, 0, 0, 1.0]} />
+        {rects.map((rect, index) => (
+          <React.Fragment key={rect.id}>
+            <Rectangles
+              rects={[rect]}
+              color={rectColors[index] || defaultColor}
+            />
+            <HitArea
+              bounds={rect}
+              onClick={handleRectClick(index)}
+              zIndex={1}
+              cursor="pointer"
+            />
+          </React.Fragment>
+        ))}
         <BorderedCircles
           rects={circles}
           fillColor={[0, 0, 0.5, 0.5]}

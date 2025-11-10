@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "vite"
+    "start": "vite",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "keywords": [],
   "author": "",

@@ -12,14 +12,14 @@ class RectangleBuffer
   constructor(readonly vertexArray: VertexArray<"position" | "bounds">) {
     this.vertexArray.updateBuffer(
       "position",
-      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 }))
+      new Float32Array(rectToTriangles({ x: 0, y: 0, width: 1, height: 1 })),
     )
   }
 
   update(rects: IRect[]) {
     this.vertexArray.updateBuffer(
       "bounds",
-      new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height]))
+      new Float32Array(rects.flatMap((r) => [r.x, r.y, r.width, r.height])),
     )
     this._instanceCount = rects.length
   }
@@ -40,11 +40,11 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
     precision lowp float;
     layout (location = 0) in vec4 position;
     layout (location = 1) in vec4 bounds; // x, y, width, height
-    uniform mat4 projectionMatrix;
+    uniform mat4 transform;
 
     void main() {
       vec4 transformedPosition = vec4((position.xy * bounds.zw + bounds.xy), position.zw);
-      gl_Position = projectionMatrix * transformedPosition;
+      gl_Position = transform * transformedPosition;
     }
     `,
     `#version 300 es
@@ -61,8 +61,8 @@ export const RectangleShader = (gl: WebGL2RenderingContext) =>
       bounds: { size: 4, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: uniformMat4(),
+      transform: uniformMat4(),
       color: uniformVec4(),
     },
-    (vertexArray) => new RectangleBuffer(vertexArray)
+    (vertexArray) => new RectangleBuffer(vertexArray),
   )

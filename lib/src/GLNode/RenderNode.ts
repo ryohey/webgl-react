@@ -10,7 +10,7 @@ interface Shader<Uniforms, Buffer> {
 export class RenderNode<Props, Uniforms> {
   constructor(
     private readonly shader: Shader<Uniforms, any>,
-    private readonly buffer: Buffer<Props>
+    private readonly buffer: Buffer<Props>,
   ) {}
 
   update(props: Props) {

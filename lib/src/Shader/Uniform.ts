@@ -4,7 +4,7 @@ import { RenderProperty } from "../Renderer/RenderProperty"
 export type UploadFunc<T> = (
   gl: WebGL2RenderingContext,
   location: WebGLUniformLocation,
-  value: T
+  value: T,
 ) => void
 
 export interface UniformDef<T> {
@@ -23,7 +23,7 @@ export class Uniform<T> {
     program: WebGLProgram,
     name: string,
     initialValue: RenderProperty<T>,
-    fn: UploadFunc<T>
+    fn: UploadFunc<T>,
   ) {
     const location = gl.getUniformLocation(program, name)
     if (location === null) {
@@ -51,7 +51,7 @@ export class Uniform<T> {
 }
 
 export const uniformMat4 = (
-  initialValue: mat4 = mat4.create()
+  initialValue: mat4 = mat4.create(),
 ): UniformDef<mat4> => ({
   initialValue,
   isEqual: mat4.equals,
@@ -59,7 +59,7 @@ export const uniformMat4 = (
 })
 
 export const uniformVec4 = (
-  initialValue: vec4 = vec4.create()
+  initialValue: vec4 = vec4.create(),
 ): UniformDef<vec4> => ({
   initialValue,
   isEqual: vec4.equals,

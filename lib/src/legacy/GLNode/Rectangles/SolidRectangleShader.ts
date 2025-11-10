@@ -37,10 +37,10 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
     `
       precision lowp float;
       attribute vec4 aVertexPosition;
-      uniform mat4 uProjectionMatrix;
+      uniform mat4 uTransform;
 
       void main() {
-        gl_Position = uProjectionMatrix * aVertexPosition;
+        gl_Position = uTransform * aVertexPosition;
       }
     `,
     `
@@ -56,8 +56,8 @@ export const SolidRectangleShader = (gl: WebGLRenderingContext) =>
       position: new Attrib(gl, program, "aVertexPosition", 2),
     }),
     (program) => ({
-      projectionMatrix: uniformMat4(gl, program, "uProjectionMatrix"),
+      transform: uniformMat4(gl, program, "uTransform"),
       color: uniformVec4(gl, program, "uColor"),
     }),
-    (gl) => new SolidRectangleBuffer(gl)
+    (gl) => new SolidRectangleBuffer(gl),
   )
